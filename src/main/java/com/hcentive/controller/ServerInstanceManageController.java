@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.amazonaws.services.ec2.model.Instance;
 import com.hcentive.domain.ServerInstance;
 import com.hcentive.service.ServerInstanceManageServiceImpl;
 
@@ -48,6 +49,12 @@ public class ServerInstanceManageController
 	{
 		
 		return manageService.startServerInstance(instanceId);
+	}
+	@RequestMapping(value = "/viewServerInstanceDetails", method = RequestMethod.POST)
+	public @ResponseBody Instance viewServerInstanceDetails(@RequestParam String instanceId) 
+	{
+		
+		return manageService.viewServerInstanceDetails(instanceId);
 	}
 	@RequestMapping(value = "/stopServerInstance", method = RequestMethod.POST)
 	public @ResponseBody String stopServerInstance(@RequestParam String instanceId)

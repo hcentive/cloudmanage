@@ -4,6 +4,7 @@
 <head>
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/font-awesome.min.css" />
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/osx.css" />
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Manage Aws Cloud Page</title>
 <style type="text/css">
@@ -55,6 +56,13 @@ background-color: #C6D3AB;
 	position:relative;
 	top:1px;
 }
+.displayAll{
+    display:inline;
+    *display:inline; /* for IE7*/
+    *zoom:1;/* for IE7*/
+    width:80%;
+    float:left;
+    }
 .refesh {
 	-moz-box-shadow:inset 0px 0px 2px 0px #cae3fc;
 	-webkit-box-shadow:inset 0px 0px 2px 0px #cae3fc;
@@ -191,12 +199,33 @@ background-color: #C6D3AB;
 {
   float: left;
   clear: none;
+  white-space:nowrap;
 }
 
 div.dataTables_filter
 {
 background-color: #D3D6FF;
 height:30px;
+display:inline;
+float:left;
+width:20%
+}
+div.paging_two_button
+{
+background-color: #D3D6FF;
+display:inline;
+float:left;
+width:20%
+}
+div.dataTables_info
+{
+ display:inline;
+    *display:inline; /* for IE7*/
+    *zoom:1;/* for IE7*/
+    width:80%;
+    float:left;
+background-color: #D3D6FF;
+width:80%
 }
 table.display thead th
 {
@@ -274,17 +303,67 @@ label {
     background-repeat: no-repeat !important;
     background-position: center center !important;
 }
+.detail-list {
+  float: left;
+  width: 50%;
+  margin: 15px 0;
+  padding: 0;
+  list-style-type: none;
+}
+.detail-list .item-label {
+  float: left;
+  display: inline-block;
+  color: #0e77b9;
+  width: 40%;
+  padding-right: 5%;
+  word-break: break-all;
+}
+
+.item-label {
+  font-size: 14px;
+}
+
+.detail-list .item-value {
+  float: left;
+  display: inline-block;
+  width: 60%;
+  word-break: break-all;
+  color: #666;
+}
+.detail-list li {
+  padding: 7.5px;
+  padding-left: 15px;
+}
+
+.detail-list li span
+{
+  height:48px;
+}
+
+li {
+  display: list-item;
+  text-align: -webkit-match-parent;
+}
 
 </style>
 <%@ include file="header.jsp" %>
 </head>
 <body >
+<%-- Authorities: <sec:authentication property="principal.authorities"/><br /> --%>
+<sec:authentication property="principal.username" var="user" />
+<sec:authorize ifAnyGranted="techops">
+   <input type="hidden" id="role" value="techops">
+   <input type="hidden" id="user" value="${user}">
+</sec:authorize>
+
+ 
+<%@ include file="_manageTableTemplate.jsp" %>
  <div id="manage" class="manage" style="margin-top: 0px; margin-bottom: 0px;">
       <br> <br> <br> <br> <br> <br> <br> 
       
       <%--  ${instanceList} --%>
        <c:set var="serverlist" value="${instanceList}"/>
-       <table id="dashboardtable" class="display" cellspacing="0" width="100%">
+    <!--    <table id="dashboardtable" class="display" cellspacing="0" width="100%">
        <thead>
            <tr>
            	  <th> Name </th>
@@ -296,10 +375,37 @@ label {
        </thead>
        <tbody>
        </tbody>
-       </table>
+       </table> -->
        <br> <br> <br> <br> 
        <label class="status-label"> </label>
+       <!-- modal content -->
+		<!-- <div id="osx-modal-content">
+			<div id="osx-modal-title">Instance Details</div>
+			<div class="close"><a href="#" class="simplemodal-close">x</a></div>
+			<div id="osx-modal-data">
+				<div class="details">
+                	<ul class="detail-list left">
+                	</ul>
+                	<ul class="detail-list right">
+                	</ul>
+            	</div>				
+			</div>
+		</div> -->
  </div>
+ 	<div id="osx-modal-content">
+			<div id="osx-modal-title">Instance Details</div>
+			<div class="close"><a href="#" class="simplemodal-close">x</a></div>
+			<div id="osx-modal-data">
+				<div class="details">
+                	<ul class="detail-list left">
+                	</ul>
+                	<ul class="detail-list right">
+                	</ul>
+            	</div>				
+			</div>
+		</div>
+ <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery/jquery.simplemodal.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery/osx.js"></script>
 </body>
 <%@ include file="footer.jsp" %>
 
@@ -308,9 +414,23 @@ label {
 var managetable=null;
 var serverDetails=null;
 var appUrl=window.location.protocol + "//" + window.location.host+'<%=request.getContextPath()%>';
+/* (function ($) {
+    $.extend(jQuery.tmpl.tag, {
+        "for": {
+            _default: {$2: "var i=1;i<=1;i++"},
+            open: 'for ($2){',
+            close: '};'
+        }
+    });
+})(jQuery); */
 $(document).ready(function() {
+	$( document ).ajaxError(function( event, request, settings ) {
+		  console.log(request);
+		  console.log(settings);
+		});
 	refeshAll();
 	
+	$.fn.dataTableExt.sErrMode = 'none';
 	$('.refeshAll').live('click', function () {
 		if(managetable != null)
 		  {
@@ -457,6 +577,11 @@ $(document).ready(function() {
 		  }
 } );
 } );
+
+function Manage_Data(maxSecurityGroups)
+{
+    this.maxSecurityGroups=maxSecurityGroups;
+}
 function refeshAll(){
 	$("#manage").block({ css: { 
         border: 'none', 
@@ -469,13 +594,183 @@ function refeshAll(){
     },
     message:'<h1><img src="/cloudmanage/resources/images/712.GIF" /> </h1>'
 	});
+	$('#dashboardtable').bind('page', function () {
+		$('.actions span').attr('style','margin-left: 15px; margin-right: 0px;');
+		$('.actions span lable').attr('style','cursor: pointer;');
+		$('.actions').attr('style','margin-left: 75px; margin-right: 5px;');
+		$('table.display tbody td:nth-child(2)').addClass('status-label');
+		$('.actions img').attr('style','margin-left: 5px; margin-right: 15px; visibility: hidden;');
+	});
 	$.ajax({
 		url: appUrl+"/manage/refreshDashboard",
 		type: "GET",
 		cache : false,
 		success: function(data){
 			serverDetails=data;
+			var maxSecurityGroups=0;
+			$.each(data, function(index,element){
+				$.each(element, function(k,v){
+				        if(k === "maxSecurityGroups")
+					 {
+					   if(v>maxSecurityGroups)
+					     {
+						   maxSecurityGroups=v;
+					     }
+					 }
+				});
+			});
+			maxSecurityGroups=1;
+			$("#manage").empty();
+			$("#manage_theadtemplate").tmpl(new Manage_Data(maxSecurityGroups)).appendTo("#manage");
+			//$("#phixServerTable").hide();
+			console.log("maximum security groups are"+maxSecurityGroups);
+			if(maxSecurityGroups == 1)
+			{
 			    managetable=$('#dashboardtable').dataTable( {
+				"sDom": '<"displayAll">rft<"bottom"><"clear">ip',
+				"aaData":data,
+				"bAutoWidth": false,
+				"bSort": false,
+				"fnDrawCallback": function( oSettings ) {
+					$('.actions span').attr('style','margin-left: 15px; margin-right: 0px;');
+					$('.actions span lable').attr('style','cursor: pointer;');
+					$('.actions').attr('style','margin-left: 75px; margin-right: 5px;');
+					$('table.display tbody td:nth-child(2)').addClass('status-label');
+					$('.actions img').attr('style','margin-left: 5px; margin-right: 15px; visibility: hidden;');
+				    },
+				//"sPaginationType": "full_numbers",
+				"iDisplayLength":13,
+				//"bPaginate": false,
+		        "aoColumns": [
+								{ mData: 'name'},
+								/* { mData: null,
+									"fnRender": function(oObj)
+									{
+										//return '<label class="status-label">'+oObj.aData.state+' </label>';
+										return oObj.aData.state;
+									}
+								}, */
+								{ mData: 'state'},
+								{ mData: null,
+									"fnRender": function(oObj)
+									{
+										var date = new Date(oObj.aData.createtime);
+										return date.toUTCString();
+									}
+									},
+								{ mData: 'owner'},
+								{ mData: 'instanceId'},
+								{ mData: 'architecture'},
+								{ mData: 'imageId'},
+								{ mData: 'instanceType'},
+								{ mData: 'keyName'},
+								{ mData: 'privateIpAddress'},
+								{ mData: 'subnetId'},
+								{ mData: 'vpcId'},
+								{ mData: 'costCenter'},
+								{ mData: 'securityGroups.0.groupId'},
+								{ mData: 'securityGroups.0.groupName'},
+								{ mData: null,
+									 "fnRender": function(oObj ) {
+										 var ret=null;
+										 if($("#role").val() === "techops")
+											 {
+											 if($("#user").val() === "manoj.tailor" || $("#user").val() === "praveen.tiwari" || $("#user").val() === "pardeep.chahal")
+												 {
+										  ret= '<div class="actions" align="center">'+ 
+										 '<img id="'+oObj.iDataRow +'" class="loading-status" src="/cloudmanage/resources/images/loading.gif" />'+
+										 '<span class="label label-info label-sm"> <lable class="refresh" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-refresh"></i> Refresh </lable></span>'+
+										 '<span class="label label-info label-sm"> <lable class="viewdetails osx" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-info-sign"></i> View details </lable></span>'+ 
+										 '<span class="label label-info label-sm"> <lable class="start" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Start </lable></span>'+
+										 '<span class="label label-info label-sm"> <lable class="stop" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Stop </lable></span>'+
+										 '<span class="label label-info label-sm"> <lable class="terminate" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Terminate </lable></span></div>';
+												 }
+											 else
+												 {
+												 ret= '<div class="actions" align="center">'+ 
+												 '<img id="'+oObj.iDataRow +'" class="loading-status" src="/cloudmanage/resources/images/loading.gif" />'+
+												 '<span class="label label-info label-sm"> <lable class="refresh" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-refresh"></i> Refresh </lable></span>'+
+												 '<span class="label label-info label-sm"> <lable class="viewdetails osx" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-info-sign"></i> View details </lable></span>'+ 
+												 '<span class="label label-info label-sm"> <lable class="start" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Start </lable></span>'+
+												 '<span class="label label-info label-sm"> <lable class="stop" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Stop </lable></span></div>';
+												 }
+												}
+										 else
+											 {
+											 ret= '<div class="actions" align="center">'+ 
+											 '<img id="'+oObj.iDataRow +'" class="loading-status" src="/cloudmanage/resources/images/loading.gif" />'+
+											 '<span class="label label-info label-sm"> <lable class="refresh" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-refresh"></i> Refresh </lable></span>'+
+											 '<span class="label label-info label-sm"> <lable class="viewdetails osx" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-info-sign"></i> View details </lable></span></div>'; 
+											 }
+										 return ret;
+									 }
+								}
+
+		                      ]
+		    } );
+			  /*   $('#dashboardtable').bind('page', function () {
+					
+				}); */
+			}
+			else if(maxSecurityGroups == 2)
+				{
+				managetable=$('#dashboardtable').on( 'error.dt', function ( e, settings, techNote, message ) {
+			        console.log( 'An error has been reported by DataTables: ', message );
+			    } ).dataTable( {
+					"sDom": '<"displayAll">rft<"bottom"><"clear">',
+					"aaData":data,
+					"bAutoWidth": false,
+					"bSort": false,
+					"bPaginate": false,
+			        "aoColumns": [
+									{ mData: 'name'},
+									/* { mData: null,
+										"fnRender": function(oObj)
+										{
+											//return '<label class="status-label">'+oObj.aData.state+' </label>';
+											return oObj.aData.state;
+										}
+									}, */
+									{ mData: 'state'},
+									{ mData: null,
+										"fnRender": function(oObj)
+										{
+											var date = new Date(oObj.aData.createtime);
+											return date.toUTCString();
+										}
+										},
+									{ mData: 'owner'},
+									{ mData: 'instanceId'},
+									{ mData: 'architecture'},
+									{ mData: 'imageId'},
+									{ mData: 'instanceType'},
+									{ mData: 'keyName'},
+									{ mData: 'privateIpAddress'},
+									{ mData: 'subnetId'},
+									{ mData: 'vpcId'},
+									{ mData: 'costCenter'},
+									{ mData: 'securityGroups.0.groupId'},
+									{ mData: 'securityGroups.0.groupName'},
+									{ mData: 'securityGroups.1.groupId'},
+									{ mData: 'securityGroups.1.groupName'},
+									{ mData: null,
+										 "fnRender": function(oObj ) {
+											 return '<div class="actions" align="center">'+ 
+											 '<img id="'+oObj.iDataRow +'" class="loading-status" src="/cloudmanage/resources/images/loading.gif" />'+
+											 '<span class="label label-info label-sm"> <lable class="refresh" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-refresh"></i> Refresh </lable></span>'+
+											 '<span class="label label-info label-sm"> <lable class="viewdetails osx" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-info-sign"></i> View details </lable></span>'+ 
+											 '<span class="label label-info label-sm"> <lable class="start" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Start </lable></span>'+
+											 '<span class="label label-info label-sm"> <lable class="stop" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Stop </lable></span>'+
+											 '<span class="label label-info label-sm"> <lable class="terminate" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Terminate </lable></span></div>';
+											    }
+									}
+
+			                      ]
+			    } );
+				}
+			else if(maxSecurityGroups == 3)
+			{
+			managetable=$('#dashboardtable').dataTable( {
 				"sDom": '<"displayAll">rft<"bottom"><"clear">',
 				"aaData":data,
 				"bAutoWidth": false,
@@ -495,16 +790,31 @@ function refeshAll(){
 									"fnRender": function(oObj)
 									{
 										var date = new Date(oObj.aData.createtime);
-										return date.toLocaleString();
+										return date.toUTCString();
 									}
 									},
 								{ mData: 'owner'},
+								{ mData: 'instanceId'},
+								{ mData: 'architecture'},
+								{ mData: 'imageId'},
+								{ mData: 'instanceType'},
+								{ mData: 'keyName'},
+								{ mData: 'privateIpAddress'},
+								{ mData: 'subnetId'},
+								{ mData: 'vpcId'},
+								{ mData: 'costCenter'},
+								{ mData: 'securityGroups.0.groupId'},
+								{ mData: 'securityGroups.0.groupName'},
+								{ mData: 'securityGroups.1.groupId'},
+								{ mData: 'securityGroups.1.groupName'},
+								{ mData: 'securityGroups.2.groupId'},
+								{ mData: 'securityGroups.2.groupName'},
 								{ mData: null,
 									 "fnRender": function(oObj ) {
 										 return '<div class="actions" align="center">'+ 
 										 '<img id="'+oObj.iDataRow +'" class="loading-status" src="/cloudmanage/resources/images/loading.gif" />'+
 										 '<span class="label label-info label-sm"> <lable class="refresh" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-refresh"></i> Refresh </lable></span>'+
-										 '<span class="label label-info label-sm"> <lable class="viewdetails" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-info-sign"></i> View details </lable></span>'+
+										 '<span class="label label-info label-sm"> <lable class="viewdetails osx" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-info-sign"></i> View details </lable></span>'+ 
 										 '<span class="label label-info label-sm"> <lable class="start" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Start </lable></span>'+
 										 '<span class="label label-info label-sm"> <lable class="stop" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Stop </lable></span>'+
 										 '<span class="label label-info label-sm"> <lable class="terminate" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Terminate </lable></span></div>';
@@ -513,10 +823,25 @@ function refeshAll(){
 
 		                      ]
 		    } );
+			}
+			    var hideColumnArr;
+			    var lastColumn =12;
+			    hideColumnArr=[4,5,6,7,8,9,10,11,12];
+			    var k;
+			    for (k = 9; k <= 8+maxSecurityGroups*2 ; k++) { 
+			    	hideColumnArr[k]=lastColumn+1;
+			    	lastColumn++;
+			    }
+			    
+			      jQuery.each(hideColumnArr, function(index, iCol) {											
+					var bVis = managetable.fnSettings().aoColumns[iCol].bVisible;
+					managetable.fnSetColumnVis( iCol, bVis ? false : true );
+				});    
 			var addDiv=$('.displayAll');
-			$('<input type="button" class="refeshAll" value="RefreshAll" />').appendTo(addDiv);
+			$('<input type="button" class="refeshAll" value="IngestAll" />').appendTo(addDiv);
 			$('.dataTables_filter').attr('style', 'margin-top: 0px; margin-bottom: 0px;');
-			$('.refeshAll').attr('style', 'margin-left: 35px; margin-right: 980px;');
+			$('.refeshAll').attr('style', 'margin-left: 35px; ');
+			
 			$('.displayAll').attr('style', 'background-color: #D3D6FF;');
 			$('.actions span').attr('style','margin-left: 15px; margin-right: 0px;');
 			$('.actions span lable').attr('style','cursor: pointer;');
@@ -526,6 +851,9 @@ function refeshAll(){
 			//$('.displayAll').attr('style', 'background-color: #D3D6FF;');
 		//	$('.loading-status').hide();
 			$("#manage").unblock();
+		},
+		error: function (xhr, error, thrown) {
+			console.log(error);
 		}
 	});
 }

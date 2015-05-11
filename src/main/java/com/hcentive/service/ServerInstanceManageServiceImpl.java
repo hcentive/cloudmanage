@@ -1,5 +1,6 @@
 package com.hcentive.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.GroupIdentifier;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.StartInstancesRequest;
@@ -27,6 +29,7 @@ import com.amazonaws.services.opsworks.model.StopInstanceRequest;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
+import com.hcentive.domain.GroupIdentifiers;
 import com.hcentive.domain.ServerInstance;
 
 @Service("manageService")
@@ -45,12 +48,12 @@ public class ServerInstanceManageServiceImpl
     public List<ServerInstance> renderDashboardPage() throws AmazonServiceException
     {
     	DescribeInstancesRequest request = new DescribeInstancesRequest();
-        List<String> valuesT1 = new ArrayList<String>();
+       /* List<String> valuesT1 = new ArrayList<String>();
         valuesT1.add("subnet-1b1fce30");
-        Filter filter = new Filter().withName("subnet-id").withValues(valuesT1);
+        Filter filter = new Filter().withName("subnet-id").withValues(valuesT1);*/
 
-        DescribeInstancesResult result = ec2.describeInstances(request.withFilters(filter));   
-       // DescribeInstancesResult describeInstancesRequest = ec2.describeInstances();
+       // DescribeInstancesResult result = ec2.describeInstances(request.withFilters(filter));   
+        DescribeInstancesResult result = ec2.describeInstances();
        List<Reservation> reservations=result.getReservations();
         Set<Instance> instances = new HashSet<Instance>();
 
@@ -60,16 +63,45 @@ public class ServerInstanceManageServiceImpl
         List<ServerInstance> instanceList=new LinkedList<ServerInstance>();
         for(Instance i:instances)
         {
-        	ServerInstance instance=new ServerInstance();
-        	instance.setInstanceId(i.getInstanceId());
-        	setInstanceNameAndOwnerByTags(i.getTags(),instance);
-        	instance.setCreatetime(i.getNetworkInterfaces().get(0).getAttachment().getAttachTime());
-        	instance.setState(i.getState().getName());
-        	instanceList.add(instance);
+        	try
+        	{
+        		if("terminated".equalsIgnoreCase(i.getState().getName()))
+        			continue;
+        		ServerInstance instance=new ServerInstance();
+            	instance.setInstanceId(i.getInstanceId());
+            	setInstanceNameAndOwnerByTags(i.getTags(),instance);
+            	instance.setCreatetime(i.getNetworkInterfaces().get(0).getAttachment().getAttachTime());
+            	instance.setState(i.getState().getName());
+            	instance.setArchitecture(i.getArchitecture());
+            	instance.setImageId(i.getImageId());
+            	instance.setInstanceType(i.getInstanceType());
+            	instance.setKeyName(i.getKeyName());
+            	instance.setSubnetId(i.getSubnetId());
+            	instance.setVpcId(i.getVpcId());
+            	instance.setPrivateIpAddress(i.getPrivateIpAddress());
+            	setSecurityGroups(i.getSecurityGroups(),instance);
+            	instanceList.add(instance);
+        	}catch(IndexOutOfBoundsException e)
+        	{
+        		e.printStackTrace();
+        	}
+        	
         }
     	return instanceList;
     }
-	
+	private void setSecurityGroups(List<GroupIdentifier> groupLists,ServerInstance instance)
+	{
+		instance.setMaxSecurityGroups(groupLists.size());
+		List<GroupIdentifiers> secGroupList= new ArrayList<GroupIdentifiers>();
+		for(GroupIdentifier identifier:groupLists)
+		{
+			GroupIdentifiers gf=new GroupIdentifiers();
+			gf.setGroupId(identifier.getGroupId());
+			gf.setGroupName(identifier.getGroupName());
+			secGroupList.add(gf);
+		}
+		instance.setSecurityGroups(secGroupList);
+	}
     public ServerInstance refreshServerInstance(String instanceId) throws AmazonServiceException
     {
     	DescribeInstancesResult result=filterResultWithInstanceId(instanceId);
@@ -84,6 +116,19 @@ public class ServerInstanceManageServiceImpl
     	return instance;
     }
     
+    public Instance viewServerInstanceDetails(String instanceId) throws AmazonServiceException
+    {
+    	DescribeInstancesResult result=filterResultWithInstanceId(instanceId);
+       // ServerInstance instance=new ServerInstance();
+    	List<Instance> instanceList=extractInstances(result);
+        /*for (Instance i : instanceList) {
+        	instance.setInstanceId(i.getInstanceId());
+        	setInstanceNameAndOwnerByTags(i.getTags(),instance);
+        	instance.setCreatetime(i.getLaunchTime());
+        	instance.setState(i.getState().getName());
+        }*/
+    	return instanceList.get(0);
+    }
     public String startServerInstance(String instanceId) 
     {
     	//DescribeInstancesResult result=filterResultWithInstanceId(instanceId);
@@ -123,24 +168,29 @@ public class ServerInstanceManageServiceImpl
     			instance.setName(tag.getValue());
     		else if("owner".equals(tag.getKey()))
     			instance.setOwner(tag.getValue());
+    		else if("cost-center".equals(tag.getKey()))
+    			instance.setCostCenter(tag.getValue());
     	}
     }
-    private DescribeInstancesResult filterResultWithInstanceId(String... instanceId)
+    private DescribeInstancesResult filterResultWithInstanceId(String... instanceId) 
     {
     	DescribeInstancesRequest request = new DescribeInstancesRequest();
-        List<String> valuesT1 = new ArrayList<String>();
-        valuesT1.add("subnet-1b1fce30");
+        /*List<String> valuesT1 = new ArrayList<String>();
+        valuesT1.add("subnet-1b1fce30");*/
         List<Filter> filterList=new ArrayList<Filter>();
-        Filter filter1 = new Filter().withName("subnet-id").withValues(valuesT1);
+       // Filter filter1 = new Filter().withName("subnet-id").withValues(valuesT1);
         Filter filter2 = new Filter().withName("instance-id").withValues(instanceId);
-        filterList.add(filter1);filterList.add(filter2);
+        //filterList.add(filter1);
+        filterList.add(filter2);
         DescribeInstancesResult result = ec2.describeInstances(request.withFilters(filterList));
         return result;
     }
     private Set<String> waitForTransitionCompletion(final String desiredState,String instanceId) 
     {
-    	DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withFilters(new Filter()
+    	/*DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withFilters(new Filter()
         .withName("subnet-id").withValues("subnet-1b1fce30"),
+        new Filter().withName("instance-id").withValues(instanceId));*/
+    	DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withFilters(
         new Filter().withName("instance-id").withValues(instanceId));
     	Boolean transitionCompleted = (0 == instanceId.length());
     	Set<String> instanceStates = new TreeSet<String>();
