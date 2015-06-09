@@ -48,12 +48,13 @@ public class ServerInstanceManageServiceImpl
     public List<ServerInstance> renderDashboardPage() throws AmazonServiceException
     {
     	DescribeInstancesRequest request = new DescribeInstancesRequest();
-       /* List<String> valuesT1 = new ArrayList<String>();
+        List<String> valuesT1 = new ArrayList<String>();
         valuesT1.add("subnet-1b1fce30");
-        Filter filter = new Filter().withName("subnet-id").withValues(valuesT1);*/
+        Filter filter = new Filter().withName("subnet-id").withValues(valuesT1);
 
-       // DescribeInstancesResult result = ec2.describeInstances(request.withFilters(filter));   
-        DescribeInstancesResult result = ec2.describeInstances();
+        DescribeInstancesResult result = ec2.describeInstances(request.withFilters(filter));   
+      // comment this when using without dr subnet filter
+        // DescribeInstancesResult result = ec2.describeInstances();
        List<Reservation> reservations=result.getReservations();
         Set<Instance> instances = new HashSet<Instance>();
 

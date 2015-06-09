@@ -14,7 +14,7 @@
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/prettify.css" />
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/jquery.alerts.css" />
 <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/jquery-ui.css" />
-<%-- <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/timeout-dialog.css" /> --%>
+<%-- <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/foundation.css" />   --%>
 
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery/jquery-1.7.1.js"></script>
@@ -28,6 +28,8 @@
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery/jquery.tmpl.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery/jquery-idleTimeout.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery/jquery.mtz.monthpicker.js"></script>
+<%-- <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery/modernizr.js"></script>
+ <script type="text/javascript" src="${pageContext.request.contextPath}/resources/js/jquery/foundation.js"></script>  --%>
 
 <style type="text/css">
 body {

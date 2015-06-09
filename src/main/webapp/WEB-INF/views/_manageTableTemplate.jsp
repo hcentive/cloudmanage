@@ -1,5 +1,5 @@
 <script id="manage_theadtemplate" type="text/x-jquery-tmpl">
- <br>  <br> <br>  
+ <br>  <br> <br>  <br>  <br> <br> <br> 
 
 <table id="dashboardtable" class="display" cellspacing="0" width="100%">
        <thead>

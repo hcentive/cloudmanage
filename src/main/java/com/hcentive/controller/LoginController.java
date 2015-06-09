@@ -69,7 +69,8 @@ public class LoginController {
 		//model.addAttribute("time", Calendar.getInstance().getTime().toLocaleString());
 		//model.addAttribute("version", serverParamProperties.get("version"));
 		logger.info("login page delievered to user");
-		if(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof LdapUserDetails)
+		
+		 if(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof LdapUserDetails)
 		{
 			LdapUserDetails ldapUSer = (LdapUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			String[] dn =ldapUSer.getDn().split(",");

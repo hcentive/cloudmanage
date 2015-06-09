@@ -36,7 +36,14 @@ public class ServerInstanceManageController
 	{
 		model.addAttribute("time", Calendar.getInstance().getTime().toLocaleString());
 		model.addAttribute("username",getUserName(session));
+		if(SecurityContextHolder.getContext().getAuthentication().getAuthorities() == null || SecurityContextHolder.getContext().getAuthentication().getAuthorities().size() ==0)
+		{
+			model.addAttribute("haveRoles", false);
+		}
+		else
+		{
 		model.addAttribute("instanceList",manageService.renderDashboardPage());
+		}
 		return new ModelAndView("manage", model.asMap());
 	}
 	@RequestMapping(value = "/refreshDashboard",method = RequestMethod.GET)

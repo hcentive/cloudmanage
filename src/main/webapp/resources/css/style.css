@@ -330,8 +330,22 @@ input.homeSigninButton[type="button"], input.homeRegisterButton[type="button"], 
 .project{
 	font-weight:bold
 }
+#header div {
+  display: inline-block;
+  height: inherit;
+}
+#header .login {
+  position: relative;
+  top: 6px;
+  color: white;
+  margin-right: 10px;
+}
+#header .login a, #header .login a:visited {
+  color: white;
+  text-decoration: none;
+}
 
-.navigation{	text-align:center; margin-top:20px;}
+ .navigation{	text-align:center;height: 35px;}
 .navigation ul{padding:0px;margin:0px;list-style-type:none;text-align:center;}
 .navigation li{display:inline-block; position:relative;padding:0px; margin:0px;}
 .navigation a{display:inline-block; padding:10px 20px; color:#fff; background:#9BBB59; text-decoration:none; font:bold 13px arial;}
@@ -339,8 +353,8 @@ input.homeSigninButton[type="button"], input.homeRegisterButton[type="button"], 
 .navigation li > ul{display:none;}
 .navigation li:hover > ul{position: absolute; display: block; left:0px; top:35px;}
 .navigation li li{display:block; border-bottom:1px solid #fff;}
-.navigation li li a{display:block; min-width:120px; text-align:left;font:bold 12px arial; padding:10px;}
+.navigation li li a{display:block; min-width:200px; text-align:left;font:bold 12px arial; padding:10px;}
 .navigation li li:hover > ul{left:99%; top:0px; }
 .navigation li li li{border-color:#9BBB59;}
-.navigation li li:hover a{background:#1B7200;}
-.navigation li li li:hover a{background:#004013;}
+.navigation li li:hover a{background:#9BBB59;}
+.navigation li li li:hover a{background:#9BBB59;} 

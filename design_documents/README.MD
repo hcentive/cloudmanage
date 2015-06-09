@@ -5,6 +5,12 @@ Current hCentive application hosting infrastructure is deployed to Amazon Web Se
 
 Most resources are owned by various project groups within their respective cost centers. Each cost center and project has an infrastructure budget allocated to it. It makes sense to allow these groups to manage their resources by giving them control of the infrastructure. This enables a faster turnaround for infrastructure management requests by reducing dependency on the operations team. Also, providing insight into costs to teams encourages them to use resources efficiently.
 
+Applications are composed of resources provisioned in different cloud providers. This tool should allow operators to select components from different providers. For example, a PHIX application will use the DNS service from AWS, application and database servers at FireHost, S3 buckets for backups are pushed to AWS, monitoring is set up in Nagios in AWS and NewRelic.
+
+![Infrastructure Layers](CloudManage-infrastructure_layers.png)
+
+An application's resources layout is a graph with creation of some resources dependent on others. For example, a DNS entry cannot be created until the server is created. The tool should be able to define this resource dependency.
+
 ## <a name="requirements"></a>Requirements
 * Categorize resources based on cost center, project, stack and owner.
 * Limit access to resources based on the above categories.
@@ -49,10 +55,14 @@ Authorization is the process of determining what actions a user is allowed to pe
 ![Authentication and Authorization](auth_and_auth.png)
 
 #### <a name="inventory"></a>Resource Inventory
-This section describes infrastructure resource inventory and the actions that can be performed on it.
+CloudManage can import existing resources deployed with the supported cloud providers. It can also create new resources. Resources are assigned different categories to enable access control based on a combination of categories. An example of resources are server instances, storage volumes, DNS entries, etc.
+
+Access control policies are defined on categories to which resources are assigned. The policies are definition is cloud provider agnostic, and are transformed into provider specific policies depending on where the resources are deployed.
 
 #### <a name="template"></a>Application Templates
-This section describes applications composed from resource inventory items.
+Resources are combined together to compose applications. An application template defines the resources in an application. AWS implements it using CloudFormation templates. Other providers can have their own templating formats or specifications. Most applications deployed by hCentive use more than one infrastructure provider. Therefore, it cannot use specifications of any single provider to define its application templates. A custom specification is required to define applications.
+
+The application template will specify the resource provider with the resource definition. It will also defines resource dependencies for resources that rely on another resource attributes.
 
 #### <a name="provisioners"></a>Provisioners
 This section describes provisioners for infrastructure components.

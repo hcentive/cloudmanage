@@ -8,9 +8,21 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Manage Aws Cloud Page</title>
 <style type="text/css">
-div.manage
+div.manage 
 {
 background-color: #C6D3AB;
+z-index: -1;
+position: absolute;
+top:0px;
+bottom:0px;
+} 
+div.noroels
+{
+z-index: -1;
+position: relative;
+top:0px;
+bottom:0px;
+
 }
 .refeshAll {
 	-moz-box-shadow:inset 0px 0px 2px 0px #cae3fc;
@@ -200,6 +212,7 @@ background-color: #C6D3AB;
   float: left;
   clear: none;
   white-space:nowrap;
+  
 }
 
 div.dataTables_filter
@@ -340,29 +353,37 @@ label {
   height:48px;
 }
 
-li {
+/* li {
   display: list-item;
   text-align: -webkit-match-parent;
-}
+} */
 
 </style>
 <%@ include file="header.jsp" %>
 </head>
 <body >
 <%-- Authorities: <sec:authentication property="principal.authorities"/><br /> --%>
-<sec:authentication property="principal.username" var="user" />
-<sec:authorize ifAnyGranted="techops">
-   <input type="hidden" id="role" value="techops">
+<%-- <sec:authentication property="principal.username" var="user" /> --%>
+<sec:authentication property="authorities" var="rights" />
+ <%-- <sec:authorize ifAnyGranted="admin">
+   <input type="hidden" id="role" value="admin">
    <input type="hidden" id="user" value="${user}">
-</sec:authorize>
+</sec:authorize>  --%>
 
- 
+<c:set var="haveRoles" value="${haveRoles}"/>
+<c:set var="serverlist" value="${instanceList}"/>
 <%@ include file="_manageTableTemplate.jsp" %>
- <div id="manage" class="manage" style="margin-top: 0px; margin-bottom: 0px;">
-      <br> <br> <br> <br> <br> <br> <br> 
-      
+ <div id="noroels" class="noroels"  style="background-color: #C6D3AB;text-align:center; color:red; font-weight:bold;margin-bottom: 0px; position: relative; zoom: 1;">
+     <br> <br> <br> <br> <br> <br> <br> 
+      Sorry, You are not authorized to access Aws Server's, contact to techop's team  
+     <br> <br> <br> <br> <br> <br> <br><br> <br> <br> <br> <br> <br> <br>
+ 
+ </div>
+ <div id="manage" class="manage" style="margin-top:px; margin-bottom: 0px;width: 100%" >     
+      <br> <br> <br> <br> <br> <br> <br> <br> <br> 
+    
       <%--  ${instanceList} --%>
-       <c:set var="serverlist" value="${instanceList}"/>
+       
     <!--    <table id="dashboardtable" class="display" cellspacing="0" width="100%">
        <thead>
            <tr>
@@ -377,7 +398,7 @@ li {
        </tbody>
        </table> -->
        <br> <br> <br> <br> 
-       <label class="status-label"> </label>
+      <!--  <label class="status-label"> </label> -->
        <!-- modal content -->
 		<!-- <div id="osx-modal-content">
 			<div id="osx-modal-title">Instance Details</div>
@@ -414,6 +435,7 @@ li {
 var managetable=null;
 var serverDetails=null;
 var appUrl=window.location.protocol + "//" + window.location.host+'<%=request.getContextPath()%>';
+var rolesArr = '${rights}'.substring(1,'${rights}'.length-1).split(',');
 /* (function ($) {
     $.extend(jQuery.tmpl.tag, {
         "for": {
@@ -428,6 +450,17 @@ $(document).ready(function() {
 		  console.log(request);
 		  console.log(settings);
 		});
+	if('${haveRoles}' === 'false')
+		{
+		$('#manage').hide();
+		$('#noroels').show();
+		$('#logo').attr('style','font-weight:bold; font-size: 2em;margin-right: 60%;');
+		return;
+		}
+	else
+		{
+		$('#noroels').hide();
+		}
 	refeshAll();
 	
 	$.fn.dataTableExt.sErrMode = 'none';
@@ -639,7 +672,7 @@ function refeshAll(){
 					$('.actions img').attr('style','margin-left: 5px; margin-right: 15px; visibility: hidden;');
 				    },
 				//"sPaginationType": "full_numbers",
-				"iDisplayLength":13,
+				"iDisplayLength":10,
 				//"bPaginate": false,
 		        "aoColumns": [
 								{ mData: 'name'},
@@ -673,9 +706,10 @@ function refeshAll(){
 								{ mData: null,
 									 "fnRender": function(oObj ) {
 										 var ret=null;
-										 if($("#role").val() === "techops")
+										 
+										 if($.inArray('start',rolesArr) !== -1)
 											 {
-											 if($("#user").val() === "manoj.tailor" || $("#user").val() === "praveen.tiwari" || $("#user").val() === "pardeep.chahal")
+											 if('${user}' === "manoj.tailor" || '${user}' === "praveen.tiwari" || '${user}' === "pardeep.chahal")
 												 {
 										  ret= '<div class="actions" align="center">'+ 
 										 '<img id="'+oObj.iDataRow +'" class="loading-status" src="/cloudmanage/resources/images/loading.gif" />'+
@@ -695,8 +729,12 @@ function refeshAll(){
 												 '<span class="label label-info label-sm"> <lable class="stop" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'">  Stop </lable></span></div>';
 												 }
 												}
+										 
 										 else
 											 {
+											 console.log("array nahi h");
+											 console.log(jQuery.type('${rights}'));
+											 console.log(rolesArr);
 											 ret= '<div class="actions" align="center">'+ 
 											 '<img id="'+oObj.iDataRow +'" class="loading-status" src="/cloudmanage/resources/images/loading.gif" />'+
 											 '<span class="label label-info label-sm"> <lable class="refresh" id="'+oObj.iDataRow +'" name="'+oObj.aData.instanceId+'"> <i class="icon icon-refresh"></i> Refresh </lable></span>'+
