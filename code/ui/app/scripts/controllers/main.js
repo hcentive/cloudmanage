@@ -7,11 +7,7 @@
  * # MainCtrl
  * Controller of the uiApp
  */
-angular.module('uiApp')
-  .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+angular.module('cloudmanageApp')
+  .controller('MainCtrl', ['$scope', function ($scope) {
+    
+  }]);

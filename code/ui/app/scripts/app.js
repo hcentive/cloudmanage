@@ -9,10 +9,24 @@
  * Main module of the application.
  */
 angular
-  .module('uiApp', [
+  .module('cloudmanageApp', [
     'ngAnimate',
     'ngCookies',
     'ngResource',
     'ngSanitize',
-    'ngTouch'
-  ]);
+    'ngTouch',
+    'ui.router'
+  ])
+  .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
+  	 $urlRouterProvider.otherwise('/');
+  	 $stateProvider
+	    .state('login', {
+	      url: '/login',
+	      templateUrl: 'views/login.html'
+	    })
+	    .state('home',{
+	    	url: '/',
+	    	templateUrl: 'views/home.html'
+	    });
+  }])
+  .value('serviceUrl', '/service');
