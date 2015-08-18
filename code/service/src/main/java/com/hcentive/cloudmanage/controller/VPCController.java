@@ -12,15 +12,12 @@ import com.amazonaws.services.ec2.model.Vpc;
 
 @RestController
 @RequestMapping("/vpcs")
-public class EC2Controller {
+public class VPCController {
 	
 	@RequestMapping(method=RequestMethod.GET)
-	public List<Vpc> getEC2Info(){
+	public List<Vpc> list(){
 		AmazonEC2Client amazonClient = new AmazonEC2Client();
 		DescribeVpcsResult result = amazonClient.describeVpcs();
 		return result.getVpcs();
 	}
-	
-	
-
 }

@@ -24,7 +24,11 @@
     .state('login', {
      url: '/login',
      templateUrl: 'views/login.html'
-   })
+    })
+    .state('vpc',{
+      url: '/vpc',
+      templateUrl: 'views/vpc.html'
+    })
     .state('home',{
       url: '/',
       templateUrl: 'views/home.html'

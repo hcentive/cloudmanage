@@ -8,6 +8,8 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('ec2Service', [function ec2Service() {
-    	
+  .service('ec2Service', ['$http',function ec2Service($http) {
+    	this.getVpcs = function(){
+    		return $http.get('/vpcs');
+    	}
   }]);
