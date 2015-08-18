@@ -8,7 +8,7 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('authenticationService', ['serviceUrl','$http',function authenticationService(serviceUrl, $http) {
+  .service('authenticationService', ['$http',function authenticationService($http) {
 
   	var principal = null;
 
@@ -16,7 +16,7 @@ angular.module('cloudmanageApp')
   		var headers = credentials ? {authorization : "Basic "
         + btoa(credentials.username + ":" + credentials.password)
     	} : {};
-  		return $http.get(serviceUrl + '/user', {
+  		return $http.get('/user', {
   			headers : headers,
         cache: true
   		});

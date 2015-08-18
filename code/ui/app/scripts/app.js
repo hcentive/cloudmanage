@@ -8,25 +8,28 @@
  *
  * Main module of the application.
  */
-angular
-  .module('cloudmanageApp', [
-    'ngAnimate',
-    'ngCookies',
-    'ngResource',
-    'ngSanitize',
-    'ngTouch',
-    'ui.router'
+ angular
+ .module('cloudmanageApp', [
+  'ngAnimate',
+  'ngCookies',
+  'ngResource',
+  'ngSanitize',
+  'ngTouch',
+  'ui.router'
   ])
-  .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
-  	 $urlRouterProvider.otherwise('/');
-  	 $stateProvider
-	    .state('login', {
-	      url: '/login',
-	      templateUrl: 'views/login.html'
-	    })
-	    .state('home',{
-	    	url: '/',
-	    	templateUrl: 'views/home.html'
-	    });
+ .config(['$stateProvider', '$urlRouterProvider','$httpProvider', 
+  function($stateProvider, $urlRouterProvider, $httpProvider){
+    $urlRouterProvider.otherwise('/');
+    $stateProvider
+    .state('login', {
+     url: '/login',
+     templateUrl: 'views/login.html'
+   })
+    .state('home',{
+      url: '/',
+      templateUrl: 'views/home.html'
+    });
+    $httpProvider.interceptors.push('serviceUrlInterceptor');
+    $httpProvider.interceptors.push('accessDeniedInterceptor');
   }])
-  .value('serviceUrl', '/service');
+ .value('serviceUrl', '/service');

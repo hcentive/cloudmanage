@@ -8,15 +8,15 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-  .controller('HomeCtrl', ['$scope','authenticationService','$state',function ($scope,authenticationService, $state) {
+  .controller('HomeCtrl', ['$scope','authenticationService','$log',function ($scope,authenticationService, $log) {
   	var that = this;
     authenticationService.getPrincipal()
 		.then(
 			function(data){
 				that.principal = data;
 			},
-			function(){
-				$state.go('login')
+			function(rejection){
+				$log.error(rejection);
 			}
 		);
   }]);
