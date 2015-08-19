@@ -41,7 +41,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.anyRequest().fullyAuthenticated()
 				.and()
 			.httpBasic();
-				//.successHandler(authenticationSuccessHandler);
 		http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
 		http.csrf().disable();
 		
