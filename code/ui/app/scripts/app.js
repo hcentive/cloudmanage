@@ -15,10 +15,11 @@
   'ngResource',
   'ngSanitize',
   'ngTouch',
-  'ui.router'
+  'ui.router',
+  'ui.grid'
   ])
- .config(['$stateProvider', '$urlRouterProvider','$httpProvider', 
-  function($stateProvider, $urlRouterProvider, $httpProvider){
+ .config(['$stateProvider', '$urlRouterProvider','$httpProvider', 'serviceUrlInterceptorProvider', 
+  function($stateProvider, $urlRouterProvider, $httpProvider, serviceUrlInterceptorProvider){
     $urlRouterProvider.otherwise('/');
     $stateProvider
     .state('login', {
@@ -33,6 +34,7 @@
       url: '/',
       templateUrl: 'views/home.html'
     });
+    serviceUrlInterceptorProvider.setUrlsToIgnore(['views','ui-grid']);
     $httpProvider.interceptors.push('serviceUrlInterceptor');
     $httpProvider.interceptors.push('accessDeniedInterceptor');
   }])

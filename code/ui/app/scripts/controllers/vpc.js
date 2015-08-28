@@ -11,7 +11,7 @@ angular.module('cloudmanageApp')
   .controller('VpcCtrl', ['$scope','ec2Service',function ($scope, ec2Service) {
     var that = this;
     ec2Service.getVpcs()
-    .then(function(data){
-    	that.list = data;
+    .then(function(response){
+    	that.list = response.data;
     });
   }]);
