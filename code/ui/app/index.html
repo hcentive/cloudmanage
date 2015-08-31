@@ -46,7 +46,7 @@
                         <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li><a ui-sref="logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        <li ng-if="mainCtrl.securityContextHolder.authenticated"><a ui-sref="logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>
                     </ul>
                 </li>
@@ -112,6 +112,10 @@
         <script src="scripts/services/serviceurlinterceptor.js"></script>
         <script src="scripts/services/accessdeniedinterceptor.js"></script>
         <script src="scripts/controllers/vpc.js"></script>
+        <script src="scripts/services/statecache.js"></script>
+        <script src="scripts/services/authenticationsuccesshandler.js"></script>
+        <script src="scripts/services/authenticationfailurehandler.js"></script>
+        <script src="scripts/services/securitycontextholder.js"></script>
         <!-- endbuild -->
 </body>
 </html>

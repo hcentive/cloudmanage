@@ -31,7 +31,6 @@
       return false;
     };
 
-    // Method for instantiating
     this.$get = ['serviceUrl',function (serviceUrl) {
       return {
         request: function (config) {

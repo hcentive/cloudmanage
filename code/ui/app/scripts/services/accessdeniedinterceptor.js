@@ -8,17 +8,15 @@
  * Factory in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .factory('accessDeniedInterceptor', ['$q','$injector',function ($q, $injector) {
+  .factory('accessDeniedInterceptor', ['$q','$injector','stateCache',function ($q, $injector, stateCache) {
     return {
       responseError: function (rejection) {
         var state = $injector.get('$state');
         if(rejection.status === 401) {
+          stateCache.addState(state.current);
           state.go('login');
         }
-        else {
-          return $q.reject(rejection);  
-        }
-        
+        return $q.reject(rejection);  
       }
     };
   }]);

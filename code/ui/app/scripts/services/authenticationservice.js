@@ -8,22 +8,25 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('authenticationService', ['$http',function authenticationService($http) {
+  .service('authenticationService', ['securityContextHolder','$q','$http','authenticationSuccessHandler','authenticationFailureHandler',
+    function authenticationService(securityContextHolder, $q, $http,authenticationSuccessHandler,authenticationFailureHandler) {
 
-  	var principal = null;
+      this.authenticate = authenticate;
 
-  	this.getPrincipal = function(credentials){
-  		var headers = credentials ? {authorization : "Basic "
-        + btoa(credentials.username + ":" + credentials.password)
-    	} : {};
-  		return $http.get('/user', {
-  			headers : headers,
-        cache: true
-  		});
-  	};
-
-  	this.authenticate = function(credentials){
-  		return this.getPrincipal(credentials);
-  	}
+      function authenticate(credentials){
+        var headers = credentials ? {authorization : "Basic "
+            + btoa(credentials.username + ":" + credentials.password)
+          } : {};
+          return $http.get('/user', {
+            headers : headers
+          }).then(
+            function(principal){
+              authenticationSuccessHandler.handle(principal);
+            },
+            function(){
+              authenticationFailureHandler.handle();
+            }
+          );
+      };
     
   }]);

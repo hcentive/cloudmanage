@@ -8,22 +8,22 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-  .controller('LoginCtrl', ['authenticationService','$state', function (authenticationService, $state) {
-    var that = this;
-  	this.credentials = {
+  .controller('LoginCtrl', ['authenticationService','$state','authenticationSuccessHandler','authenticationFailureHandler',
+    function (authenticationService, $state, authenticationSuccessHandler, authenticationFailureHandler) {
+    var vm = this;
+  	vm.credentials = {
   	
     };
 
   	this.login = function(){
-  		authenticationService.authenticate(this.credentials)
-  		.then(function(data){
-        that.error = false;
-  			$state.go('home');
-  		},
-  		function(){
-        that.error = true;
-  			console.log(arguments);
-  		});
+  		authenticationService.authenticate(vm.credentials)
+  		.then(
+        function(data){
+          vm.error = false;     
+  		  },
+  		  function(data){
+          vm.error = true;    
+  		  });
   	};
     
   }]);

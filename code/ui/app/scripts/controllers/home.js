@@ -10,13 +10,4 @@
 angular.module('cloudmanageApp')
   .controller('HomeCtrl', ['$scope','authenticationService','$log',function ($scope,authenticationService, $log) {
   	var that = this;
-    authenticationService.getPrincipal()
-		.then(
-			function(data){
-				that.principal = data;
-			},
-			function(rejection){
-				$log.error(rejection);
-			}
-		);
   }]);

@@ -8,6 +8,13 @@
  * Controller of the uiApp
  */
 angular.module('cloudmanageApp')
-  .controller('MainCtrl', ['$scope', function ($scope) {
-    
+  .controller('MainCtrl', ['$scope','authenticationService','securityContextHolder', 
+  	function ($scope, authenticationService, securityContextHolder) {
+	  	var vm = this;
+	  	vm.securityContextHolder = securityContextHolder;
+	  	activate();
+	  	
+	  	function activate(){
+	  		authenticationService.authenticate();
+	  	}
   }]);
