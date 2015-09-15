@@ -8,17 +8,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hcentive.cloudmanage.domain.VPC;
-import com.hcentive.cloudmanage.service.vpc.VPCService;
+import com.hcentive.cloudmanage.service.provider.ProviderFacade;
 
 @RestController
 @RequestMapping("/vpcs")
 public class VPCController {
 	
 	@Autowired
-	private VPCService awsVPCService;
+	private ProviderFacade provideFacade;
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<VPC> list(){
-		return awsVPCService.list();
+		return provideFacade.getVPCList();
 	}
 }

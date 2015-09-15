@@ -42,7 +42,7 @@
             </div>
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <a class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
@@ -50,13 +50,22 @@
                         </li>
                     </ul>
                 </li>
+                <li class="dropdown" ng-if="mainCtrl.securityContextHolder.authenticated">
+                     <a class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-users fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                    </a>
+                    <groups-list></groups-list>
+                </li>
             </ul>
 
             <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li>
-                            <a ui-sref="vpc"><i class="fa fa-dashboard fa-fw"></i> VPC</a>
+                            <a ui-sref="vpc"><i class="fa fa-cloud fa-fw"></i>VPC</a>
+                        </li>
+                        <li>
+                            <a ui-sref="instances"><i class="fa fa-server fa-fw"></i>Instances</a>
                         </li>
                     </ul>
                 </div>
@@ -116,6 +125,9 @@
         <script src="scripts/services/authenticationsuccesshandler.js"></script>
         <script src="scripts/services/authenticationfailurehandler.js"></script>
         <script src="scripts/services/securitycontextholder.js"></script>
+        <script src="scripts/directives/groupslist.js"></script>
+        <script src="scripts/services/groupservice.js"></script>
+        <script src="scripts/controllers/instance.js"></script>
         <!-- endbuild -->
 </body>
 </html>

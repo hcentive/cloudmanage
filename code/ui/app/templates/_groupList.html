@@ -1,0 +1,7 @@
+<ul class="dropdown-menu">
+	<li ng-repeat="group in groupsListCtrl.groups">
+		<label>
+      		<input type="radio" name="group" ng-model="groupsListCtrl.groupModel.selectedGroup" value="{{group}}"> {{group}}
+    	</label>
+	</li>
+</ul>

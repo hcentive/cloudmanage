@@ -30,11 +30,15 @@
       url: '/vpc',
       templateUrl: 'views/vpc.html'
     })
+    .state('instances',{
+      url: '/instances',
+      templateUrl: 'views/instances.html'
+    })
     .state('home',{
       url: '/',
       templateUrl: 'views/home.html'
     });
-    serviceUrlInterceptorProvider.setUrlsToIgnore(['views','ui-grid']);
+    serviceUrlInterceptorProvider.setUrlsToIgnore(['views','ui-grid','templates']);
     $httpProvider.interceptors.push('serviceUrlInterceptor');
     $httpProvider.interceptors.push('accessDeniedInterceptor');
   }])

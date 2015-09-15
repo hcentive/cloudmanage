@@ -1,4 +1,4 @@
-package com.hcentive.cloudmanage.service.vpc;
+package com.hcentive.cloudmanage.service.provider;
 
 import java.util.List;
 

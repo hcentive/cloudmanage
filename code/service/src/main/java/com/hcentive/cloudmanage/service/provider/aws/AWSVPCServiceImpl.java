@@ -1,7 +1,6 @@
-package com.hcentive.cloudmanage.service.vpc;
+package com.hcentive.cloudmanage.service.provider.aws;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.dozer.DozerBeanMapper;
@@ -14,13 +13,13 @@ import com.amazonaws.services.ec2.model.DescribeVpcsResult;
 import com.amazonaws.services.ec2.model.Filter;
 import com.amazonaws.services.ec2.model.Vpc;
 import com.hcentive.cloudmanage.domain.VPC;
+import com.hcentive.cloudmanage.service.provider.VPCService;
 
 @Service
 public class AWSVPCServiceImpl implements VPCService{
 	
 	@Autowired
 	private DozerBeanMapper mapper;
-	
 
 	@Override
 	public List<VPC> list() {
@@ -31,9 +30,6 @@ public class AWSVPCServiceImpl implements VPCService{
 		List<VPC> vpcs = convertAWSVPCToVPC(result.getVpcs());
 		return vpcs;
 	}
-	
-	
-	
 
 	private DescribeVpcsRequest buildVPCRequest() {
 		DescribeVpcsRequest describeVpcsRequest = new DescribeVpcsRequest();
@@ -42,16 +38,9 @@ public class AWSVPCServiceImpl implements VPCService{
 		return describeVpcsRequest;
 	}
 
-
-
 	private List<Filter> getRequestFilters(){
 		List<Filter> filters = new ArrayList<Filter>();
-		//Mapping of loggedin user and vpc tags has to come from somewhere
-//		Filter f1 = new Filter("tag:Name");
-//		f1.setValues(Arrays.asList(new String[]{"WIG_SIT"}));
-//		filters.add(f1);
 		return filters;
-		
 	}
 	
 	private List<VPC> convertAWSVPCToVPC(List<Vpc> vpcs) {
@@ -59,6 +48,5 @@ public class AWSVPCServiceImpl implements VPCService{
 		mapper.map(vpcs, vpcList);
 		return vpcList;
 	}
-	
 
 }
