@@ -11,12 +11,14 @@
     "angular-touch": "1.4.4",
     "angular-ui-grid": "~3.0.5",
     "bootstrap": "~3.3.5",
+    "datatables": "1.10.9",
     "es5-shim": "3.1.0",
+    "font-awesome": "4.4.0",
     "json3": "3.3.1",
+    "promise-tracker": "angular-promise-tracker#~2.1.0",
     "startbootstrap-sb-admin-2": "~1.0.7",
     "ui-router": "0.2.15",
-    "underscore": "~1.8.3",
-    "font-awesome":"4.4.0"
+    "underscore": "~1.8.3"
   },
   "devDependencies": {
     "angular-mocks": "1.4.4",

@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
 import com.amazonaws.services.ec2.model.DescribeVpcsResult;
 import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.Vpc;
+import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.VPC;
 import com.hcentive.cloudmanage.service.provider.VPCService;
 
@@ -45,7 +48,10 @@ public class AWSVPCServiceImpl implements VPCService{
 	
 	private List<VPC> convertAWSVPCToVPC(List<Vpc> vpcs) {
 		List<VPC> vpcList = new ArrayList<VPC>();
-		mapper.map(vpcs, vpcList);
+		for(Vpc vpc : vpcs){
+			VPC _vpc = new VPC(vpc);
+			vpcList.add(_vpc);
+		}
 		return vpcList;
 	}
 

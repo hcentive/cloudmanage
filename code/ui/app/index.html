@@ -8,15 +8,16 @@
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css(.) styles/vendor.css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css"/>
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/angular-ui-grid/ui-grid.css" />
-    <link rel="stylesheet" href="bower_components/datatables/media/css/jquery.dataTables.css" />
-    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <link rel="stylesheet" href="bower_components/metisMenu/dist/metisMenu.css" />
     <link rel="stylesheet" href="bower_components/morrisjs/morris.css" />
     <link rel="stylesheet" href="bower_components/bootstrap-social/bootstrap-social.css" />
     <link rel="stylesheet" href="bower_components/startbootstrap-sb-admin-2/dist/css/sb-admin-2.css" />
     <!-- endbower -->
+    
     <!-- endbuild -->
     <!-- build:css(.tmp) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
@@ -73,6 +74,7 @@
         </nav>
 
         <div ui-view id="page-wrapper"></div>
+        <hc-processing></hc-processing>
         
     </div>
 
@@ -95,8 +97,9 @@
     <script src="bower_components/angular-touch/angular-touch.js"></script>
     <script src="bower_components/angular-ui-grid/ui-grid.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/json3/lib/json3.min.js"></script>
     <script src="bower_components/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="bower_components/json3/lib/json3.min.js"></script>
+    <script src="bower_components/promise-tracker/promise-tracker.js"></script>
     <script src="bower_components/flot/jquery.flot.js"></script>
     <script src="bower_components/holderjs/holder.js"></script>
     <script src="bower_components/metisMenu/dist/metisMenu.js"></script>
@@ -109,6 +112,8 @@
     <script src="bower_components/ui-router/release/angular-ui-router.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
     <!-- endbower -->
+     <script src="bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
+     <script src="bower_components/promise-tracker/promise-tracker-http-interceptor.js"></script>
     <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
@@ -128,6 +133,11 @@
         <script src="scripts/directives/groupslist.js"></script>
         <script src="scripts/services/groupservice.js"></script>
         <script src="scripts/controllers/instance.js"></script>
+        <script src="scripts/directives/hc-datatable.js"></script>
+        <script src="scripts/directives/hc-processing.js"></script>
+        <script src="scripts/services/globaltrackerinterceptor.js"></script>
+        <script src="scripts/services/globaltrackerservice.js"></script>
+        <script src="scripts/services/interceptorproxy.js"></script>
         <!-- endbuild -->
 </body>
 </html>

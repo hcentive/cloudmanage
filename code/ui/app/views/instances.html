@@ -3,6 +3,13 @@
         <h1 class="page-header">Instances</h1>
     </div>
 </div>
-<div ng-controller="InstanceCtrl as instances">
-	<div ui-grid="{ data: instances.list }"></div>
+<div>
+	<table hc-datatable data="instanceCtrl.list" column-def="instanceCtrl.columnDef" class="table table-striped table-bordered table-hover">
+		<thead>
+			<tr>
+				<th>instanceId</th>
+				<th>instanceType</th>
+			</tr>
+		</thead>
+	</table>
 </div>

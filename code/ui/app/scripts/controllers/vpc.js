@@ -8,10 +8,12 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-  .controller('VpcCtrl', ['$scope','ec2Service',function ($scope, ec2Service) {
-    var that = this;
-    ec2Service.getVpcs()
-    .then(function(response){
-    	that.list = response.data;
-    });
+  .controller('VpcCtrl', ['$scope','ec2Service','vpcs',function ($scope, ec2Service, vpcs) {
+
+  	var that = this;
+    that.list = vpcs;
+    that.columnDef = [
+      {data: 'awsVpc.vpcId'},
+      {data: 'awsVpc.state'}
+    ];
   }]);

@@ -3,6 +3,14 @@
         <h1 class="page-header">VPC</h1>
     </div>
 </div>
-<div ng-controller="VpcCtrl as vpc">
-	<div ui-grid="{ data: vpc.list }"></div>
+<div>
+	<table hc-datatable data="vpc.list" column-def="vpc.columnDef" class="table table-striped table-bordered table-hover">
+		<thead>
+			<tr>
+				<th>vpcId</th>
+				<th>tags</th>
+			</tr>
+		</thead>
+	</table>
 </div>
+

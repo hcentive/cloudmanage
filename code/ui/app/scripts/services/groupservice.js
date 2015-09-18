@@ -8,7 +8,7 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('groupService', ['$http','$q',function groupService($http, $q) {
+  .service('groupService', ['$http','$q','$resource',function groupService($http, $q) {
     this.vm = {
       selectedGroup: null
     }

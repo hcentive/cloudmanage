@@ -59,8 +59,6 @@ public class AWSInstanceServiceImpl implements InstanceService {
 			}
 		}
 		
-		// TODO Auto-generated method stub
-		
 	}
 
 	private List<Instance> extractInstances(DescribeInstancesResult result) {

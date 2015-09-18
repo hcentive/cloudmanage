@@ -8,15 +8,21 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-  .controller('InstanceCtrl', ['$scope','groupService','ec2Service', function ($scope, groupService, ec2Service) {
+  .controller('InstanceCtrl', ['$scope','groupService','ec2Service','instances', function ($scope, groupService, ec2Service,instances) {
   	var that = this;
+    that.list = instances;
+    that.columnDef = [
+      {data: 'awsInstance.instanceId'},
+      {data: 'awsInstance.instanceType'}
+    ];
   	$scope.$watch(function(){
   		return groupService.vm.selectedGroup;
   	}, function(group){
-  		ec2Service.getInstances(group)
-	    .then(function(response){
-	    	that.list = response.data;
-	    });
+      if(group){
+        ec2Service.getInstances(group)
+        .then(function(data){
+          that.list = data;
+        });  
+      }
   	});
-    
   }]);

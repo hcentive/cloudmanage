@@ -1,83 +1,27 @@
 package com.hcentive.cloudmanage.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.amazonaws.services.ec2.model.Vpc;
 
 /**
  * @author vaibhav.gupta
  *
  */
 public class VPC {
-
-	private String vpcId;
-
-	private String state;
-
-	private String cidrBlock;
-
-	private String dhcpOptionsId;
-
-	private List<Tag> tags = new ArrayList<Tag>();
-
-	private String instanceTenancy;
-
-	private Boolean isDefault;
-
-	public String getVpcId() {
-		return vpcId;
+	
+	public VPC(Vpc vpc){
+		awsVpc = vpc;
 	}
 
-	public void setVpcId(String vpcId) {
-		this.vpcId = vpcId;
+	private Vpc awsVpc;
+
+	public Vpc getAwsVpc() {
+		return awsVpc;
 	}
 
-	public String getState() {
-		return state;
+	public void setAwsVpc(Vpc awsVpc) {
+		this.awsVpc = awsVpc;
 	}
 
-	public void setState(String state) {
-		this.state = state;
-	}
-
-	public String getCidrBlock() {
-		return cidrBlock;
-	}
-
-	public void setCidrBlock(String cidrBlock) {
-		this.cidrBlock = cidrBlock;
-	}
-
-	public String getDhcpOptionsId() {
-		return dhcpOptionsId;
-	}
-
-	public void setDhcpOptionsId(String dhcpOptionsId) {
-		this.dhcpOptionsId = dhcpOptionsId;
-	}
-
-	//TODO - Dozer is not populating this
-	public List<Tag> getTags() {
-		return tags;
-	}
-
-	public void setTags(List<Tag> tags) {
-		this.tags = tags;
-	}
-
-	public String getInstanceTenancy() {
-		return instanceTenancy;
-	}
-
-	public void setInstanceTenancy(String instanceTenancy) {
-		this.instanceTenancy = instanceTenancy;
-	}
-
-	public Boolean getIsDefault() {
-		return isDefault;
-	}
-
-	public void setIsDefault(Boolean isDefault) {
-		this.isDefault = isDefault;
-	}
+	
 
 }
