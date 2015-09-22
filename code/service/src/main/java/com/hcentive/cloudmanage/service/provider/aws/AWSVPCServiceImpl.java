@@ -8,22 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
 import com.amazonaws.services.ec2.model.DescribeVpcsResult;
 import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.Vpc;
-import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.VPC;
 import com.hcentive.cloudmanage.service.provider.VPCService;
 
 @Service
 public class AWSVPCServiceImpl implements VPCService{
 	
-	@Autowired
-	private DozerBeanMapper mapper;
-
 	@Override
 	public List<VPC> list() {
 		
