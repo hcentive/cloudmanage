@@ -27,15 +27,20 @@ public class GroupServiceImpl implements GroupService{
 
 	@Override
 	public List<String> getGroups() {
-		SecurityContext securityContext = SecurityContextHolder.getContext();
-		Collection<? extends GrantedAuthority> authorities = securityContext.getAuthentication().getAuthorities();
+//		SecurityContext securityContext = SecurityContextHolder.getContext();
+//		Collection<? extends GrantedAuthority> authorities = securityContext.getAuthentication().getAuthorities();
+//		List<String> groups = new ArrayList<String>();
+//		for(GrantedAuthority auth : authorities){
+//			String authStr = auth.getAuthority();
+//			String group = authGroupMapping.get(authStr);
+//			if(group != null){
+//				groups.add(group);
+//			}
+//		}
+		
 		List<String> groups = new ArrayList<String>();
-		for(GrantedAuthority auth : authorities){
-			String authStr = auth.getAuthority();
-			String group = authGroupMapping.get(authStr);
-			if(group != null){
-				groups.add(group);
-			}
+		for(String auth : authGroupMapping.values()){
+			groups.add(auth);
 		}
 		return groups;
 	}

@@ -13,7 +13,8 @@ angular.module('cloudmanageApp')
     that.list = instances;
     that.columnDef = [
       {data: 'awsInstance.instanceId'},
-      {data: 'awsInstance.instanceType'}
+      {data: 'awsInstance.instanceType'},
+      {data: 'awsInstance.state.name'}
     ];
   	$scope.$watch(function(){
   		return groupService.vm.selectedGroup;

@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -24,6 +25,9 @@ public class AWSInstanceServiceImpl implements InstanceService {
 	
 	@Autowired
 	private GroupService groupService;
+	
+	@Autowired
+	private AWSClientService awsClientService;
 
 	@Override
 	public List<Instance> list(){
@@ -42,7 +46,7 @@ public class AWSInstanceServiceImpl implements InstanceService {
 	@Override
 	public List<Instance> list(List<String> groups) throws AccessDeniedException{
 		validateGroups(groups);
-		AmazonEC2Client amazonClient = new AmazonEC2Client();		
+		AmazonEC2Client amazonClient = awsClientService.getClient();;
 		DescribeInstancesRequest describeInstancesRequest = buildInstancesRequest(groups);
 		DescribeInstancesResult result = amazonClient.describeInstances(describeInstancesRequest);
 		List<Instance> instances= extractInstances(result);
