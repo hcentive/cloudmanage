@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hcentive.cloudmanage.domain.Group;
-import com.hcentive.cloudmanage.service.group.GroupService;
+import com.hcentive.cloudmanage.service.GroupService;
 
 @RestController
 public class GroupController {

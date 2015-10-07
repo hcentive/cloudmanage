@@ -36,6 +36,25 @@ public class AWSProviderFacade implements ProviderFacade{
 	public List<Instance> getAllInstanceList() {
 		return instanceService.list();
 	}
+
+	@Override
+	public void stopInstances(String... instanceIDs) {
+		instanceService.stopInstances(instanceIDs);
+		
+	}
+	
+	@Override
+	public void startInstances(String... instanceIDs){
+		instanceService.startInstances(instanceIDs);
+	}
+
+	@Override
+	public void terminateInstances(String... instanceIDs) {
+		instanceService.terminateInstances(instanceIDs);
+		
+	}
+	
+	
 	
 
 }

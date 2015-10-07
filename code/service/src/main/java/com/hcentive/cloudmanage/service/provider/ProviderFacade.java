@@ -14,4 +14,10 @@ public interface ProviderFacade {
 	
 	List<Instance> getAllInstanceList();
 
+	void stopInstances(String... instanceIDs);
+
+	void startInstances(String... instanceIDs);
+
+	void terminateInstances(String... instanceIDs);
+
 }

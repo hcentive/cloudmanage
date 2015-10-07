@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,24 @@ public class InstanceController {
 			return provideFacade.getAllInstanceList();
 		}
 		return provideFacade.getInstanceList(groups);
+	}
+	
+	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=stop"})
+	public void stopInstance(@PathVariable(value="instanceID") String instanceID){
+		provideFacade.stopInstances(instanceID);
+		
+	}
+	
+	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=start"})
+	public void startInstance(@PathVariable(value="instanceID") String instanceID){
+		provideFacade.startInstances(instanceID);
+		
+	}
+	
+	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=terminate"})
+	public void terminateInstance(@PathVariable(value="instanceID") String instanceID){
+		provideFacade.terminateInstances(instanceID);
+		
 	}
 
 }

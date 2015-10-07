@@ -19,14 +19,13 @@ import com.hcentive.cloudmanage.service.provider.VPCService;
 public class AWSVPCServiceImpl implements VPCService{
 	
 	@Autowired
-	private AWSClientService awsClientService;
+	private AmazonEC2Client awsClient;
 	
 	@Override
 	public List<VPC> list() {
 		
-		AmazonEC2Client amazonClient = awsClientService.getClient();
 		DescribeVpcsRequest describeVpcsRequest = buildVPCRequest();
-		DescribeVpcsResult result = amazonClient.describeVpcs(describeVpcsRequest);
+		DescribeVpcsResult result = awsClient.describeVpcs(describeVpcsRequest);
 		List<VPC> vpcs = convertAWSVPCToVPC(result.getVpcs());
 		return vpcs;
 	}

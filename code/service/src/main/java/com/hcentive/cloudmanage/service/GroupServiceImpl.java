@@ -1,4 +1,4 @@
-package com.hcentive.cloudmanage.service.group;
+package com.hcentive.cloudmanage.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
