@@ -11,9 +11,7 @@ angular.module('cloudmanageApp')
   .controller('LoginCtrl', ['authenticationService','$state','authenticationSuccessHandler','authenticationFailureHandler',
     function (authenticationService, $state, authenticationSuccessHandler, authenticationFailureHandler) {
     var vm = this;
-  	vm.credentials = {
-  	
-    };
+  	vm.credentials = {};
 
   	this.login = function(){
   		authenticationService.authenticate(vm.credentials)
@@ -25,5 +23,7 @@ angular.module('cloudmanageApp')
           vm.error = true;    
   		  });
   	};
+
+  
     
   }]);

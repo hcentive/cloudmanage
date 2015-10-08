@@ -18,7 +18,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 	public void commence(HttpServletRequest request,
 			HttpServletResponse response, AuthenticationException authException)
 			throws IOException, ServletException {
-		response.setHeader("WWW-Authenticate", "FormBased");
 		response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		
 	}

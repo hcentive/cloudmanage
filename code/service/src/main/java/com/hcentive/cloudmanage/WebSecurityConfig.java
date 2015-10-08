@@ -10,10 +10,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import com.hcentive.cloudmanage.security.AjaxLogoutSuccessHandler;
+import com.hcentive.cloudmanage.security.CustomAccessDeniedHandler;
 import com.hcentive.cloudmanage.security.CustomAuthenticationEntryPoint;
+import com.hcentive.cloudmanage.security.CustomAuthenticationFailureHandler;
 import com.hcentive.cloudmanage.security.CustomAuthenticationSuccessHandler;
 
 @Configuration
@@ -32,6 +33,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	CustomAuthenticationSuccessHandler authenticationSuccessHandler;
 	
+	@Autowired
+	AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+	
+	
+	@Autowired
+	CustomAccessDeniedHandler customAccessDeniedHandler;
+	
+	@Autowired
+	CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+	
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -40,15 +51,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/login").permitAll()
 				.anyRequest().fullyAuthenticated()
 				.and()
-			.httpBasic();
-		http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
+					.formLogin()
+						.failureHandler(customAuthenticationFailureHandler)
+				.and()
+					.logout()
+					.logoutSuccessHandler(ajaxLogoutSuccessHandler);
+		http
+			.exceptionHandling()
+				.authenticationEntryPoint(authenticationEntryPoint)
+				.accessDeniedHandler(customAccessDeniedHandler);
 		http.csrf().disable();
 		
 	}
 	
+//	@Override
+//    protected void configure(AuthenticationManagerBuilder authManagerBuilder) throws Exception {
+//         authManagerBuilder.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
+//    }
 	@Override
     protected void configure(AuthenticationManagerBuilder authManagerBuilder) throws Exception {
-         authManagerBuilder.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
+		authManagerBuilder
+          .inMemoryAuthentication()
+              .withUser("user").password("password").roles("USER");
     }
 	
 	@Bean

@@ -10,7 +10,7 @@
 angular.module('cloudmanageApp')
   .provider('routes', ['$stateProvider', '$urlRouterProvider',function ($stateProvider, $urlRouterProvider) {
 
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/login');
     $stateProvider
     .state('login', {
      url: '/login',
@@ -38,10 +38,10 @@ angular.module('cloudmanageApp')
       controller: 'InstanceCtrl',
       controllerAs: 'instanceCtrl'
     })
-    .state('home',{
-      url: '/',
-      templateUrl: 'views/home.html'
-    })
+    // .state('home',{
+    //   url: '/',
+    //   templateUrl: 'views/home.html'
+    // })
     .state('dashboard',{
       url: '/dashboard',
       templateUrl: 'views/dashboard.html',

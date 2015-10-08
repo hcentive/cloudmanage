@@ -47,7 +47,7 @@
                         <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li ng-if="mainCtrl.securityContextHolder.authenticated"><a ui-sref="logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        <li ng-if="mainCtrl.securityContextHolder.authenticated"><a ng-click="mainCtrl.logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>
                     </ul>
                 </li>
@@ -63,13 +63,13 @@
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li>
-                            <a ui-sref="dashboard"><i class="fa fa-tachometer fa-fw"></i>Dashboard</a>
+                            <a ui-sref="dashboard" ui-sref-active="active"><i class="fa fa-tachometer fa-fw"></i>Dashboard</a>
                         </li>
                         <li>
-                            <a ui-sref="vpc"><i class="fa fa-cloud fa-fw"></i>VPC</a>
+                            <a ui-sref="vpc" ui-sref-active="active"><i class="fa fa-cloud fa-fw"></i>VPC</a>
                         </li>
                         <li>
-                            <a ui-sref="instances"><i class="fa fa-server fa-fw"></i>Instances</a>
+                            <a ui-sref="instances" ui-sref-active="active"><i class="fa fa-server fa-fw"></i>Instances</a>
                         </li>
                     </ul>
                 </div>
@@ -148,6 +148,7 @@
         <script src="scripts/services/routes.js"></script>
         <script src="scripts/controllers/dashboard.js"></script>
         <script src="scripts/services/stompclient.js"></script>
+        <script src="scripts/services/logoutservice.js"></script>
         <!-- endbuild -->
 </body>
 </html>

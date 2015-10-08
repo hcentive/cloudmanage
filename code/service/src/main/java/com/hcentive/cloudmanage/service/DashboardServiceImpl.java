@@ -33,7 +33,7 @@ public class DashboardServiceImpl implements DashboardService{
 	}
 
 	@Override
-	@Scheduled(fixedDelay=2000)
+	@Scheduled(fixedDelay=60000)
 	public void sendNotifications() {
 		List<Notification> notifications = notificationService.getNotifications();
 		this.messagingTemplate.convertAndSend("/topic/notifications", notifications);

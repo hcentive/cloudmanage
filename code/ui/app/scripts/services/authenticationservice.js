@@ -14,19 +14,22 @@ angular.module('cloudmanageApp')
       this.authenticate = authenticate;
 
       function authenticate(credentials){
-        var headers = credentials ? {authorization : "Basic "
-            + btoa(credentials.username + ":" + credentials.password)
-          } : {};
-          return $http.get('/user', {
-            headers : headers
+          return $http.post('/login', credentials,{
+             headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            transformRequest: function(data, getHeaders){
+                return (! (typeof data === 'string')) ? $.param(data) : data;
+            }
           }).then(
             function(principal){
               authenticationSuccessHandler.handle(principal);
+              return principal;
             },
-            function(){
-              authenticationFailureHandler.handle();
+            function(reason){
+              authenticationFailureHandler.handle(reason);
+              return $q.reject(reason);
             }
           );
-      };
-    
+        }
   }]);
