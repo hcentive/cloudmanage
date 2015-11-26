@@ -13,10 +13,10 @@ import com.amazonaws.services.ec2.model.Reservation;
 
 public interface EC2Service {
 
-	@PreAuthorize("hasAuthority('techops')")
+	@PreAuthorize("hasAuthority('Operator')")
 	public Reservation getInstance(String instanceId);
 
-	@PreAuthorize("hasAuthority('techops')")
+	@PreAuthorize("hasAuthority('Operator')")
 	public List<Reservation> getInstanceLists();
 
 	@PreAuthorize("hasAuthority('techops')")

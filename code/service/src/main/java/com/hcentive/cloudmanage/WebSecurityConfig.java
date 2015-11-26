@@ -11,11 +11,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.hcentive.cloudmanage.security.CustomAuthenticationEntryPoint;
 import com.hcentive.cloudmanage.security.CustomAuthenticationSuccessHandler;
+import com.hcentive.cloudmanage.security.LDAPGrantedAuthorityMapper;
 
 @Configuration
 // WARN: As of Spring Security 4.0, @EnableWebMvcSecurity is deprecated. The
@@ -76,5 +78,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		provider.setUseAuthenticationRequestCredentials(true);
 		return provider;
 	}
-
+	
+	@Bean
+	public GrantedAuthoritiesMapper authoritiesMapper() {
+		return new LDAPGrantedAuthorityMapper();
+	}
 }
