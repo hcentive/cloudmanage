@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface RoleMapperRepository extends
 		org.springframework.data.repository.Repository<LDAPAuthority, String> {
 
-	@Cacheable(value = "appAuthorityMapCache")
+	//@Cacheable(value = "appAuthorityMapCache")
 	public LDAPAuthority findByLdapAuthName(String ldapAuthName);
 }

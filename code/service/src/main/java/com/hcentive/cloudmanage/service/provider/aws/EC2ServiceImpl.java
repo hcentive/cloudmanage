@@ -24,8 +24,11 @@ import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
-import com.hcentive.cloudmanage.job.DynamicJobScheduler;
+import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
+import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
+import com.hcentive.cloudmanage.domain.Instance;
+import com.hcentive.cloudmanage.job.DynamicJobScheduler;
 
 @Service("ec2Service")
 public class EC2ServiceImpl implements EC2Service {
@@ -58,14 +61,11 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Lists EC2 Instances.
 	 */
-	public List<Reservation> getInstanceLists() {
+	public List<Instance> getInstanceLists() {
 		logger.info("Listing instances");
-		DescribeInstancesResult instances = getEC2Session().describeInstances();
-		List<Reservation> reservations = instances.getReservations();
-		for (Reservation instance : reservations) {
-			logger.debug(" - " + instance.toString());
-		}
-		return reservations;
+		DescribeInstancesResult result = getEC2Session().describeInstances();
+		List<Instance> instances= AWSUtils.extractInstances(result);
+		return instances;
 	}
 
 	/**
@@ -94,6 +94,13 @@ public class EC2ServiceImpl implements EC2Service {
 				staetRequest);
 		logger.debug("Instance started " + startedInstances);
 		return startedInstances.toString();
+	}
+	
+	public String terminateInstance(String instanceId){
+		TerminateInstancesRequest request = new TerminateInstancesRequest();
+        request.withInstanceIds(instanceId);
+        TerminateInstancesResult result = getEC2Session().terminateInstances(request);
+        return result.toString();
 	}
 
 	// ****************** QUARTZ ***********************//

@@ -17,44 +17,17 @@
   'ngTouch',
   'ui.router',
   'ui.grid',
+  'ui.bootstrap',
   'ajoslin.promise-tracker'
   ])
- .config(['$stateProvider', '$urlRouterProvider','$httpProvider','InterceptorProxyProvider', 
-  function($stateProvider, $urlRouterProvider, $httpProvider,InterceptorProxyProvider){
-    $urlRouterProvider.otherwise('/');
-    $stateProvider
-    .state('login', {
-     url: '/login',
-     templateUrl: 'views/login.html'
-    })
-    .state('vpc',{
-      url: '/vpc',
-      templateUrl: 'views/vpc.html',
-      resolve:{
-        vpcs: ['ec2Service', function(ec2Service){
-          return ec2Service.getVpcs();
-        }],
-      },
-      controller: 'VpcCtrl',
-      controllerAs: 'vpc'
-    })
-    .state('instances',{
-      url: '/instances',
-      templateUrl: 'views/instances.html',
-      resolve: {
-        instances: ['groupService', 'ec2Service',function(groupService, ec2Service){
-           return ec2Service.getInstances(groupService.vm.selectedGroup);
-        }]
-      },
-      controller: 'InstanceCtrl',
-      controllerAs: 'instanceCtrl'
-    })
-    .state('home',{
-      url: '/',
-      templateUrl: 'views/home.html'
-    });
-    InterceptorProxyProvider.addUrlsToIgnore('views','ui-grid','templates');
+ .config(['routesProvider','$httpProvider','InterceptorProxyProvider','stompClientProvider',
+  function(routesProvider, $httpProvider,InterceptorProxyProvider, stompClientProvider){
+
+    InterceptorProxyProvider.addUrlsToIgnore('views','ui-grid','template');
     InterceptorProxyProvider.addInterceptor('GlobalTrackerInterceptor','serviceUrlInterceptor', 'accessDeniedInterceptor');
     $httpProvider.interceptors.unshift('InterceptorProxy');
+    stompClientProvider.setEndPoint('/resources');
+
   }])
- .value('serviceUrl', '/service');
+ .value('serviceUrl', '/service')
+ .value('pollingInterval',10000);

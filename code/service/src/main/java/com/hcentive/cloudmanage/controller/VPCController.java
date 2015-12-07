@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hcentive.cloudmanage.domain.VPC;
 import com.hcentive.cloudmanage.service.provider.ProviderFacade;
 
-@RestController
-@RequestMapping("/vpcs")
+//@RestController
+//@RequestMapping("/vpcs")
 public class VPCController {
 	
 	@Autowired

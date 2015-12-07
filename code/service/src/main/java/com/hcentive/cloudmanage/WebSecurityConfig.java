@@ -8,14 +8,15 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.hcentive.cloudmanage.security.AjaxLogoutSuccessHandler;
+import com.hcentive.cloudmanage.security.CustomAccessDeniedHandler;
 import com.hcentive.cloudmanage.security.CustomAuthenticationEntryPoint;
+import com.hcentive.cloudmanage.security.CustomAuthenticationFailureHandler;
 import com.hcentive.cloudmanage.security.CustomAuthenticationSuccessHandler;
 import com.hcentive.cloudmanage.security.LDAPGrantedAuthorityMapper;
 
@@ -37,50 +38,61 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	CustomAuthenticationSuccessHandler authenticationSuccessHandler;
-
+	
+	@Autowired
+	AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+	
+	
+	@Autowired
+	CustomAccessDeniedHandler customAccessDeniedHandler;
+	
+	@Autowired
+	CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+	
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/login", "/logout").permitAll()
-				.anyRequest().fullyAuthenticated().and().httpBasic();
-		http.logout()
-				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-				.logoutSuccessUrl("/").deleteCookies("JSESSIONID")
-				.invalidateHttpSession(true).and()
-				// Redirect user to in case of no session.
-				.sessionManagement().invalidSessionUrl("/login")
-				// No more than single session per user.
-				.maximumSessions(1);
-		http.exceptionHandling()
-				.authenticationEntryPoint(authenticationEntryPoint).and()
-				.csrf().disable();
-
+		http
+			.authorizeRequests()
+				.antMatchers("/login").permitAll()
+				.anyRequest().fullyAuthenticated()
+				.and()
+					.formLogin()
+						.failureHandler(customAuthenticationFailureHandler)
+				.and()
+					.logout()
+					.logoutSuccessHandler(ajaxLogoutSuccessHandler);
+		http
+			.exceptionHandling()
+				.authenticationEntryPoint(authenticationEntryPoint)
+				.accessDeniedHandler(customAccessDeniedHandler);
+		http.csrf().disable();
+		
 	}
-
+	
 	@Override
-	public void configure(WebSecurity web) throws Exception {
-		// This is here to ensure that the static content (JavaScript, CSS, etc)
-		// is accessible from the login page without authentication
-		web.ignoring().antMatchers("/resources/**");
-	}
-
-	@Override
-	protected void configure(AuthenticationManagerBuilder authManagerBuilder)
-			throws Exception {
-		authManagerBuilder
-				.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
-	}
-
-	@Bean
+   protected void configure(AuthenticationManagerBuilder authManagerBuilder) throws Exception {
+        authManagerBuilder.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
+   }
+	// @Override
+ //    protected void configure(AuthenticationManagerBuilder authManagerBuilder) throws Exception {
+	// 	authManagerBuilder
+ //          .inMemoryAuthentication()
+ //              .withUser("user").password("password").roles("USER");
+ //    }
+	
 	public AuthenticationProvider activeDirectoryLdapAuthenticationProvider() {
 		ActiveDirectoryLdapAuthenticationProvider provider = new ActiveDirectoryLdapAuthenticationProvider(
 				domain, url);
 		provider.setConvertSubErrorCodesToExceptions(true);
 		provider.setUseAuthenticationRequestCredentials(true);
+		provider.setAuthoritiesMapper(authoritiesMapper());
 		return provider;
 	}
 	
 	@Bean
 	public GrantedAuthoritiesMapper authoritiesMapper() {
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Configuring LDAPGrantedAuthorityMapper");
 		return new LDAPGrantedAuthorityMapper();
 	}
 }

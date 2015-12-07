@@ -90,7 +90,7 @@ public class ScheduleConfig {
 	// comma separate evictions
 	@Caching(evict = { @CacheEvict(value = "appAuthorityMapCache", allEntries = true) })
 	// Scheduled at 60 seconds for testing.
-	@Scheduled(cron = "60 * * * * ?")
+	@Scheduled(cron = "59 * * * * ?")
 	public void flushAllCaches() {
 		// Marker - method
 		System.out.println(new DateTime() + "Removed all Cache!");
@@ -101,8 +101,8 @@ public class ScheduleConfig {
 		DriverManagerDataSource ds = new DriverManagerDataSource();
 		ds.setDriverClassName("com.mysql.jdbc.Driver");
 		ds.setUrl("jdbc:mysql://localhost:3306/quartz");
-		ds.setUsername("quartz");
-		ds.setPassword("quartz");
+		ds.setUsername("root");
+		ds.setPassword("password");
 		return ds;
 	}
 }

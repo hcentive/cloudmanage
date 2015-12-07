@@ -23,3 +23,10 @@ insert into APP_AUTHORITY_MASTER(APP_AUTH_NAME) value ('Manager');
 insert into AUTHORITY_MAP value (1,1);
 insert into AUTHORITY_MAP value (1,2);
 insert into AUTHORITY_MAP value (1,3);
+
+
+#techops-int entries
+insert into LDAP_AUTHORITY_MASTER(LDAP_AUTH_NAME) value ('techops-int');
+insert into AUTHORITY_MAP value (2,1);
+insert into AUTHORITY_MAP value (2,2);
+insert into AUTHORITY_MAP value (2,3);

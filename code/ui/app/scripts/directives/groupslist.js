@@ -7,7 +7,7 @@
  * # groupsList
  */
 angular.module('cloudmanageApp')
-  .directive('groupsList', ['groupService', function (groupService) {
+  .directive('groupsList', ['groupService','$log', function (groupService, $log) {
     return {
       templateUrl: 'templates/_groupList.html',
       restrict: 'E',

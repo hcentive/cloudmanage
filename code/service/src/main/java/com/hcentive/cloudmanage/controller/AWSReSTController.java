@@ -30,12 +30,12 @@ public class AWSReSTController {
 
 	// **************** EC2 **********************//
 
-	@RequestMapping(value = "/ec2/list")
-	public ResponseEntity<List<Reservation>> getInstanceList() {
-		List<Reservation> ec2Instances = ec2Service.getInstanceLists();
-		return new ResponseEntity<List<Reservation>>(ec2Instances,
-				HttpStatus.OK);
-	}
+//	@RequestMapping(value = "/ec2/list")
+//	public ResponseEntity<List<Reservation>> getInstanceList() {
+//		List<Reservation> ec2Instances = ec2Service.getInstanceLists();
+//		return new ResponseEntity<List<Reservation>>(ec2Instances,
+//				HttpStatus.OK);
+//	}
 
 	@RequestMapping(value = "/ec2/list/{instanceId}")
 	public ResponseEntity<Reservation> getEC2Instance(

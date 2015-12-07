@@ -23,7 +23,7 @@ angular.module('cloudmanageApp')
           });
         }
         else{
-          $state.go('home');  
+          $state.go('instances');  
         }
   	}
   }]);
