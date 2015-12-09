@@ -7,26 +7,20 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.amazonaws.services.ec2.model.Reservation;
 import com.hcentive.cloudmanage.domain.Instance;
 
 public interface EC2Service {
 
-	//@PreAuthorize("hasAuthority('Operator')")
 	public Reservation getInstance(String instanceId);
 
-	//@PreAuthorize("hasAuthority('Operator')")
 	public List<Instance> getInstanceLists();
 
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
 	public String stopInstance(String instanceId);
 
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
 	public String startInstance(String instanceId);
 	
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
 	public String terminateInstance(String instanceId);
 
 	// QUARTZ SECTION *******************

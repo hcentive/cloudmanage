@@ -9,7 +9,6 @@ import com.amazonaws.services.s3.model.Bucket;
 
 public interface S3Service {
 
-	// TODO: Custom Authority Mapper
 	/*
 	 * @PreAuthorize("hasRole('XYZ')") is the same as
 	 * @PreAuthorize("hasAuthority('ROLE_XYZ')")

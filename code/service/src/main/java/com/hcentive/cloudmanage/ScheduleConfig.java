@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
 import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
@@ -18,12 +19,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-
 
 @Configuration
 @EnableCaching
@@ -31,6 +32,15 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 @EnableJpaRepositories(basePackages = { "com.hcentive.cloudmanage.security" })
 public class ScheduleConfig {
 
+	@Value("${db.driver.class}")
+	private String driver;
+	@Value("${db.url}")
+	private String url;
+	@Value("${db.username}")
+	private String username;
+	@Value("${db.password}")
+	private String password;
+	
 	/**
 	 * Who ensures shutdown();
 	 * 
@@ -61,15 +71,28 @@ public class ScheduleConfig {
 	}
 
 	@Bean
-	public EntityManagerFactory entityManagerFactory() {
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+		factory.setDataSource(getDatasource());
 		factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 		factory.setPackagesToScan("com.hcentive.cloudmanage.security");
-		factory.setDataSource(getDatasource());
+		// -- mandatory dialect for factory.
+		Properties jpaProperties = new Properties();
+		jpaProperties.put("hibernate.dialect",
+				"org.hibernate.dialect.MySQL5Dialect");
+		factory.setJpaProperties(jpaProperties);
+		//
 		factory.afterPropertiesSet();
-		return factory.getObject();
+		return factory;
 	}
 
+	@Bean
+	public JpaTransactionManager transactionManager(EntityManagerFactory eMFactory) {
+		JpaTransactionManager transactionManager = new JpaTransactionManager();
+		transactionManager.setEntityManagerFactory(eMFactory);
+		return transactionManager;
+	}
+	
 	@Bean
 	public CacheManager cacheManager() {
 		// The constructor is of type String...
@@ -99,10 +122,10 @@ public class ScheduleConfig {
 	@Bean
 	public DataSource getDatasource() {
 		DriverManagerDataSource ds = new DriverManagerDataSource();
-		ds.setDriverClassName("com.mysql.jdbc.Driver");
-		ds.setUrl("jdbc:mysql://localhost:3306/quartz");
-		ds.setUsername("root");
-		ds.setPassword("password");
+		ds.setDriverClassName(driver);
+		ds.setUrl(url);
+		ds.setUsername(username);
+		ds.setPassword(password);
 		return ds;
 	}
 }

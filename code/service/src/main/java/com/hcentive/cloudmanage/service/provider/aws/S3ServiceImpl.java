@@ -15,7 +15,6 @@ import com.amazonaws.auth.policy.Statement;
 import com.amazonaws.auth.policy.Statement.Effect;
 import com.amazonaws.auth.policy.actions.S3Actions;
 import com.amazonaws.auth.policy.resources.S3ObjectResource;
-import com.amazonaws.regions.ServiceAbbreviations;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -38,8 +37,7 @@ public class S3ServiceImpl implements S3Service {
 	 * @return A Client with Session.
 	 */
 	public AmazonS3Client getS3Session() {
-		return (AmazonS3Client) awsClientProxy
-				.getClient(ServiceAbbreviations.S3);
+		return awsClientProxy.getS3Client();
 	}
 
 	/**
