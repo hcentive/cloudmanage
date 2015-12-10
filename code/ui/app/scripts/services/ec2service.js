@@ -8,7 +8,7 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('ec2Service', ['$http',function ec2Service($http) {
+  .service('ec2Service', ['$http','$log',function ec2Service($http, $log) {
 
         var performActionOnInstance = function(action, instance){
             var url = '/instances/' + instance.awsInstance.instanceId,
@@ -33,6 +33,15 @@ angular.module('cloudmanageApp')
             });
         }
 
+        var getTagValue = function(instance, tagKey){
+            var tags = instance.awsInstance.tags,
+            targetTag = _.find(tags, function(tag){
+                if(tag.key === tagKey)
+                  return true;
+                return false;
+            });
+            return targetTag.value;
+        }
 
 
     	this.getVpcs = function(){
@@ -62,4 +71,37 @@ angular.module('cloudmanageApp')
         this.terminateInstance = function(instance){
             return performActionOnInstance('terminate', instance);
         };
+
+        this.getInstanceName = function(instance){
+            return getTagValue(instance, 'Name');
+        };
+
+        this.getCostCenter = function(instance){
+            return getTagValue(instance, 'cost-center');            
+        };
+
+        this.schedule = function(instance, startCron, stopCron){
+            var costCenter = this.getCostCenter(instance),
+            instanceName = this.getInstanceName(instance);
+            return $http.post('/schedule',{
+                costCenter : costCenter,
+                instanceName : instanceName,
+                startCron : startCron,
+                stopCron : stopCron
+                },
+                {
+                    headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    transformRequest: function(data, getHeaders){
+                        return (! (typeof data === 'string')) ? $.param(data) : data;
+                    }
+                }).then(function(data){
+                    $log.log(data);
+                }, function(error){
+                    $log.log(error);
+                });
+        }
+
+
   }]);

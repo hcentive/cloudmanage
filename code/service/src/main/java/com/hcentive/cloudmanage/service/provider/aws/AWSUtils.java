@@ -9,6 +9,10 @@ import com.hcentive.cloudmanage.domain.Instance;
 
 public class AWSUtils {
 	
+	public static final String START_INSTANCE_JOB_TYPE = "start-ec2";
+	
+	public static final String STOP_INSTANCE_JOB_TYPE = "stop-ec2";
+	
 	public static List<Instance> extractInstances(DescribeInstancesResult result) {
 		List<Reservation> reservations=result.getReservations();
 		List<Instance> instances= new ArrayList<Instance>();
@@ -20,5 +24,7 @@ public class AWSUtils {
 		  } 
 		return instances;
 	}
+	
+	
 
 }

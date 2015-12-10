@@ -1,0 +1,19 @@
+<div class="modal-header">
+  <h3 class="modal-title">Schedule instance</h3>
+</div>
+<form ng-submit="scheduleCtrl.submit()">
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="startInstanceCron">Start Instance Cron</label>
+      <input type="text" class="form-control" id="startInstanceCron" ng-model="scheduleCtrl.cron.start" ng-required>
+    </div>
+    <div class="form-group">
+      <label for="stopInstanceCron">Stop Instance Cron</label>
+      <input type="text" class="form-control" id="stopInstanceCron" ng-model="scheduleCtrl.cron.stop" ng-required>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" type="submit">OK</button>
+    <button class="btn btn-warning" type="button" ng-click="scheduleCtrl.cancel()">Cancel</button>
+  </div>
+</form>

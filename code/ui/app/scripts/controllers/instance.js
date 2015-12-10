@@ -14,7 +14,8 @@ angular.module('cloudmanageApp')
                                 'instances',
                                 '$log', 
                                 'pollingService',
-                                function ($scope, groupService, ec2Service,instances, $log, pollingService) {
+                                '$modal',
+                                function ($scope, groupService, ec2Service,instances, $log, pollingService, $modal) {
   	var that = this;
     that.list = instances;
 
@@ -33,23 +34,20 @@ angular.module('cloudmanageApp')
       ec2Service.terminateInstance(instance);
     };
 
-    // pollingService.register(function(){
-    //   getInstances(groupService.vm.selectedGroup, true)
-    // });
+    that.getInstanceName = function(instance){
+      return ec2Service.getInstanceName(instance);
+    }
 
-    // function getInstances(group, polling){
-    //   ec2Service.getInstances(group, polling)
-    //     .then(function(data){
-    //       that.list = data;
-    //     }); 
-    // }
-
-
-  	// $scope.$watch(function(){
-  	// 	return groupService.vm.selectedGroup;
-  	// }, function(group){
-   //    if(group){
-   //       getInstances(group); 
-   //    }
-  	// });
+    that.schedule = function(instance){
+        var modalInstance =  $modal.open({
+        templateUrl: 'templates/_scheduleInstance.html',
+        controller: 'ScheduleCtrl',
+        controllerAs: 'scheduleCtrl',
+        resolve: {
+          instance: function () {
+            return instance;
+          }
+        }
+      });
+    }
   }]);
