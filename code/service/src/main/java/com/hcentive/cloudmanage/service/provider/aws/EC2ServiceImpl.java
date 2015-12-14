@@ -74,7 +74,13 @@ public class EC2ServiceImpl implements EC2Service {
 		for (DecisionMapper decisionMap : getDecisionMap()) {
 			String tagType = decisionMap.getTag().getTagType();
 			String tagValue = decisionMap.getTag().getTagValue();
-			accessCond.put("ec2:ResourceTag/" + tagType, tagValue);
+
+			// If key exists add a comma separated value.
+			String key = "ec2:ResourceTag/" + tagType;
+			if (accessCond.get(key) != null) {
+				tagValue = accessCond.get(key) + "," + tagValue;
+			}
+			accessCond.put(key, tagValue);
 		}
 
 		logger.info("Policy Conditions available " + accessCond);

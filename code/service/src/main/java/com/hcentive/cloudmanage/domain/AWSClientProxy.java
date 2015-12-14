@@ -101,9 +101,11 @@ public class AWSClientProxy {
 		if (applyPolicy) {
 			List<Condition> conditions = new ArrayList<>();
 			for (String key : accessCondition.keySet()) {
-				conditions.add(new StringCondition(
-						StringComparisonType.StringLike, key, accessCondition
-								.get(key)));
+				String valueStr = accessCondition.get(key);
+				for (String value : valueStr.split(",")) {
+					conditions.add(new StringCondition(
+							StringComparisonType.StringLike, key, value));
+				}
 			}
 			Statement statement = new Statement(Effect.Allow)
 					.withActions(EC2Actions.StartInstances,
