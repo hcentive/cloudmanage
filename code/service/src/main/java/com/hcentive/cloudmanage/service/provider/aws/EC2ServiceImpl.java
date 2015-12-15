@@ -33,6 +33,8 @@ import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+import com.hcentive.cloudmanage.audit.Auditable;
+import com.hcentive.cloudmanage.audit.Auditable.AuditingEventType;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.job.DynamicJobScheduler;
@@ -169,6 +171,7 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Stops an EC2 instance.
 	 */
+	@Auditable(AuditingEventType.EC2_STOP)
 	public String stopInstance(String instanceId) {
 		logger.info("Stopping instance " + instanceId);
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
@@ -183,6 +186,7 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Starts an EC2 instance.
 	 */
+	@Auditable(AuditingEventType.EC2_START)
 	public String startInstance(String instanceId) {
 		logger.info("Starting instance " + instanceId);
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
@@ -207,6 +211,7 @@ public class EC2ServiceImpl implements EC2Service {
 	@Autowired
 	private DynamicJobScheduler scheduler;
 
+	@Auditable(AuditingEventType.EC2_SCHEDULED)
 	public String scheduleInstance(String jobGroup, String jobName,
 			String triggerGroup, String triggerName, String cronExpression) {
 		String response = "Failed!";
@@ -246,6 +251,7 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Update the trigger.
 	 */
+	@Auditable(AuditingEventType.EC2_SCHEDULED_UPDATED)
 	public void updateTrigger(String triggerGroup, String triggerName,
 			String cronExpression) throws SchedulerException {
 		TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
@@ -260,6 +266,7 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Remove the Job and all associated triggers.
 	 */
+	@Auditable(AuditingEventType.EC2_SCHEDULED_DELETED)
 	public boolean deleteJob(String jobGroup, String jobName)
 			throws SchedulerException {
 		return scheduler.deleteJob(jobGroup, jobName);
@@ -268,6 +275,7 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Remove the trigger and unschedule the job.
 	 */
+	@Auditable(AuditingEventType.EC2_SCHEDULED_DELETED)
 	public boolean deleteTrigger(String triggerGroup, String triggerName)
 			throws SchedulerException {
 		return scheduler.deleteTrigger(triggerGroup, triggerName);
