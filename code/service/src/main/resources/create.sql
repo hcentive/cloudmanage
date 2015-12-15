@@ -16,6 +16,27 @@ CREATE TABLE AUTHORITY_MAP (
   	CONSTRAINT LDAP_FK FOREIGN KEY (LDAP_AUTHORITY_ID) REFERENCES LDAP_AUTHORITY_MASTER (LDAP_AUTH_ID)
 );
 
+-- Access Condition Mapper
+
+CREATE TABLE AUTHORITY_TAG_MAP (
+	TAG_TYPE varchar(40), 
+	TAG_VALUE varchar(40),
+	LDAP_AUTH_NAMES varchar(40),
+	PRIMARY KEY (TAG_TYPE, TAG_VALUE)
+);
+
+-- Audit 
+
+CREATE TABLE AUDIT_INFO (
+	AUDIT_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+	EVENT_TYPE varchar(80),
+    EVENT_PARAMS varchar(80),
+    USER varchar(40),
+    EVENT_TIME datetime
+);
+
+-- data 
+
 insert into LDAP_AUTHORITY_MASTER(LDAP_AUTH_NAME) value ('techops');
 insert into APP_AUTHORITY_MASTER(APP_AUTH_NAME) value ('Operator');
 insert into APP_AUTHORITY_MASTER(APP_AUTH_NAME) value ('Administrator');
@@ -25,8 +46,12 @@ insert into AUTHORITY_MAP value (1,2);
 insert into AUTHORITY_MAP value (1,3);
 
 
-#techops-int entries
+-- techops-int entries
 insert into LDAP_AUTHORITY_MASTER(LDAP_AUTH_NAME) value ('techops-int');
 insert into AUTHORITY_MAP value (2,1);
 insert into AUTHORITY_MAP value (2,2);
 insert into AUTHORITY_MAP value (2,3);
+
+insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('cost-center','CP','techops,Ops');
+insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('stack','qa','techops,Ops,qa-all');
+insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('stack','dev','techops,Ops,dev-all');
