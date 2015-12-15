@@ -9,6 +9,9 @@ import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 
 import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.StartInstancesResult;
+import com.amazonaws.services.ec2.model.StopInstancesResult;
+import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.domain.Instance;
 
 public interface EC2Service {
@@ -17,11 +20,11 @@ public interface EC2Service {
 
 	public List<Instance> getInstanceLists();
 
-	public String stopInstance(String instanceId);
+	public StopInstancesResult stopInstance(String instanceId);
 
-	public String startInstance(String instanceId);
+	public StartInstancesResult startInstance(String instanceId);
 	
-	public String terminateInstance(String instanceId);
+	public TerminateInstancesResult terminateInstance(String instanceId);
 
 	// QUARTZ SECTION *******************
 

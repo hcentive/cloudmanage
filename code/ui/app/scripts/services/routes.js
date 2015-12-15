@@ -52,6 +52,17 @@ angular.module('cloudmanageApp')
       },
       controller: 'DashboardCtrl',
       controllerAs: 'dashboardCtrl'
+    })
+     .state('audit',{
+      url: '/audit',
+      templateUrl: 'views/audit.html',
+      resolve:{
+        list : ['auditService', function(auditService){
+          return auditService.getList();
+        }]
+      },
+      controller: 'AuditCtrl',
+      controllerAs: 'auditCtrl'
     });
     this.$get = function(){};
   }]);

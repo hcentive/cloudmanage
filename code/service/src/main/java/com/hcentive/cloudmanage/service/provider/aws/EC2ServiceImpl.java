@@ -172,7 +172,7 @@ public class EC2ServiceImpl implements EC2Service {
 	 * Stops an EC2 instance.
 	 */
 	@Auditable(AuditingEventType.EC2_STOP)
-	public String stopInstance(String instanceId) {
+	public StopInstancesResult stopInstance(String instanceId) {
 		logger.info("Stopping instance " + instanceId);
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
 		StopInstancesRequest stopRequest = new StopInstancesRequest()
@@ -180,14 +180,14 @@ public class EC2ServiceImpl implements EC2Service {
 		StopInstancesResult stoppedInstances = getEC2Session(true)
 				.stopInstances(stopRequest);
 		logger.debug("Instance stopped " + stoppedInstances);
-		return stoppedInstances.toString();
+		return stoppedInstances;
 	}
 
 	/**
 	 * Starts an EC2 instance.
 	 */
 	@Auditable(AuditingEventType.EC2_START)
-	public String startInstance(String instanceId) {
+	public StartInstancesResult startInstance(String instanceId) {
 		logger.info("Starting instance " + instanceId);
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
 		StartInstancesRequest staetRequest = new StartInstancesRequest()
@@ -195,15 +195,15 @@ public class EC2ServiceImpl implements EC2Service {
 		StartInstancesResult startedInstances = getEC2Session(true)
 				.startInstances(staetRequest);
 		logger.debug("Instance started " + startedInstances);
-		return startedInstances.toString();
+		return startedInstances;
 	}
 
-	public String terminateInstance(String instanceId) {
+	public TerminateInstancesResult terminateInstance(String instanceId) {
 		TerminateInstancesRequest request = new TerminateInstancesRequest();
 		request.withInstanceIds(instanceId);
 		TerminateInstancesResult result = getEC2Session(true)
 				.terminateInstances(request);
-		return result.toString();
+		return result;
 	}
 
 	// ****************** QUARTZ ***********************//

@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.amazonaws.services.ec2.model.StartInstancesResult;
+import com.amazonaws.services.ec2.model.StopInstancesResult;
+import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.service.provider.aws.AWSUtils;
 import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
@@ -30,31 +33,31 @@ public class InstanceController {
 	}
 	
 	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=stop"})
-	public String stopInstance(@PathVariable(value="instanceID") String instanceID){
-		String stoppedInstance = ec2Service.stopInstance(instanceID);
+	public StopInstancesResult stopInstance(@PathVariable(value="instanceID") String instanceID){
+		StopInstancesResult stoppedInstance = ec2Service.stopInstance(instanceID);
 		return stoppedInstance;
 	}
 	
 	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=start"})
-	public String startInstance(@PathVariable(value="instanceID") String instanceID){
-		String startedInstance = ec2Service.startInstance(instanceID);
+	public StartInstancesResult startInstance(@PathVariable(value="instanceID") String instanceID){
+		StartInstancesResult startedInstance = ec2Service.startInstance(instanceID);
 		return startedInstance;
 	}
 	
 	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=terminate"})
-	public String terminateInstance(@PathVariable(value="instanceID") String instanceID){
-		String terminatedIntance = ec2Service.terminateInstance(instanceID);
+	public TerminateInstancesResult terminateInstance(@PathVariable(value="instanceID") String instanceID){
+		TerminateInstancesResult terminatedIntance = ec2Service.terminateInstance(instanceID);
 		return terminatedIntance;
 		
 	}
 	
-	@RequestMapping(value="/schedule", method=RequestMethod.POST)
-	public String scheduleInstance(@RequestParam(value="costCenter") String costCenter, @RequestParam(value="instanceName") String instanceName, 
+	@RequestMapping(value="/schedule/{instanceID}", method=RequestMethod.POST)
+	public String scheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId, 
 			  @RequestParam(value="startCron") String startCronExpression, 
 			 @RequestParam(value="stopCron") String stopCronExpression) throws SchedulerException{
-		String startResponse = scheduleStartInstance(costCenter, instanceName, startCronExpression);
+		String startResponse = scheduleStartInstance(costCenter, instanceId, startCronExpression);
 		if(startResponse.equals("Success!")){
-			String stopResponse = scheduleStopInstance(costCenter, instanceName, stopCronExpression);
+			String stopResponse = scheduleStopInstance(costCenter, instanceId, stopCronExpression);
 			return stopResponse;
 		}
 		return startResponse;

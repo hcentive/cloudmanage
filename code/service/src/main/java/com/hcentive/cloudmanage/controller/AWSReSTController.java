@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.StartInstancesResult;
+import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.s3.model.Bucket;
 import com.hcentive.cloudmanage.audit.AuditEntity;
 import com.hcentive.cloudmanage.audit.AuditService;
@@ -48,17 +50,17 @@ public class AWSReSTController {
 	}
 
 	@RequestMapping(value = "/ec2/start/{instanceId}")
-	public ResponseEntity<String> startEC2Instance(
+	public ResponseEntity<StartInstancesResult> startEC2Instance(
 			@PathVariable("instanceId") String instanceId) {
-		String startedInstance = ec2Service.startInstance(instanceId);
-		return new ResponseEntity<String>(startedInstance, HttpStatus.OK);
+		StartInstancesResult startedInstance = ec2Service.startInstance(instanceId);
+		return new ResponseEntity<StartInstancesResult>(startedInstance, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/ec2/stop/{instanceId}")
-	public ResponseEntity<String> stopEC2Instance(
+	public ResponseEntity<StopInstancesResult> stopEC2Instance(
 			@PathVariable("instanceId") String instanceId) {
-		String stoppedInstance = ec2Service.stopInstance(instanceId);
-		return new ResponseEntity<String>(stoppedInstance, HttpStatus.OK);
+		StopInstancesResult stoppedInstance = ec2Service.stopInstance(instanceId);
+		return new ResponseEntity<StopInstancesResult>(stoppedInstance, HttpStatus.OK);
 	}
 
 	// **************** Quartz **********************//
@@ -194,7 +196,7 @@ public class AWSReSTController {
 	}
 
 	// **************** Audit **********************//
-	@RequestMapping(value = "/audit/list")
+	//@RequestMapping(value = "/audit/list")
 	public ResponseEntity<List<AuditEntity>> getAuditList() {
 		List<AuditEntity> auditEntities = auditService.getAuditsList();
 		return new ResponseEntity<List<AuditEntity>>(auditEntities,

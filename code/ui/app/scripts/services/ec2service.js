@@ -10,8 +10,8 @@
 angular.module('cloudmanageApp')
   .service('ec2Service', ['$http','$log',function ec2Service($http, $log) {
 
-        var performActionOnInstance = function(action, instance){
-            var url = '/instances/' + instance.awsInstance.instanceId,
+        var performActionOnInstance = function(action, instanceID){
+            var url = '/instances/' + instanceID,
             params = {
                 action: action
             };
@@ -61,15 +61,15 @@ angular.module('cloudmanageApp')
 
 
         this.stopInstance = function(instance){
-            return performActionOnInstance('stop', instance);
+            return performActionOnInstance('stop', this.getInstanceId(instance));
         };
 
         this.startInstance = function(instance){
-            return performActionOnInstance('start', instance);
+            return performActionOnInstance('start', this.getInstanceId(instance));
         };
 
         this.terminateInstance = function(instance){
-            return performActionOnInstance('terminate', instance);
+            return performActionOnInstance('terminate', this.getInstanceId(instance));
         };
 
         this.getInstanceName = function(instance){
@@ -80,18 +80,21 @@ angular.module('cloudmanageApp')
             return getTagValue(instance, 'cost-center');            
         };
 
+        this.getInstanceId = function(instance){
+            return instance.awsInstance.instanceId
+        };
+
         this.schedule = function(instance, startCron, stopCron){
             var costCenter = this.getCostCenter(instance),
-            instanceName = this.getInstanceName(instance);
-            return $http.post('/schedule',{
-                costCenter : costCenter,
-                instanceName : instanceName,
-                startCron : startCron,
-                stopCron : stopCron
+            instanceId = this.getInstanceId(instance);
+            return $http.post('/instances/schedule/'+instanceId,{
+                    costCenter : costCenter,
+                    startCron : startCron,
+                    stopCron : stopCron
                 },
                 {
                     headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     transformRequest: function(data, getHeaders){
                         return (! (typeof data === 'string')) ? $.param(data) : data;
