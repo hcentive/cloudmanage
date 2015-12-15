@@ -29,7 +29,8 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 @Configuration
 @EnableCaching
 @EnableScheduling
-@EnableJpaRepositories(basePackages = { "com.hcentive.cloudmanage.security" })
+@EnableJpaRepositories(basePackages = { "com.hcentive.cloudmanage.security",
+		"com.hcentive.cloudmanage.audit" })
 public class ScheduleConfig {
 
 	@Value("${db.driver.class}")
@@ -40,7 +41,7 @@ public class ScheduleConfig {
 	private String username;
 	@Value("${db.password}")
 	private String password;
-	
+
 	/**
 	 * Who ensures shutdown();
 	 * 
@@ -75,7 +76,7 @@ public class ScheduleConfig {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setDataSource(getDatasource());
 		factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-		factory.setPackagesToScan("com.hcentive.cloudmanage.security");
+		factory.setPackagesToScan("com.hcentive.cloudmanage.security","com.hcentive.cloudmanage.audit");
 		// -- mandatory dialect for factory.
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.dialect",
@@ -87,12 +88,13 @@ public class ScheduleConfig {
 	}
 
 	@Bean
-	public JpaTransactionManager transactionManager(EntityManagerFactory eMFactory) {
+	public JpaTransactionManager transactionManager(
+			EntityManagerFactory eMFactory) {
 		JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setEntityManagerFactory(eMFactory);
 		return transactionManager;
 	}
-	
+
 	@Bean
 	public CacheManager cacheManager() {
 		// The constructor is of type String...

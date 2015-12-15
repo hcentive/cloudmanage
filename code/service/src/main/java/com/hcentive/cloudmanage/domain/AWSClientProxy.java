@@ -27,6 +27,7 @@ import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
 import com.amazonaws.services.securitytoken.model.AssumeRoleResult;
 import com.amazonaws.services.securitytoken.model.Credentials;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 
 public class AWSClientProxy {
 
@@ -140,4 +141,10 @@ public class AWSClientProxy {
 				ServiceAbbreviations.S3, false, null), getClientConfiguration());
 	}
 
+	public AmazonSimpleEmailServiceClient getSESClient(boolean applyPolicy,
+			Map<String, String> accessCondition) {
+		return new AmazonSimpleEmailServiceClient(getSecurityToken(
+				Regions.US_EAST_1, ServiceAbbreviations.Email, applyPolicy,
+				accessCondition), getClientConfiguration());
+	}
 }

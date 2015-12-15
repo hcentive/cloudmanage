@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.s3.model.Bucket;
+import com.hcentive.cloudmanage.audit.AuditEntity;
+import com.hcentive.cloudmanage.audit.AuditService;
 import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
 import com.hcentive.cloudmanage.service.provider.aws.S3Service;
 
@@ -27,7 +29,8 @@ public class AWSReSTController {
 	private S3Service s3BucketService;
 	@Autowired
 	private EC2Service ec2Service;
-
+	@Autowired
+	private AuditService auditService;
 	// **************** EC2 **********************//
 
 //	@RequestMapping(value = "/ec2/list")
@@ -190,4 +193,11 @@ public class AWSReSTController {
 		return new ResponseEntity<List<String>>(contents, HttpStatus.OK);
 	}
 
+	// **************** Audit **********************//
+	@RequestMapping(value = "/audit/list")
+	public ResponseEntity<List<AuditEntity>> getAuditList() {
+		List<AuditEntity> auditEntities = auditService.getAuditsList();
+		return new ResponseEntity<List<AuditEntity>>(auditEntities,
+				HttpStatus.OK);
+	}
 }
