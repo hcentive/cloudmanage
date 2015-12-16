@@ -7,7 +7,6 @@
 	<table st-table="instanceCtrl.list" class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th>ID</th>
 				<th>Name</th>
 				<th>Type</th>
 				<th>Status</th>
@@ -16,7 +15,6 @@
 		</thead>
 		<tbody>
 			<tr ng-repeat="instance in instanceCtrl.list">
-				<td>{{instance.awsInstance.keyName}}</td>
 				<td>{{instanceCtrl.getInstanceName(instance)}}</td>
 				<td>{{instance.awsInstance.instanceType}}</td>
 				<td>{{instance.awsInstance.state.name}}</td>
@@ -24,7 +22,6 @@
 					<div class="btn-group" ng-switch on="instance.awsInstance.state.name">
 					  <button type="button" class="btn btn-default" ng-switch-when="running" ng-click="instanceCtrl.stopInstance(instance)" tooltip="Stop"><i class="fa fa-stop"></i></button>
 					   <button type="button" class="btn btn-default" ng-switch-when="stopped" ng-click="instanceCtrl.startInstance(instance)" tooltip="Start"><i class="fa fa-play"></i></button>
-					   <button type="button" class="btn btn-default" ng-click="instanceCtrl.terminateInstance(instance)" tooltip="Terminate"><i class="fa fa-times"></i></button>
 					   <button type="button" class="btn btn-default" ng-click="instanceCtrl.schedule(instance)" tooltip="Schedule"><i class="fa fa-calendar"></i></button>
 					</div>
 				</td>
