@@ -55,12 +55,7 @@
 			<version>1.9.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>net.sf.dozer</groupId>
-			<artifactId>dozer</artifactId>
-			<version>5.4.0</version>
-		</dependency>
-
+		
 		<!-- Caching via ehcache -->
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
@@ -123,6 +118,8 @@
 			<artifactId>aspectjrt</artifactId>
 			<version>1.8.7</version>
 		</dependency>
+
+
 
 	</dependencies>
 </project>

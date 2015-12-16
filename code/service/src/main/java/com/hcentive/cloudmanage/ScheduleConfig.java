@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 
 import org.joda.time.DateTime;
 import org.quartz.SchedulerException;
+import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,6 +15,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -25,6 +27,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+
+import com.hcentive.cloudmanage.job.AutowiringSpringBeanJobFactory;
 
 @Configuration
 @EnableCaching
@@ -65,10 +69,17 @@ public class ScheduleConfig {
 		quartzProps.setProperty("org.quartz.jobStore.tablePrefix", "QRTZ_");
 		// True if JobDataMaps will always have strings and no objects.
 		quartzProps.setProperty("org.quartz.jobStore.useProperties", "false");
+		
 
 		scheduler.setQuartzProperties(quartzProps);
+		scheduler.setJobFactory(jobFactory());
 
 		return scheduler;
+	}
+	
+	@Bean
+	public JobFactory jobFactory() {
+		return new AutowiringSpringBeanJobFactory();
 	}
 
 	@Bean

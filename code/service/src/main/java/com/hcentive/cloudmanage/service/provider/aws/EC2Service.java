@@ -28,12 +28,9 @@ public interface EC2Service {
 
 	// QUARTZ SECTION *******************
 
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
-	public String scheduleInstance(String jobGroup, String jobName,
-			String triggerGroup, String triggerName, String cronExpression);
 
 	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
-	public JobDetail createJob(String jobGroup, String jobName, String jobType)
+	public JobDetail createJob(String jobGroup, String jobName, String jobType, String instanceId)
 			throws SchedulerException;
 
 	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
@@ -54,4 +51,8 @@ public interface EC2Service {
 	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
 	public boolean deleteTrigger(String triggerGroup, String triggerName)
 			throws SchedulerException;
+
+	public String scheduleInstance(String jobGroup, String jobName,
+			String triggerGroup, String triggerName, String cronExpression,
+			String instanceId);
 }

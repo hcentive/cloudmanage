@@ -64,15 +64,15 @@ public class InstanceController {
 		
 	}
 
-	private String scheduleStartInstance(String costCenter, String instanceName,
+	private String scheduleStartInstance(String costCenter, String instanceId,
 			String startCronExpression) throws SchedulerException {
-		return abstractScheduleInstance(costCenter,instanceName, startCronExpression, AWSUtils.START_INSTANCE_JOB_TYPE);
+		return abstractScheduleInstance(costCenter,instanceId, startCronExpression, AWSUtils.START_INSTANCE_JOB_TYPE);
 		
 	}
 
-	private String scheduleStopInstance(String costCenter, String instanceName,
+	private String scheduleStopInstance(String costCenter, String instanceId,
 			String stopCronExpression) throws SchedulerException {
-		return abstractScheduleInstance(costCenter,instanceName, stopCronExpression, AWSUtils.STOP_INSTANCE_JOB_TYPE);
+		return abstractScheduleInstance(costCenter,instanceId, stopCronExpression, AWSUtils.STOP_INSTANCE_JOB_TYPE);
 		
 		
 	}
@@ -80,15 +80,15 @@ public class InstanceController {
 	
 	
 
-	private String abstractScheduleInstance(String costCenter, String instanceName,
+	private String abstractScheduleInstance(String costCenter, String instanceId,
 			String cronExpression, String type) throws SchedulerException {
 		String jobGroup = costCenter + "_job";
 		String triggerGroup = costCenter + "_trigger";
-		String jobName = instanceName + "_"+type;
+		String jobName = instanceId + "_"+type;
 		String jobType = type;
 		String triggerName = jobName + "_trigger";
-		ec2Service.createJob(jobGroup, jobName, jobType);
-		return ec2Service.scheduleInstance(jobGroup, jobName, triggerGroup, triggerName, cronExpression);
+		ec2Service.createJob(jobGroup, jobName, jobType, instanceId);
+		return ec2Service.scheduleInstance(jobGroup, jobName, triggerGroup, triggerName, cronExpression, instanceId);
 		
 	}
 

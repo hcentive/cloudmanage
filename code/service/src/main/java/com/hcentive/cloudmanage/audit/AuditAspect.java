@@ -6,7 +6,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.hcentive.cloudmanage.service.provider.aws.SEmailService;
@@ -46,8 +45,7 @@ public class AuditAspect {
 		}
 		strBld.append("]");
 		// User
-		String auth = SecurityContextHolder.getContext().getAuthentication()
-				.getName();
+		String auth = AuditContextHolder.getContext().getInitiator();
 		// Save
 		AuditEntity audit = new AuditEntity(eventType, strBld.toString(), auth);
 		auditService.audit(audit);

@@ -131,22 +131,7 @@ public class AWSReSTController {
 		return response;
 	}
 
-	// Create Job
-	@RequestMapping(value = "ec2/schedule/createJob")
-	public ResponseEntity<JobDetail> createJob(@RequestParam String jobGroup,
-			@RequestParam String jobName, @RequestParam String jobType) {
-		ResponseEntity<JobDetail> response = null;
-		try {
-			JobDetail jobDetail = ec2Service.createJob(jobGroup, jobName,
-					jobType);
-			response = new ResponseEntity<JobDetail>(jobDetail, HttpStatus.OK);
-		} catch (SchedulerException e) {
-			response = new ResponseEntity<JobDetail>(
-					HttpStatus.INTERNAL_SERVER_ERROR);
-			e.printStackTrace();
-		}
-		return response;
-	}
+	
 
 	// Update Trigger.
 	@RequestMapping(value = "/ec2/schedule/update")
@@ -166,16 +151,6 @@ public class AWSReSTController {
 		return response;
 	}
 
-	// Schedule Job and Trigger
-	@RequestMapping(value = "/ec2/schedule/")
-	public ResponseEntity<String> schedule(@RequestParam String jobGroup,
-			@RequestParam String jobName, @RequestParam String triggerGroup,
-			@RequestParam String triggerName,
-			@RequestParam String cronExpression) {
-		String response = ec2Service.scheduleInstance(jobGroup, jobName,
-				triggerGroup, triggerName, cronExpression);
-		return new ResponseEntity<String>(response, HttpStatus.OK);
-	}
 
 	// **************** S3 **********************//
 

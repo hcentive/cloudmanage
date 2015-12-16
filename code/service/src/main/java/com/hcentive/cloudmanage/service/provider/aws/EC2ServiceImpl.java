@@ -177,7 +177,7 @@ public class EC2ServiceImpl implements EC2Service {
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
 		StopInstancesRequest stopRequest = new StopInstancesRequest()
 				.withInstanceIds(instanceId);
-		StopInstancesResult stoppedInstances = getEC2Session(true)
+		StopInstancesResult stoppedInstances = getEC2Session(SecurityContextHolder.getContext().getAuthentication() != null)
 				.stopInstances(stopRequest);
 		logger.debug("Instance stopped " + stoppedInstances);
 		return stoppedInstances;
@@ -192,7 +192,7 @@ public class EC2ServiceImpl implements EC2Service {
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
 		StartInstancesRequest staetRequest = new StartInstancesRequest()
 				.withInstanceIds(instanceId);
-		StartInstancesResult startedInstances = getEC2Session(true)
+		StartInstancesResult startedInstances = getEC2Session(SecurityContextHolder.getContext().getAuthentication() != null)
 				.startInstances(staetRequest);
 		logger.debug("Instance started " + startedInstances);
 		return startedInstances;
@@ -213,11 +213,11 @@ public class EC2ServiceImpl implements EC2Service {
 
 	@Auditable(AuditingEventType.EC2_SCHEDULED)
 	public String scheduleInstance(String jobGroup, String jobName,
-			String triggerGroup, String triggerName, String cronExpression) {
+			String triggerGroup, String triggerName, String cronExpression, String instanceId) {
 		String response = "Failed!";
 		try {
 			scheduler.schedule(jobGroup, jobName, triggerGroup, triggerName,
-					cronExpression);
+					cronExpression, instanceId);
 			response = "Success!";
 		} catch (SchedulerException e) {
 			e.printStackTrace();
@@ -228,9 +228,9 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Creates a Un-Schedule Job.
 	 */
-	public JobDetail createJob(String jobGroup, String jobName, String jobType)
+	public JobDetail createJob(String jobGroup, String jobName, String jobType, String instanceId)
 			throws SchedulerException {
-		return scheduler.createJob(jobGroup, jobName, jobType);
+		return scheduler.createJob(jobGroup, jobName, jobType, instanceId);
 	}
 
 	/**

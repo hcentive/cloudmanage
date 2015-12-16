@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 
+import com.hcentive.cloudmanage.service.provider.aws.AWSUtils;
+
 @Service
 public class DynamicJobScheduler {
 
@@ -44,13 +46,13 @@ public class DynamicJobScheduler {
 	 */
 	@SuppressWarnings("unchecked")
 	public void schedule(String jobGroup, String jobName, String triggerGroup,
-			String triggerName, String cronExpression)
+			String triggerName, String cronExpression, String instanceId)
 			throws SchedulerException {
 		// Fetch Job Detail
 		Scheduler scheduler = schedulerFactoryBean.getScheduler();
 		JobKey jobKey = new JobKey(jobName, jobGroup);
 		JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-
+		jobDetail.getJobDataMap().put(AWSUtils.INSTANCE_ID, instanceId);
 		// Create Trigger Detail
 		CronTrigger cronTrigger = TriggerBuilder.newTrigger()
 				.withIdentity(triggerName, triggerGroup)
@@ -70,7 +72,7 @@ public class DynamicJobScheduler {
 		scheduler.start();
 	}
 
-	public JobDetail createJob(String jobGroup, String jobName, String jobType)
+	public JobDetail createJob(String jobGroup, String jobName, String jobType, String instanceId)
 			throws SchedulerException {
 
 		Class<? extends Job> classRef;
@@ -86,6 +88,8 @@ public class DynamicJobScheduler {
 		}
 		JobDetail jobDetail = JobBuilder.newJob(classRef)
 				.withIdentity(jobName, jobGroup).storeDurably().build();
+		
+		jobDetail.getJobDataMap().put(AWSUtils.INSTANCE_ID, instanceId);
 		// Add them to scheduler.
 		schedulerFactoryBean.getScheduler().addJob(jobDetail, true);
 		return jobDetail;
