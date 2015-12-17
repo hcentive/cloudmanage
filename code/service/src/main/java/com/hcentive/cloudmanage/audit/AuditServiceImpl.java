@@ -23,4 +23,14 @@ public class AuditServiceImpl implements AuditService {
 		return (List<AuditEntity>) auditRepository.findAll();
 	}
 
+	@Override
+	public List<AuditEntity> getAuditsList(String instanceId) {
+		return (List<AuditEntity>) auditRepository.findBySearchTerm(instanceId);
+	}
+
+	@Override
+	public List<AuditEntity> getLatestDistinctAuditsList(String instanceId) {
+		return (List<AuditEntity>) auditRepository
+				.findLatestDistinctBySearchTerm(instanceId);
+	}
 }

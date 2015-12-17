@@ -9,4 +9,7 @@ public interface AuditService {
 
 	public List<AuditEntity> getAuditsList();
 
+	public List<AuditEntity> getAuditsList(String instanceId);
+
+	public List<AuditEntity> getLatestDistinctAuditsList(String instanceId);
 }
