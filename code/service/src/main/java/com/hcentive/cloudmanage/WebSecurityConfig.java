@@ -38,49 +38,36 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	CustomAuthenticationSuccessHandler authenticationSuccessHandler;
-	
+
 	@Autowired
 	AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
-	
-	
+
 	@Autowired
 	CustomAccessDeniedHandler customAccessDeniedHandler;
-	
+
 	@Autowired
 	CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-	
-	
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http
-			.authorizeRequests()
-				.antMatchers("/login").permitAll()
-				.anyRequest().fullyAuthenticated()
-				.and()
-					.formLogin()
-						.failureHandler(customAuthenticationFailureHandler)
-				.and()
-					.logout()
-					.logoutSuccessHandler(ajaxLogoutSuccessHandler);
-		http
-			.exceptionHandling()
+		http.authorizeRequests().antMatchers("/login").permitAll().anyRequest()
+				.fullyAuthenticated().and().formLogin()
+				.failureHandler(customAuthenticationFailureHandler).and()
+				.logout().logoutSuccessHandler(ajaxLogoutSuccessHandler);
+		http.exceptionHandling()
 				.authenticationEntryPoint(authenticationEntryPoint)
 				.accessDeniedHandler(customAccessDeniedHandler);
 		http.csrf().disable();
-		
+
 	}
-	
+
 	@Override
-   protected void configure(AuthenticationManagerBuilder authManagerBuilder) throws Exception {
-        authManagerBuilder.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
-   }
-	// @Override
- //    protected void configure(AuthenticationManagerBuilder authManagerBuilder) throws Exception {
-	// 	authManagerBuilder
- //          .inMemoryAuthentication()
- //              .withUser("user").password("password").roles("USER");
- //    }
-	
+	protected void configure(AuthenticationManagerBuilder authManagerBuilder)
+			throws Exception {
+		authManagerBuilder
+				.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
+	}
+
 	public AuthenticationProvider activeDirectoryLdapAuthenticationProvider() {
 		ActiveDirectoryLdapAuthenticationProvider provider = new ActiveDirectoryLdapAuthenticationProvider(
 				domain, url);
@@ -89,10 +76,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		provider.setAuthoritiesMapper(authoritiesMapper());
 		return provider;
 	}
-	
+
 	@Bean
 	public GrantedAuthoritiesMapper authoritiesMapper() {
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Configuring LDAPGrantedAuthorityMapper");
 		return new LDAPGrantedAuthorityMapper();
 	}
 }
