@@ -3,7 +3,7 @@ package com.hcentive.cloudmanage.security;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 /**
@@ -11,10 +11,8 @@ import org.springframework.data.repository.query.Param;
  * extend Repository interface.
  */
 public interface DecisionMapperRepository extends
-		Repository<DecisionMapper, Tag> {
-	
-	public List<DecisionMapper> findAll();
-	
+		CrudRepository<DecisionMapper, Tag> {
+
 	@Query("select t from DecisionMapper t where find_in_set(:role,t.ldapAuthNames) <> 0")
 	public List<DecisionMapper> findByRole(@Param("role") String role);
 }
