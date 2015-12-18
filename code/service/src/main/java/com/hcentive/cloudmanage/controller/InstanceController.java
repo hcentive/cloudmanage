@@ -15,6 +15,8 @@ import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.domain.Instance;
+import com.hcentive.cloudmanage.domain.JobTriggerInfo;
+import com.hcentive.cloudmanage.job.InstanceJobDetails;
 import com.hcentive.cloudmanage.service.provider.aws.AWSUtils;
 import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
 
@@ -51,17 +53,42 @@ public class InstanceController {
 		
 	}
 	
+	@RequestMapping(value="/schedule/{instanceID}", method=RequestMethod.GET)
+	public InstanceJobDetails getSchedule(@PathVariable(value="instanceID") String instanceId) throws SchedulerException{
+		InstanceJobDetails jobDetails = ec2Service.getInstanceJobDetails(instanceId);
+		return jobDetails;
+	}
+	
 	@RequestMapping(value="/schedule/{instanceID}", method=RequestMethod.POST)
-	public String scheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId, 
+	public void scheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId, 
 			  @RequestParam(value="startCron") String startCronExpression, 
 			 @RequestParam(value="stopCron") String stopCronExpression) throws SchedulerException{
 		String startResponse = scheduleStartInstance(costCenter, instanceId, startCronExpression);
 		if(startResponse.equals("Success!")){
 			String stopResponse = scheduleStopInstance(costCenter, instanceId, stopCronExpression);
-			return stopResponse;
 		}
-		return startResponse;
+	}
+	
+	@RequestMapping(value="/schedule/delete/{instanceID}", method=RequestMethod.POST)
+	public void deleteScheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId) throws SchedulerException{
+		deleteStartInstanceJob(costCenter, instanceId);
+		deleteStopInstanceJob(costCenter, instanceId);
+	}
+	
+	
+	private void deleteStopInstanceJob(String costCenter, String instanceId) throws SchedulerException {
+		abstractDeleteJob(costCenter, instanceId, AWSUtils.STOP_INSTANCE_JOB_TYPE);
 		
+	}
+
+	private void deleteStartInstanceJob(String costCenter, String instanceId) throws SchedulerException {
+		abstractDeleteJob(costCenter, instanceId, AWSUtils.START_INSTANCE_JOB_TYPE);
+	}
+	
+	private void abstractDeleteJob(String costCenter, String instanceId, String type) throws SchedulerException{
+		JobTriggerInfo jobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, type);
+		ec2Service.deleteJob(jobTriggerInfo.getJobGroup(), jobTriggerInfo.getJobName());
+		ec2Service.deleteTrigger(jobTriggerInfo.getTriggerGroup(), jobTriggerInfo.getTriggerName());
 	}
 
 	private String scheduleStartInstance(String costCenter, String instanceId,
@@ -77,18 +104,13 @@ public class InstanceController {
 		
 	}
 	
-	
-	
 
 	private String abstractScheduleInstance(String costCenter, String instanceId,
 			String cronExpression, String type) throws SchedulerException {
-		String jobGroup = costCenter + "_job";
-		String triggerGroup = costCenter + "_trigger";
-		String jobName = instanceId + "_"+type;
-		String jobType = type;
-		String triggerName = jobName + "_trigger";
-		ec2Service.createJob(jobGroup, jobName, jobType, instanceId);
-		return ec2Service.scheduleInstance(jobGroup, jobName, triggerGroup, triggerName, cronExpression, instanceId);
+		JobTriggerInfo jobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, type);
+		ec2Service.createJob(jobTriggerInfo.getJobGroup(), jobTriggerInfo.getJobName(), jobTriggerInfo.getJobType(), instanceId);
+		return ec2Service.scheduleInstance(jobTriggerInfo.getJobGroup(), jobTriggerInfo.getJobName(), jobTriggerInfo.getTriggerGroup(), 
+				jobTriggerInfo.getTriggerName(), cronExpression, instanceId);
 		
 	}
 

@@ -26,6 +26,12 @@
     InterceptorProxyProvider.addUrlsToIgnore('views','ui-grid','template');
     InterceptorProxyProvider.addInterceptor('GlobalTrackerInterceptor','serviceUrlInterceptor', 'accessDeniedInterceptor');
     $httpProvider.interceptors.unshift('InterceptorProxy');
+    //Transform request into form data
+    $httpProvider.defaults.transformRequest = function(data, getHeaders){
+        var headers = getHeaders();
+        headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8";
+        return (data && ! (typeof data === 'string')) ? $.param(data) : data;
+    };
     stompClientProvider.setEndPoint('/resources');
 
   }])

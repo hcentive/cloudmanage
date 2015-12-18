@@ -38,6 +38,7 @@ import com.hcentive.cloudmanage.audit.Auditable.AuditingEventType;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.job.DynamicJobScheduler;
+import com.hcentive.cloudmanage.job.InstanceJobDetails;
 import com.hcentive.cloudmanage.security.DecisionMapper;
 import com.hcentive.cloudmanage.security.DecisionMapperRepository;
 
@@ -231,6 +232,10 @@ public class EC2ServiceImpl implements EC2Service {
 	public JobDetail createJob(String jobGroup, String jobName, String jobType, String instanceId)
 			throws SchedulerException {
 		return scheduler.createJob(jobGroup, jobName, jobType, instanceId);
+	}
+	
+	public InstanceJobDetails getInstanceJobDetails(String instanceId) throws SchedulerException{
+		return scheduler.getInstanceJobDetails(instanceId);
 	}
 
 	/**

@@ -14,6 +14,8 @@ public class AWSUtils {
 	public static final String STOP_INSTANCE_JOB_TYPE = "stop-ec2";
 	
 	public static final String INSTANCE_ID = "instanceId";
+
+	public static String CRON_EXPRESSION = "cron-expression";
 	
 	public static List<Instance> extractInstances(DescribeInstancesResult result) {
 		List<Reservation> reservations=result.getReservations();

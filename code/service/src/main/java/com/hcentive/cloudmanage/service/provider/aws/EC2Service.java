@@ -13,6 +13,7 @@ import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.domain.Instance;
+import com.hcentive.cloudmanage.job.InstanceJobDetails;
 
 public interface EC2Service {
 
@@ -32,6 +33,8 @@ public interface EC2Service {
 	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
 	public JobDetail createJob(String jobGroup, String jobName, String jobType, String instanceId)
 			throws SchedulerException;
+	
+	public InstanceJobDetails getInstanceJobDetails(String instanceId) throws SchedulerException;
 
 	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
 	public Set<JobKey> listScheduledInstanceJobs() throws SchedulerException;

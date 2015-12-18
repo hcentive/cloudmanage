@@ -17,9 +17,6 @@ angular.module('cloudmanageApp')
           return $http.post('/login', credentials,{
              headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            transformRequest: function(data, getHeaders){
-                return (! (typeof data === 'string')) ? $.param(data) : data;
             }
           }).then(
             function(principal){

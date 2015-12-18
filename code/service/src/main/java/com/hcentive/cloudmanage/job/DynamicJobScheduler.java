@@ -1,5 +1,6 @@
 package com.hcentive.cloudmanage.job;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,6 +9,7 @@ import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -52,7 +54,9 @@ public class DynamicJobScheduler {
 		Scheduler scheduler = schedulerFactoryBean.getScheduler();
 		JobKey jobKey = new JobKey(jobName, jobGroup);
 		JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-		jobDetail.getJobDataMap().put(AWSUtils.INSTANCE_ID, instanceId);
+		JobDataMap jobDataMap = jobDetail.getJobDataMap();
+		jobDataMap.put(AWSUtils.INSTANCE_ID, instanceId);
+		jobDataMap.put(AWSUtils.CRON_EXPRESSION, cronExpression);
 		// Create Trigger Detail
 		CronTrigger cronTrigger = TriggerBuilder.newTrigger()
 				.withIdentity(triggerName, triggerGroup)
@@ -93,6 +97,57 @@ public class DynamicJobScheduler {
 		// Add them to scheduler.
 		schedulerFactoryBean.getScheduler().addJob(jobDetail, true);
 		return jobDetail;
+	}
+	
+	public InstanceJobDetails getInstanceJobDetails(String instanceId) throws SchedulerException{
+		
+		Set<JobKey> jobKeysForInstance = getJobKeysForInstance(instanceId);
+		InstanceJobDetails instanceJobDetail = null;
+		if(!jobKeysForInstance.isEmpty()){
+			instanceJobDetail = new InstanceJobDetails();
+			for(JobKey key : jobKeysForInstance){
+				JobDetail jobDetail = schedulerFactoryBean.getScheduler()
+						.getJobDetail(key);
+				InstanceTriggerDetails instanceTriggerDetails = getInstanceTriggerDetails(jobDetail,key);
+				if(jobDetail.getJobClass() == StartEC2InstanceJob.class){
+					instanceJobDetail.setStart(instanceTriggerDetails);
+				}
+				else if(jobDetail.getJobClass() == StopEC2InstanceJob.class){
+					instanceJobDetail.setStop(instanceTriggerDetails);
+				}
+			}
+		}
+		return instanceJobDetail;
+		
+	}
+
+	private InstanceTriggerDetails getInstanceTriggerDetails(JobDetail jobDetail, JobKey key) throws SchedulerException {
+		InstanceTriggerDetails instanceTriggerDetails = new InstanceTriggerDetails();
+		List<? extends Trigger> triggers = schedulerFactoryBean.getScheduler().getTriggersOfJob(key);
+		Trigger trigger = triggers.get(0);
+		instanceTriggerDetails.setCron(jobDetail.getJobDataMap().getString(AWSUtils.CRON_EXPRESSION));
+		instanceTriggerDetails.setNextFireTime(trigger.getNextFireTime());
+		instanceTriggerDetails.setPreviousFireTime(trigger.getPreviousFireTime());
+		return instanceTriggerDetails;
+		
+	}
+
+	private Set<JobKey> getJobKeysForInstance(String instanceId) throws SchedulerException {
+		Set<JobKey> jobKeys = new HashSet<>();
+		List<String> jobGroupNames = schedulerFactoryBean.getScheduler()
+				.getJobGroupNames();
+		for (String jobGroupName : jobGroupNames) {
+				GroupMatcher<JobKey> jobGroupMatcher = GroupMatcher
+						.jobGroupEquals(jobGroupName);
+				Set<JobKey> jobKeysForGroup = schedulerFactoryBean.getScheduler()
+						.getJobKeys(jobGroupMatcher);
+				for(JobKey key : jobKeysForGroup){
+					if(key.getName().contains(instanceId)){
+						jobKeys.add(key);
+					}
+				}
+		}
+		return jobKeys;
 	}
 
 	public Set<JobKey> listScheduledInstanceJobs() throws SchedulerException {

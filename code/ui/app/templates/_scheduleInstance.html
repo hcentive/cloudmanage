@@ -1,6 +1,24 @@
 <div class="modal-header">
   <h3 class="modal-title">Schedule instance</h3>
 </div>
+<div ng-if="scheduleCtrl.response.status">
+  <div class="alert alert-{{scheduleCtrl.response.status}}" role="alert">
+      {{scheduleCtrl.response.message}}
+  </div>
+</div>
+<div class="alert alert-info" role="alert" ng-if="scheduleCtrl.jobDetails">
+  <p>
+  Instance will 
+                <span ng-switch="scheduleCtrl.instance.awsInstance.state.name">
+                  <span ng-switch-when="running">
+                    <strong>stop</strong> at {{scheduleCtrl.jobDetails.stop.nextFireTime | date : 'medium'}}
+                  </span>
+                  <span ng-switch-when="stopped">
+                    <strong>start</strong> at {{scheduleCtrl.jobDetails.start.nextFireTime | date : 'medium'}}
+                  </span>
+                </span>
+  </p>
+</div>
 <form ng-submit="scheduleCtrl.submit()">
   <div class="modal-body">
     <div class="form-group">
@@ -15,5 +33,6 @@
   <div class="modal-footer">
     <button class="btn btn-primary" type="submit">OK</button>
     <button class="btn btn-warning" type="button" ng-click="scheduleCtrl.cancel()">Cancel</button>
+    <button class="btn btn-danger" type="button" ng-click="scheduleCtrl.delete()" ng-if="scheduleCtrl.jobDetails">Delete</button>
   </div>
 </form>

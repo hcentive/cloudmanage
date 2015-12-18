@@ -46,6 +46,9 @@ angular.module('cloudmanageApp')
         resolve: {
           instance: function () {
             return instance;
+          },
+          jobDetails: function(){
+            return ec2Service.getJobDetails(instance);
           }
         }
       });
