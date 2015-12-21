@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.quartz.CronScheduleBuilder;
-import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -37,6 +36,7 @@ import com.hcentive.cloudmanage.audit.Auditable;
 import com.hcentive.cloudmanage.audit.Auditable.AuditingEventType;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
 import com.hcentive.cloudmanage.domain.Instance;
+import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.job.DynamicJobScheduler;
 import com.hcentive.cloudmanage.job.InstanceJobDetails;
 import com.hcentive.cloudmanage.security.DecisionMapper;
@@ -212,27 +212,6 @@ public class EC2ServiceImpl implements EC2Service {
 	@Autowired
 	private DynamicJobScheduler scheduler;
 
-	@Auditable(AuditingEventType.EC2_SCHEDULED)
-	public String scheduleInstance(String jobGroup, String jobName,
-			String triggerGroup, String triggerName, String cronExpression, String instanceId) {
-		String response = "Failed!";
-		try {
-			scheduler.schedule(jobGroup, jobName, triggerGroup, triggerName,
-					cronExpression, instanceId);
-			response = "Success!";
-		} catch (SchedulerException e) {
-			e.printStackTrace();
-		}
-		return response;
-	}
-
-	/**
-	 * Creates a Un-Schedule Job.
-	 */
-	public JobDetail createJob(String jobGroup, String jobName, String jobType, String instanceId)
-			throws SchedulerException {
-		return scheduler.createJob(jobGroup, jobName, jobType, instanceId);
-	}
 	
 	public InstanceJobDetails getInstanceJobDetails(String instanceId) throws SchedulerException{
 		return scheduler.getInstanceJobDetails(instanceId);
@@ -256,7 +235,7 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Update the trigger.
 	 */
-	@Auditable(AuditingEventType.EC2_SCHEDULED_UPDATED)
+	@Auditable(AuditingEventType.EC2_SCHEDULE_UPDATED)
 	public void updateTrigger(String triggerGroup, String triggerName,
 			String cronExpression) throws SchedulerException {
 		TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
@@ -271,19 +250,27 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Remove the Job and all associated triggers.
 	 */
-	@Auditable(AuditingEventType.EC2_SCHEDULED_DELETED)
-	public boolean deleteJob(String jobGroup, String jobName)
+	@Auditable(AuditingEventType.EC2_SCHEDULE_DELETED)
+	public void deleteJob(JobTriggerInfo startJobTriggerInfo,
+			JobTriggerInfo stopJobTriggerInfo, String instanceId)
 			throws SchedulerException {
-		return scheduler.deleteJob(jobGroup, jobName);
+		scheduler.deleteJob(startJobTriggerInfo.getJobGroup(), startJobTriggerInfo.getJobName());
+		scheduler.deleteJob(stopJobTriggerInfo.getJobGroup(), stopJobTriggerInfo.getJobName());
 	}
 
-	/**
-	 * Remove the trigger and unschedule the job.
-	 */
-	@Auditable(AuditingEventType.EC2_SCHEDULED_DELETED)
-	public boolean deleteTrigger(String triggerGroup, String triggerName)
-			throws SchedulerException {
-		return scheduler.deleteTrigger(triggerGroup, triggerName);
+
+	@Override
+	@Auditable(AuditingEventType.EC2_SCHEDULE_CREATED)
+	public void scheduleInstance(JobTriggerInfo startJobTriggerInfo,
+			JobTriggerInfo stopJobTriggerInfo, String instanceId) throws SchedulerException {
+		abstractScheduleInstance(startJobTriggerInfo, instanceId);
+		abstractScheduleInstance(stopJobTriggerInfo, instanceId);
+	}
+	
+	private void abstractScheduleInstance(JobTriggerInfo jobTriggerInfo, String instanceId) throws SchedulerException{
+		scheduler.createJob(jobTriggerInfo.getJobGroup(), jobTriggerInfo.getJobName(), jobTriggerInfo.getJobType(), instanceId);
+		scheduler.schedule(jobTriggerInfo.getJobGroup(), jobTriggerInfo.getJobName(), jobTriggerInfo.getTriggerGroup(), 
+				jobTriggerInfo.getTriggerName(), jobTriggerInfo.getCronExpression(), instanceId);
 	}
 
 }

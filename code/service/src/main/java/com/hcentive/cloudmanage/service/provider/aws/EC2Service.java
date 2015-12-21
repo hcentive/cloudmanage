@@ -13,6 +13,7 @@ import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.domain.Instance;
+import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.job.InstanceJobDetails;
 
 public interface EC2Service {
@@ -30,10 +31,6 @@ public interface EC2Service {
 	// QUARTZ SECTION *******************
 
 
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
-	public JobDetail createJob(String jobGroup, String jobName, String jobType, String instanceId)
-			throws SchedulerException;
-	
 	public InstanceJobDetails getInstanceJobDetails(String instanceId) throws SchedulerException;
 
 	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
@@ -47,15 +44,9 @@ public interface EC2Service {
 	public void updateTrigger(String triggerGroup, String triggerName,
 			String cronExpression) throws SchedulerException;
 
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
-	public boolean deleteJob(String jobGroup, String jobName)
-			throws SchedulerException;
+	public void scheduleInstance(JobTriggerInfo startJobTriggerInfo,
+			JobTriggerInfo stopJobTriggerInfo, String instanceId) throws SchedulerException;
 
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
-	public boolean deleteTrigger(String triggerGroup, String triggerName)
-			throws SchedulerException;
-
-	public String scheduleInstance(String jobGroup, String jobName,
-			String triggerGroup, String triggerName, String cronExpression,
-			String instanceId);
+	public void deleteJob(JobTriggerInfo startJobTriggerInfo,
+			JobTriggerInfo stopJobTriggerInfo, String instanceId) throws SchedulerException;
 }

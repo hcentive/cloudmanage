@@ -63,55 +63,18 @@ public class InstanceController {
 	public void scheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId, 
 			  @RequestParam(value="startCron") String startCronExpression, 
 			 @RequestParam(value="stopCron") String stopCronExpression) throws SchedulerException{
-		String startResponse = scheduleStartInstance(costCenter, instanceId, startCronExpression);
-		if(startResponse.equals("Success!")){
-			String stopResponse = scheduleStopInstance(costCenter, instanceId, stopCronExpression);
-		}
+		JobTriggerInfo startJobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, AWSUtils.START_INSTANCE_JOB_TYPE);
+		startJobTriggerInfo.setCronExpression(startCronExpression);
+		JobTriggerInfo stopJobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, AWSUtils.STOP_INSTANCE_JOB_TYPE);
+		stopJobTriggerInfo.setCronExpression(stopCronExpression);
+		ec2Service.scheduleInstance(startJobTriggerInfo, stopJobTriggerInfo, instanceId);
 	}
 	
 	@RequestMapping(value="/schedule/delete/{instanceID}", method=RequestMethod.POST)
 	public void deleteScheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId) throws SchedulerException{
-		deleteStartInstanceJob(costCenter, instanceId);
-		deleteStopInstanceJob(costCenter, instanceId);
-	}
-	
-	
-	private void deleteStopInstanceJob(String costCenter, String instanceId) throws SchedulerException {
-		abstractDeleteJob(costCenter, instanceId, AWSUtils.STOP_INSTANCE_JOB_TYPE);
-		
-	}
-
-	private void deleteStartInstanceJob(String costCenter, String instanceId) throws SchedulerException {
-		abstractDeleteJob(costCenter, instanceId, AWSUtils.START_INSTANCE_JOB_TYPE);
-	}
-	
-	private void abstractDeleteJob(String costCenter, String instanceId, String type) throws SchedulerException{
-		JobTriggerInfo jobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, type);
-		ec2Service.deleteJob(jobTriggerInfo.getJobGroup(), jobTriggerInfo.getJobName());
-		ec2Service.deleteTrigger(jobTriggerInfo.getTriggerGroup(), jobTriggerInfo.getTriggerName());
-	}
-
-	private String scheduleStartInstance(String costCenter, String instanceId,
-			String startCronExpression) throws SchedulerException {
-		return abstractScheduleInstance(costCenter,instanceId, startCronExpression, AWSUtils.START_INSTANCE_JOB_TYPE);
-		
-	}
-
-	private String scheduleStopInstance(String costCenter, String instanceId,
-			String stopCronExpression) throws SchedulerException {
-		return abstractScheduleInstance(costCenter,instanceId, stopCronExpression, AWSUtils.STOP_INSTANCE_JOB_TYPE);
-		
-		
-	}
-	
-
-	private String abstractScheduleInstance(String costCenter, String instanceId,
-			String cronExpression, String type) throws SchedulerException {
-		JobTriggerInfo jobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, type);
-		ec2Service.createJob(jobTriggerInfo.getJobGroup(), jobTriggerInfo.getJobName(), jobTriggerInfo.getJobType(), instanceId);
-		return ec2Service.scheduleInstance(jobTriggerInfo.getJobGroup(), jobTriggerInfo.getJobName(), jobTriggerInfo.getTriggerGroup(), 
-				jobTriggerInfo.getTriggerName(), cronExpression, instanceId);
-		
+		JobTriggerInfo startJobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, AWSUtils.START_INSTANCE_JOB_TYPE);
+		JobTriggerInfo stopJobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, AWSUtils.STOP_INSTANCE_JOB_TYPE);
+		ec2Service.deleteJob(startJobTriggerInfo, stopJobTriggerInfo, instanceId);
 	}
 
 }

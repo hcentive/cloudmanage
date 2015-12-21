@@ -1,26 +1,27 @@
 <div class="modal-header">
   <h3 class="modal-title">Schedule instance</h3>
 </div>
-<div ng-if="scheduleCtrl.response.status">
-  <div class="alert alert-{{scheduleCtrl.response.status}}" role="alert">
-      {{scheduleCtrl.response.message}}
-  </div>
-</div>
-<div class="alert alert-info" role="alert" ng-if="scheduleCtrl.jobDetails">
-  <p>
-  Instance will 
-                <span ng-switch="scheduleCtrl.instance.awsInstance.state.name">
-                  <span ng-switch-when="running">
-                    <strong>stop</strong> at {{scheduleCtrl.jobDetails.stop.nextFireTime | date : 'medium'}}
-                  </span>
-                  <span ng-switch-when="stopped">
-                    <strong>start</strong> at {{scheduleCtrl.jobDetails.start.nextFireTime | date : 'medium'}}
-                  </span>
-                </span>
-  </p>
-</div>
+
 <form ng-submit="scheduleCtrl.submit()">
   <div class="modal-body">
+    <div ng-if="scheduleCtrl.response.status">
+      <div class="alert alert-{{scheduleCtrl.response.status}}" role="alert">
+        {{scheduleCtrl.response.message}}
+      </div>
+    </div>
+    <div class="alert alert-info" role="alert" ng-if="scheduleCtrl.jobDetails">
+      <p>
+        Instance will 
+        <span ng-switch="scheduleCtrl.instance.awsInstance.state.name">
+          <span ng-switch-when="running">
+            <strong>stop</strong> at {{scheduleCtrl.jobDetails.stop.nextFireTime | date : 'medium'}}
+          </span>
+          <span ng-switch-when="stopped">
+            <strong>start</strong> at {{scheduleCtrl.jobDetails.start.nextFireTime | date : 'medium'}}
+          </span>
+        </span>
+      </p>
+    </div>
     <div class="form-group">
       <label for="startInstanceCron">Start Instance Cron</label>
       <input type="text" class="form-control" id="startInstanceCron" ng-model="scheduleCtrl.cron.start" ng-required>

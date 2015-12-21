@@ -8,6 +8,6 @@ public @interface Auditable {
 	AuditingEventType value();
 
 	public enum AuditingEventType {
-		EC2_START, EC2_STOP, EC2_SCHEDULED_DELETED, EC2_SCHEDULED_UPDATED, EC2_SCHEDULED;
+		EC2_START, EC2_STOP, EC2_SCHEDULE_DELETED, EC2_SCHEDULE_UPDATED, EC2_SCHEDULE_CREATED;
 	};
 }

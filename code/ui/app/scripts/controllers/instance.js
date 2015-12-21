@@ -14,8 +14,9 @@ angular.module('cloudmanageApp')
                                 'instances',
                                 '$log', 
                                 'pollingService',
+                                'auditService',
                                 '$modal',
-                                function ($scope, groupService, ec2Service,instances, $log, pollingService, $modal) {
+                                function ($scope, groupService, ec2Service,instances, $log, pollingService, auditService, $modal) {
   	var that = this;
     that.list = instances;
 
@@ -36,8 +37,22 @@ angular.module('cloudmanageApp')
 
     that.getInstanceName = function(instance){
       return ec2Service.getInstanceName(instance);
-    }
-
+    };
+    that.audit = function(instance){
+      var modalInstance =  $modal.open({
+        templateUrl: 'templates/_auditInstance.html',
+        controller: 'AuditinstanceCtrl',
+        controllerAs: 'auditInstanceCtrl',
+        resolve: {
+          instance: function () {
+            return instance;
+          },
+          auditList: function(){
+            return auditService.getInstanceAuditList(instance);
+          }
+        }
+      });
+    };
     that.schedule = function(instance){
         var modalInstance =  $modal.open({
         templateUrl: 'templates/_scheduleInstance.html',
@@ -52,5 +67,5 @@ angular.module('cloudmanageApp')
           }
         }
       });
-    }
+    };
   }]);
