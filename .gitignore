@@ -2,4 +2,5 @@ target
 .project
 .classpath
 .DS_Store
-tmp
+tmpSTSActiveDirectoryFederation/
+code/service/.settings/
