@@ -16,24 +16,24 @@
   'ngSanitize',
   'ngTouch',
   'ui.router',
-  'ui.grid',
+  'smart-table',
   'ui.bootstrap',
   'ajoslin.promise-tracker'
   ])
- .config(['routesProvider','$httpProvider','InterceptorProxyProvider','stompClientProvider',
-  function(routesProvider, $httpProvider,InterceptorProxyProvider, stompClientProvider){
+ .config(['routesProvider','$httpProvider','InterceptorProxyProvider',
+  function(routesProvider, $httpProvider,InterceptorProxyProvider){
 
-    InterceptorProxyProvider.addUrlsToIgnore('views','ui-grid','template');
+    InterceptorProxyProvider.addUrlsToIgnore('views','ui-grid','template','cronselection.html');
     InterceptorProxyProvider.addInterceptor('GlobalTrackerInterceptor','serviceUrlInterceptor', 'accessDeniedInterceptor');
     $httpProvider.interceptors.unshift('InterceptorProxy');
-    //Transform request into form data
-    $httpProvider.defaults.transformRequest = function(data, getHeaders){
-        var headers = getHeaders();
-        headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8";
-        return (data && ! (typeof data === 'string')) ? $.param(data) : data;
-    };
-    stompClientProvider.setEndPoint('/resources');
 
   }])
+ .run(['$http','utils', function($http, utils){
+   $http.defaults.transformRequest = function(data, getHeaders){
+        var headers = getHeaders();
+        headers["Content-Type"] = "application/x-www-form-urlencoded; charset=utf-8";
+        return (data && ! (typeof data === 'string')) ? utils.serializeJSON(data) : data;
+    };
+ }])
  .value('serviceUrl', '/service')
- .value('pollingInterval',10000);
+ .value('pollingInterval',60000);

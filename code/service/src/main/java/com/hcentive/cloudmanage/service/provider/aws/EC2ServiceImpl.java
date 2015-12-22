@@ -236,13 +236,17 @@ public class EC2ServiceImpl implements EC2Service {
 	 * Update the trigger.
 	 */
 	@Auditable(AuditingEventType.EC2_SCHEDULE_UPDATED)
-	public void updateTrigger(String triggerGroup, String triggerName,
-			String cronExpression) throws SchedulerException {
-		TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
+	public void updateTrigger(JobTriggerInfo startJobTriggerInfo, JobTriggerInfo stopJobTriggerInfo) throws SchedulerException {
+		updateTrigger(startJobTriggerInfo);
+		updateTrigger(stopJobTriggerInfo);
+	}
+	
+	private void updateTrigger(JobTriggerInfo jobTriggerInfo) throws SchedulerException{
+		TriggerKey triggerKey = new TriggerKey(jobTriggerInfo.getTriggerName(), jobTriggerInfo.getTriggerGroup());
 		Trigger newTrigger = TriggerBuilder.newTrigger()
 				.withIdentity(triggerKey)
 				// This might not be required. Still!
-				.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
+				.withSchedule(CronScheduleBuilder.cronSchedule(jobTriggerInfo.getCronExpression()))
 				.build();
 		scheduler.updateTrigger(triggerKey, newTrigger);
 	}

@@ -7,9 +7,9 @@
 	<table st-table="instanceCtrl.list" class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th>Name</th>
-				<th>Type</th>
-				<th>Status</th>
+				<th st-sort="instanceCtrl.getInstanceName" st-sort-default="true">Name</th>
+				<th st-sort="awsInstance.instanceType">Type</th>
+				<th st-sort="awsInstance.state.name">Status</th>
 				<th>Action</th>
 			</tr>
 		</thead>

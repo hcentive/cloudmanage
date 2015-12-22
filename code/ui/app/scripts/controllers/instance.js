@@ -9,29 +9,31 @@
  */
 angular.module('cloudmanageApp')
   .controller('InstanceCtrl', [ '$scope',
-                                'groupService',
                                 'ec2Service',
                                 'instances',
                                 '$log', 
                                 'pollingService',
                                 'auditService',
                                 '$modal',
-                                function ($scope, groupService, ec2Service,instances, $log, pollingService, auditService, $modal) {
+                                function ($scope, ec2Service,instances, $log, pollingService, auditService, $modal) {
   	var that = this;
     that.list = instances;
 
     that.stopInstance = function(instance){
-      $log.log('instance stopping', instance);
-      ec2Service.stopInstance(instance);
+      ec2Service.stopInstance(instance).then(function(response){
+        var data = response.data;
+        instance.awsInstance.state.name = data.stoppingInstances[0].currentState.name;
+      });
     };
 
     that.startInstance = function(instance){
-      $log.log('instance starting', instance);
-      ec2Service.startInstance(instance);
+      ec2Service.startInstance(instance).then(function(response){
+        var data = response.data;
+        instance.awsInstance.state.name = data.startingInstances[0].currentState.name;
+      });
     };
 
     that.terminateInstance = function(instance){
-      $log.log('instance terminating', instance);
       ec2Service.terminateInstance(instance);
     };
 
@@ -68,4 +70,9 @@ angular.module('cloudmanageApp')
         }
       });
     };
+    pollingService.register(function(){
+      ec2Service.getInstances(true).then(function(list){
+        that.list = list;
+      });
+    });
   }]);

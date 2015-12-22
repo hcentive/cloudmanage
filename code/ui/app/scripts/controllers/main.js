@@ -13,7 +13,7 @@ angular.module('cloudmanageApp')
   	function ($scope, authenticationService, securityContextHolder, $rootScope, pollingService, logoutService, $state, $log) {
 	  	var vm = this;
 	  	vm.securityContextHolder = securityContextHolder;
-	  	//activate();
+	  	activate();
 	  	function activate(){
 	  		authenticationService.authenticate();
 	  	}

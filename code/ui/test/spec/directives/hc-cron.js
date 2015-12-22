@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Directive: groupsList', function () {
+describe('Directive: hcCron', function () {
 
   // load the directive's module
   beforeEach(module('cloudmanageApp'));
@@ -13,8 +13,8 @@ describe('Directive: groupsList', function () {
   }));
 
   it('should make hidden element visible', inject(function ($compile) {
-    element = angular.element('<groups-list></groups-list>');
+    element = angular.element('<hc-cron></hc-cron>');
     element = $compile(element)(scope);
-    expect(element.text()).toBe('this is the groupsList directive');
+    expect(element.text()).toBe('this is the hcCron directive');
   }));
 });

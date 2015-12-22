@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css"/>
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/angular-ui-grid/ui-grid.css" />
     <link rel="stylesheet" href="bower_components/metisMenu/dist/metisMenu.css" />
     <link rel="stylesheet" href="bower_components/morrisjs/morris.css" />
     <link rel="stylesheet" href="bower_components/bootstrap-social/bootstrap-social.css" />
@@ -23,7 +22,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
   </head>
-  <body ng-app="cloudmanageApp">
+  <body ng-app="cloudmanageApp" ng-cloak>
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -41,19 +40,19 @@
                 </button>
                 <a class="navbar-brand" href="#">Cloud Manage</a>
             </div>
-            <ul class="nav navbar-top-links navbar-right">
+            <ul class="nav navbar-top-links navbar-right" ng-if="mainCtrl.securityContextHolder.authenticated">
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li ng-if="mainCtrl.securityContextHolder.authenticated"><a ng-click="mainCtrl.logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        <li><a ng-click="mainCtrl.logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>
                     </ul>
                 </li>
             </ul>
 
-            <div class="navbar-default sidebar" role="navigation">
+            <div class="navbar-default sidebar" role="navigation" ng-if="mainCtrl.securityContextHolder.authenticated">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li>
@@ -90,12 +89,10 @@
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
     <script src="bower_components/angular-touch/angular-touch.js"></script>
-    <script src="bower_components/angular-ui-grid/ui-grid.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/datatables/media/js/jquery.dataTables.js"></script>
     <script src="bower_components/json3/lib/json3.min.js"></script>
     <script src="bower_components/promise-tracker/promise-tracker.js"></script>
-    <script src="bower_components/sockjs-client/dist/sockjs.js"></script>
+    <script src="bower_components/datatables/media/js/jquery.dataTables.js"></script>
     <script src="bower_components/flot/jquery.flot.js"></script>
     <script src="bower_components/holderjs/holder.js"></script>
     <script src="bower_components/metisMenu/dist/metisMenu.js"></script>
@@ -105,11 +102,11 @@
     <script src="bower_components/datatables-responsive/js/dataTables.responsive.js"></script>
     <script src="bower_components/flot.tooltip/js/jquery.flot.tooltip.js"></script>
     <script src="bower_components/startbootstrap-sb-admin-2/dist/js/sb-admin-2.js"></script>
-    <script src="bower_components/stomp-websocket/lib/stomp.min.js"></script>
     <script src="bower_components/ui-router/release/angular-ui-router.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/angular-cron-jobs/dist/angular-cron-jobs.min.js"></script>
+    <script src="bower_components/jquery-cron/cron/jquery-cron-min.js"></script>
     <!-- endbower -->
-     <script src="bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
      <script src="bower_components/promise-tracker/promise-tracker-http-interceptor.js"></script>
     <!-- endbuild -->
 
@@ -118,32 +115,27 @@
         <script src="scripts/controllers/main.js"></script>
         <script src="scripts/services/authenticationservice.js"></script>
         <script src="scripts/controllers/login.js"></script>
-        <script src="scripts/controllers/home.js"></script>
         <script src="scripts/services/ec2service.js"></script>
         <script src="scripts/services/serviceurlinterceptor.js"></script>
         <script src="scripts/services/accessdeniedinterceptor.js"></script>
-        <script src="scripts/controllers/vpc.js"></script>
         <script src="scripts/services/statecache.js"></script>
         <script src="scripts/services/authenticationsuccesshandler.js"></script>
         <script src="scripts/services/authenticationfailurehandler.js"></script>
         <script src="scripts/services/securitycontextholder.js"></script>
-        <script src="scripts/directives/groupslist.js"></script>
-        <script src="scripts/services/groupservice.js"></script>
         <script src="scripts/controllers/instance.js"></script>
-        <script src="scripts/directives/hc-datatable.js"></script>
         <script src="scripts/directives/hc-processing.js"></script>
         <script src="scripts/services/globaltrackerinterceptor.js"></script>
         <script src="scripts/services/globaltrackerservice.js"></script>
         <script src="scripts/services/interceptorproxy.js"></script>
         <script src="scripts/services/pollingservice.js"></script>
         <script src="scripts/services/routes.js"></script>
-        <script src="scripts/controllers/dashboard.js"></script>
-        <script src="scripts/services/stompclient.js"></script>
         <script src="scripts/services/logoutservice.js"></script>
         <script src="scripts/controllers/schedule.js"></script>
         <script src="scripts/controllers/audit.js"></script>
         <script src="scripts/services/auditservice.js"></script>
         <script src="scripts/controllers/auditinstance.js"></script>
+        <script src="scripts/directives/hc-cron.js"></script>
+        <script src="scripts/services/utils.js"></script>
         <!-- endbuild -->
 </body>
 </html>

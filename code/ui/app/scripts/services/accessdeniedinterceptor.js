@@ -13,7 +13,9 @@ angular.module('cloudmanageApp')
       responseError: function (rejection) {
         var state = $injector.get('$state');
         if(rejection.status === 401) {
-          stateCache.addState(state.current);
+          if(state.current.name){
+            stateCache.addState(state.current);
+          }
           state.go('login');
         }
         return $q.reject(rejection);  

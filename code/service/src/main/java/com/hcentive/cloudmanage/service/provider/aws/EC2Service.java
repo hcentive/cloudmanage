@@ -41,9 +41,8 @@ public interface EC2Service {
 			throws SchedulerException;
 
 	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
-	public void updateTrigger(String triggerGroup, String triggerName,
-			String cronExpression) throws SchedulerException;
-
+	public void updateTrigger(JobTriggerInfo startJobTriggerInfo, JobTriggerInfo stopJobTriggerInfo) throws SchedulerException;
+	
 	public void scheduleInstance(JobTriggerInfo startJobTriggerInfo,
 			JobTriggerInfo stopJobTriggerInfo, String instanceId) throws SchedulerException;
 

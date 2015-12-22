@@ -10,8 +10,9 @@
  angular.module('cloudmanageApp')
  .service('ec2Service', ['$http','$log',function ec2Service($http, $log) {
 
-    var performActionOnInstance = function(action, instanceID){
-        var url = '/instances/' + instanceID,
+    this.performActionOnInstance = function(action, instance){
+        var instanceID = this.getInstanceId(instance),
+        url = '/instances/' + instanceID,
         params = {
             action: action
         };
@@ -24,11 +25,8 @@
           });
     };
 
-    var fetchData = function(url, groups, polling){
+    var fetchData = function(url,polling){
         var params = {};
-        if(groups){
-            params.group = groups;
-        }
         return $http.get(url,{
             params: params,
             ignoreTracker : polling
@@ -54,25 +52,25 @@
         });
       };
 
-    this.getInstances = function(groups, polling){
-        return fetchData('/instances', groups, polling);
+    this.getInstances = function( polling){
+        return fetchData('/instances', polling);
     };
 
-    this.getResourcesMetaData = function(groups, polling){
-       return fetchData('/dashboard/resourceMetaData', groups, polling);
+    this.getResourcesMetaData = function(polling){
+       return fetchData('/dashboard/resourceMetaData', polling);
     };
 
 
     this.stopInstance = function(instance){
-        return performActionOnInstance('stop', this.getInstanceId(instance));
+        return this.performActionOnInstance('stop', instance);
     };
 
     this.startInstance = function(instance){
-        return performActionOnInstance('start', this.getInstanceId(instance));
+        return this.performActionOnInstance('start', instance);
     };
 
     this.terminateInstance = function(instance){
-        return performActionOnInstance('terminate', this.getInstanceId(instance));
+        return this.performActionOnInstance('terminate', instance);
     };
 
     this.getInstanceName = function(instance){
@@ -87,13 +85,29 @@
         return instance.awsInstance.instanceId
     };
 
-    this.schedule = function(instance, startCron, stopCron){
+    this.createSchedule = function(instance, startCron, stopCron){
+        return this.schedule(instance, startCron, stopCron, 'create');
+    };
+
+    this.updateSchedule = function(instance, startCron, stopCron){
+        return this.schedule(instance, startCron, stopCron, 'update');
+    };
+
+    this.schedule = function(instance, startCron, stopCron, type){
         var costCenter = this.getCostCenter(instance),
-        instanceId = this.getInstanceId(instance);
-        return $http.post('/instances/schedule/'+instanceId,{
-            costCenter : costCenter,
-            startCron : startCron,
-            stopCron : stopCron
+        instanceId = this.getInstanceId(instance),
+        url = (type === 'create') ? '/instances/schedule/'+instanceId : '/instances/schedule/update/'+instanceId;
+        return $http.post(url,{
+            startJobTriggerInfo:{
+                costCenter: costCenter,
+                cronExpression: startCron,
+                instanceId: instanceId
+            },
+            stopJobTriggerInfo: {
+                costCenter: costCenter,
+                cronExpression: stopCron,
+                instanceId: instanceId
+            }
         },{
              headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'

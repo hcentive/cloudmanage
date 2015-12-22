@@ -16,6 +16,9 @@ import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobTriggerInfo;
+import com.hcentive.cloudmanage.domain.JobTriggerInfoDTO;
+import com.hcentive.cloudmanage.domain.StartJobTriggerInfo;
+import com.hcentive.cloudmanage.domain.StopJobTriggerInfo;
 import com.hcentive.cloudmanage.job.InstanceJobDetails;
 import com.hcentive.cloudmanage.service.provider.aws.AWSUtils;
 import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
@@ -60,15 +63,20 @@ public class InstanceController {
 	}
 	
 	@RequestMapping(value="/schedule/{instanceID}", method=RequestMethod.POST)
-	public void scheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId, 
-			  @RequestParam(value="startCron") String startCronExpression, 
-			 @RequestParam(value="stopCron") String stopCronExpression) throws SchedulerException{
-		JobTriggerInfo startJobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, AWSUtils.START_INSTANCE_JOB_TYPE);
-		startJobTriggerInfo.setCronExpression(startCronExpression);
-		JobTriggerInfo stopJobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, AWSUtils.STOP_INSTANCE_JOB_TYPE);
-		stopJobTriggerInfo.setCronExpression(stopCronExpression);
-		ec2Service.scheduleInstance(startJobTriggerInfo, stopJobTriggerInfo, instanceId);
+	public void scheduleInstance(JobTriggerInfoDTO jobTriggerInfoDTO, 
+			 @PathVariable(value="instanceID") String instanceId) throws SchedulerException{
+		ec2Service.scheduleInstance(jobTriggerInfoDTO.getStartJobTriggerInfo(), jobTriggerInfoDTO.getStopJobTriggerInfo(), instanceId);
 	}
+	
+	
+	@RequestMapping(value="/schedule/update/{instanceID}", method=RequestMethod.POST)
+	public void updateScheduleInstance(@PathVariable(value="instanceID") String instanceId, 
+			JobTriggerInfoDTO jobTriggerInfoDTO) throws SchedulerException{
+		ec2Service.updateTrigger(jobTriggerInfoDTO.getStartJobTriggerInfo(), jobTriggerInfoDTO.getStopJobTriggerInfo());
+	}
+	
+	
+	
 	
 	@RequestMapping(value="/schedule/delete/{instanceID}", method=RequestMethod.POST)
 	public void deleteScheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId) throws SchedulerException{

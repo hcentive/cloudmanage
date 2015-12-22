@@ -5,9 +5,9 @@
   <table st-table="auditInstanceCtrl.list" class="table table-striped table-bordered table-hover">
     <thead>
       <tr>
-        <th>Event Type</th>
-        <th>Initiator</th>
-        <th>Date</th>
+        <th st-sort="eventType">Event Type</th>
+        <th st-sort="userName">Initiator</th>
+        <th st-sort="eventTime" st-sort-default="reverse">Date</th>
       </tr>
     </thead>
     <tbody>

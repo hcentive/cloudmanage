@@ -9,6 +9,17 @@ public class JobTriggerInfo {
 	private String type;
 	
 	private String cronExpression;
+
+	public JobTriggerInfo(String costCenter, String instanceId, String type){
+		
+		this.costCenter = costCenter;
+		this.instanceId = instanceId;
+		this.type = type;
+	}
+	
+	public JobTriggerInfo(){
+		
+	}
 	
 	public String getCronExpression() {
 		return cronExpression;
@@ -16,13 +27,6 @@ public class JobTriggerInfo {
 
 	public void setCronExpression(String cronExpression) {
 		this.cronExpression = cronExpression;
-	}
-
-	public JobTriggerInfo(String costCenter, String instanceId, String type){
-		
-		this.costCenter = costCenter;
-		this.instanceId = instanceId;
-		this.type = type;
 	}
 
 	public String getJobName() {
@@ -47,6 +51,30 @@ public class JobTriggerInfo {
 
 	public String getJobType() {
 		return type;
+	}
+	
+	public String getCostCenter() {
+		return costCenter;
+	}
+
+	public void setCostCenter(String costCenter) {
+		this.costCenter = costCenter;
+	}
+
+	public String getInstanceId() {
+		return instanceId;
+	}
+
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	@Override

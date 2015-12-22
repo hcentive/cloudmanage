@@ -31,8 +31,8 @@ angular.module('cloudmanageApp')
       url: '/instances',
       templateUrl: 'views/instances.html',
       resolve: {
-        instances: ['groupService', 'ec2Service',function(groupService, ec2Service){
-           return ec2Service.getInstances(groupService.vm.selectedGroup);
+        instances: ['ec2Service',function(ec2Service){
+           return ec2Service.getInstances();
         }]
       },
       controller: 'InstanceCtrl',

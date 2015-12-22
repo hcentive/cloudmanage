@@ -8,7 +8,7 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('pollingService', ['pollingInterval', '$interval',function pollingService(pollingInterval, $interval) {
+  .service('pollingService', ['pollingInterval', '$interval','$timeout',function pollingService(pollingInterval, $interval, $timeout) {
   	var _promise = null;
 
   	function startPolling(pollingFn, pollingArgs){
@@ -21,7 +21,9 @@ angular.module('cloudmanageApp')
   		var _argumentsArray = Array.prototype.slice.call(arguments),
   		_poll = _argumentsArray.shift(),
   		_arguments = _argumentsArray;
-  		startPolling(_poll, _arguments);
+      $timeout(function(){
+        startPolling(_poll, _arguments);
+      }, pollingInterval);
   	};
 
   	this.deregister = function(){
