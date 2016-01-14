@@ -191,10 +191,10 @@ public class EC2ServiceImpl implements EC2Service {
 	public StartInstancesResult startInstance(String instanceId) {
 		logger.info("Starting instance " + instanceId);
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
-		StartInstancesRequest staetRequest = new StartInstancesRequest()
+		StartInstancesRequest startRequest = new StartInstancesRequest()
 				.withInstanceIds(instanceId);
 		StartInstancesResult startedInstances = getEC2Session(SecurityContextHolder.getContext().getAuthentication() != null)
-				.startInstances(staetRequest);
+				.startInstances(startRequest);
 		logger.debug("Instance started " + startedInstances);
 		return startedInstances;
 	}

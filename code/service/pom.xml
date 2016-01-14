@@ -55,7 +55,7 @@
 			<version>1.9.0</version>
 		</dependency>
 
-		
+
 		<!-- Caching via ehcache -->
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
@@ -65,17 +65,17 @@
 
 
 		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-       
-        
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-messaging</artifactId>
-        </dependency>
-		
-    	
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-messaging</artifactId>
+		</dependency>
+
+
 
 		<!-- JPA Provider (Hibernate) -->
 		<dependency>
@@ -117,6 +117,21 @@
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
 			<version>1.8.7</version>
+		</dependency>
+
+		<!-- Jenkins Http Client -->
+		<dependency>
+			<!-- only needed for SecuredMain example -->
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+
+		<!-- json converter from String -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20151123</version>
 		</dependency>
 
 
