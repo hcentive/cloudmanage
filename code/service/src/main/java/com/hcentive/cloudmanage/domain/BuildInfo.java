@@ -50,12 +50,11 @@ public class BuildInfo {
 						for (int j = 0; j < causes.length(); j++) {
 							JSONObject causesObj = causes.getJSONObject(j);
 							StringBuilder initiatedByStrBldr = new StringBuilder(
-									causesObj.getString("shortDescription"));
+									causesObj.getString("shortDescription")).append(" ");
 							if (causesObj.has("userId")) {
 								initiatedByStrBldr.append(causesObj
 										.getString("userId"));
-							}
-							if (causesObj.has("userName")) {
+							} else if (causesObj.has("userName")) {
 								initiatedByStrBldr.append(causesObj
 										.getString("userName"));
 							}
@@ -116,8 +115,6 @@ public class BuildInfo {
 		this.jobName = jobName;
 	}
 
-	
-
 	// Getters
 	public String getJobName() {
 		return jobName;
@@ -151,7 +148,6 @@ public class BuildInfo {
 		return logFileLocation;
 	}
 
-	
 	public String getBuildId() {
 		return buildId;
 	}
@@ -159,7 +155,6 @@ public class BuildInfo {
 	public void setBuildId(String buildId) {
 		this.buildId = buildId;
 	}
-	
 
 	public Integer getLastSuccessfulBuildID() {
 		return lastSuccessfulBuildID;
