@@ -11,22 +11,43 @@ public class AppConfig {
 		// address that corresponds to an AWS resource, the JVM will refresh the
 		// cached IP value after a relatively brief period of time.
 		java.security.Security.setProperty("networkaddress.cache.ttl", "60");
-		System.setProperty("javax.net.ssl.trustStore", "jenkinsKeystore");
-		System.setProperty("javax.net.ssl.trustStorePassword", "jenkins");
+//		System.setProperty("javax.net.ssl.trustStore", "jenkinsKeystore");
+//		System.setProperty("javax.net.ssl.trustStorePassword", "jenkins");
 	}
 
-	@Value("${jenkins.url}")
 	public static String jenkinsUrl;
-	
-	@Value("${jenkins.password}")
+
 	public static String jenkinsPassword;
-	
-	@Value("${jenkins.username}")
+
 	public static String jenkinsUsername;
 
-	@Value("${jenkins.log.base.dir}")
 	public static String logBaseDir;
-	
-	@Value("${jenkins.jobs.url}")
+
 	public static String jenkinsJobsUrl;
+
+	@Value("${jenkins.url}")
+	public void setJenkinsUrl(String jenkinsUrl) {
+		AppConfig.jenkinsUrl = jenkinsUrl;
+	}
+
+	@Value("${jenkins.password}")
+	public void setJenkinsPassword(String jenkinsPassword) {
+		AppConfig.jenkinsPassword = jenkinsPassword;
+	}
+
+	@Value("${jenkins.username}")
+	public void setJenkinsUsername(String jenkinsUsername) {
+		AppConfig.jenkinsUsername = jenkinsUsername;
+	}
+
+	@Value("${jenkins.log.base.dir}")
+	public void setLogBaseDir(String logBaseDir) {
+		AppConfig.logBaseDir = logBaseDir;
+	}
+
+	@Value("${jenkins.jobs.url}")
+	public void setJenkinsJobsUrl(String jenkinsJobsUrl) {
+		AppConfig.jenkinsJobsUrl = jenkinsJobsUrl;
+	}
+
 }

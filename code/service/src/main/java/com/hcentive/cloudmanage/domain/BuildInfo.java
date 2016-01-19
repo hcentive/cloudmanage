@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 public class BuildInfo {
 
-	private int buildId;
+	private String buildId;
 	private String jobName;
 	private String jiraId;
 	private String stack;
@@ -16,12 +16,13 @@ public class BuildInfo {
 	private String initiatedBy;
 	private Calendar initiatedAt;
 	private String logFileLocation;
+	private Integer lastSuccessfulBuildID;
 
-	public BuildInfo(String jsonResponse) {
-		JSONObject jsonObj = new JSONObject(jsonResponse);
+	public BuildInfo(String source) {
+		JSONObject jsonObj = new JSONObject(source);
 		System.out.println("Received " + jsonObj);
 
-		setBuildId(jsonObj.getInt("id"));
+		setBuildId(jsonObj.getString("id"));
 
 		// Split job name by space.
 		String displayName = jsonObj.getString("fullDisplayName");
@@ -115,9 +116,7 @@ public class BuildInfo {
 		this.jobName = jobName;
 	}
 
-	public void setBuildId(int buildId) {
-		this.buildId = buildId;
-	}
+	
 
 	// Getters
 	public String getJobName() {
@@ -152,8 +151,22 @@ public class BuildInfo {
 		return logFileLocation;
 	}
 
-	public int getBuildId() {
+	
+	public String getBuildId() {
 		return buildId;
+	}
+
+	public void setBuildId(String buildId) {
+		this.buildId = buildId;
+	}
+	
+
+	public Integer getLastSuccessfulBuildID() {
+		return lastSuccessfulBuildID;
+	}
+
+	public void setLastSuccessfulBuildID(Integer lastSuccessfulBuildID) {
+		this.lastSuccessfulBuildID = lastSuccessfulBuildID;
 	}
 
 	// Equals
@@ -161,7 +174,7 @@ public class BuildInfo {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + buildId;
+		result = prime * result + Integer.parseInt(buildId);
 		result = prime * result + ((jobName == null) ? 0 : jobName.hashCode());
 		return result;
 	}

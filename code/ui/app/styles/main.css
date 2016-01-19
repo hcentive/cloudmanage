@@ -41,3 +41,7 @@
   .st-sort-descent:before{
     content: '\25BC';
   }
+
+.top-buffer { margin-top:20px; }
+
+.bottom-buffer { margin-bottom:20px; }

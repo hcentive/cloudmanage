@@ -38,10 +38,6 @@ angular.module('cloudmanageApp')
       controller: 'InstanceCtrl',
       controllerAs: 'instanceCtrl'
     })
-    // .state('home',{
-    //   url: '/',
-    //   templateUrl: 'views/home.html'
-    // })
     .state('dashboard',{
       url: '/dashboard',
       templateUrl: 'views/dashboard.html',
@@ -63,6 +59,23 @@ angular.module('cloudmanageApp')
       },
       controller: 'AuditCtrl',
       controllerAs: 'auditCtrl'
-    });
+    })
+     .state('build',{
+      url: '/build',
+      templateUrl: 'views/build.html',
+      resolve: {
+        list: ['buildService', function(buildService){
+          return buildService.getList();
+        }]
+      },
+      controller: 'BuildCtrl',
+      controllerAs: 'buildCtrl'
+     })
+      .state('build.details',{
+      url: '/{jobName}',
+      templateUrl: 'views/build_details.html',
+      controller: 'BuilddetailCtrl',
+      controllerAs: 'buildDetailCtrl'
+     });
     this.$get = function(){};
   }]);

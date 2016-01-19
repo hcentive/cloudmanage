@@ -19,7 +19,8 @@
     "ui-router": "0.2.15",
     "underscore": "1.8.3",
     "angular-cron-jobs": "1.4.1",
-    "jquery-cron": "https://github.com/hcentive/jquery-cron.git#master"
+    "jquery-cron": "https://github.com/hcentive/jquery-cron.git#master",
+    "ui-select": "angular-ui-select#~0.13.2"
   },
   "devDependencies": {
     "angular-mocks": "1.4.4",

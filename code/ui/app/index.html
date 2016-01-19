@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="bower_components/morrisjs/morris.css" />
     <link rel="stylesheet" href="bower_components/bootstrap-social/bootstrap-social.css" />
     <link rel="stylesheet" href="bower_components/startbootstrap-sb-admin-2/dist/css/sb-admin-2.css" />
+    <link rel="stylesheet" href="bower_components/ui-select/dist/select.css" />
     <!-- endbower -->
     
     <!-- endbuild -->
@@ -61,6 +62,9 @@
                         <li>
                             <a ui-sref="audit" ui-sref-active="active"><i class="fa fa-heartbeat fa-fw"></i>Audit</a>    
                         </li>
+                        <li>
+                            <a ui-sref="build" ui-sref-active="active"><i class="fa fa-wrench fa-fw"></i>Build</a>    
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -106,6 +110,7 @@
     <script src="bower_components/underscore/underscore.js"></script>
     <script src="bower_components/angular-cron-jobs/dist/angular-cron-jobs.min.js"></script>
     <script src="bower_components/jquery-cron/cron/jquery-cron-min.js"></script>
+    <script src="bower_components/ui-select/dist/select.js"></script>
     <!-- endbower -->
      <script src="bower_components/promise-tracker/promise-tracker-http-interceptor.js"></script>
     <!-- endbuild -->
@@ -136,6 +141,10 @@
         <script src="scripts/controllers/auditinstance.js"></script>
         <script src="scripts/directives/hc-cron.js"></script>
         <script src="scripts/services/utils.js"></script>
+        <script src="scripts/controllers/build.js"></script>
+        <script src="scripts/services/buildservice.js"></script>
+        <script src="scripts/controllers/builddetail.js"></script>
+        <script src="scripts/filters/hyphenate.js"></script>
         <!-- endbuild -->
 </body>
 </html>

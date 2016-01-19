@@ -1,0 +1,24 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+       Details
+    </div>
+    <div class="panel-body">
+        <dl class="dl-horizontal">
+            <dt>Successful Build ID</dt>
+            <dd>{{buildDetailCtrl.details.lastSuccessfulBuildID}}</dd>
+            <dt>Jira ID</dt>
+            <dd>{{buildDetailCtrl.details.jiraId | hyphenate}}</dd>
+            <dt>Revision Number</dt>
+            <dd>{{buildDetailCtrl.details.revisionNumber | hyphenate}}</dd>
+            <dt>Host Name</dt>
+            <dd>{{buildDetailCtrl.details.hostName | hyphenate}}</dd>
+            <dt>Initiated By</dt>
+            <dd>{{buildDetailCtrl.details.initiatedBy}}</dd>
+            <dt>Initiated At</dt>
+            <dd>{{buildDetailCtrl.details.initiatedAt | date:'medium'}}</dd>
+            <dt>Build Log</dt>
+            <dd><a ng-href="/service/build/log/{{buildDetailCtrl.details.jobName}}/{{buildDetailCtrl.details.lastSuccessfulBuildID}}"><i class="fa fa-download"></i></a></dd>
+        </dl>
+    </div>
+    <!-- /.panel-body -->
+</div>

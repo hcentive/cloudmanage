@@ -18,12 +18,13 @@
   'ui.router',
   'smart-table',
   'ui.bootstrap',
-  'ajoslin.promise-tracker'
+  'ajoslin.promise-tracker',
+  'ui.select'
   ])
  .config(['routesProvider','$httpProvider','InterceptorProxyProvider',
   function(routesProvider, $httpProvider,InterceptorProxyProvider){
 
-    InterceptorProxyProvider.addUrlsToIgnore('views','ui-grid','template','cronselection.html');
+    InterceptorProxyProvider.addUrlsToIgnore('views','ui-grid','template','cronselection.html','selectize','bootstrap');
     InterceptorProxyProvider.addInterceptor('GlobalTrackerInterceptor','serviceUrlInterceptor', 'accessDeniedInterceptor');
     $httpProvider.interceptors.unshift('InterceptorProxy');
 

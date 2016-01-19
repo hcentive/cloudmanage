@@ -4,3 +4,4 @@ target
 .DS_Store
 tmpSTSActiveDirectoryFederation/
 code/service/.settings/
+scripts/application.properties

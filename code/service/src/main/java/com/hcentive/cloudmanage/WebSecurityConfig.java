@@ -50,7 +50,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/login").permitAll().anyRequest()
+		http.authorizeRequests().antMatchers("/login").permitAll().
+				antMatchers("/build/*").permitAll().anyRequest()
 				.fullyAuthenticated().and().formLogin()
 				.failureHandler(customAuthenticationFailureHandler).and()
 				.logout().logoutSuccessHandler(ajaxLogoutSuccessHandler);

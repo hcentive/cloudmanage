@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.policy.Condition;
@@ -38,6 +39,7 @@ public class AWSClientProxy {
 	public ClientConfiguration getClientConfiguration() {
 		ClientConfiguration clientConfiguration = new ClientConfiguration();
 		clientConfiguration.setMaxConnections(2);
+		clientConfiguration.setProtocol(Protocol.HTTP);
 		return clientConfiguration;
 	}
 
