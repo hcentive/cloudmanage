@@ -11,8 +11,6 @@ public class AppConfig {
 		// address that corresponds to an AWS resource, the JVM will refresh the
 		// cached IP value after a relatively brief period of time.
 		java.security.Security.setProperty("networkaddress.cache.ttl", "60");
-		System.setProperty("javax.net.ssl.trustStore", "jenkinsKeystore");
-		System.setProperty("javax.net.ssl.trustStorePassword", "jenkins");
 	}
 
 	@Value("${jenkins.url}")

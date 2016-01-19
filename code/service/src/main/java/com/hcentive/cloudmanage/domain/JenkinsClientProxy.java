@@ -7,9 +7,11 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.hcentive.cloudmanage.AppConfig;
 
+@Service
 public class JenkinsClientProxy {
 
 	private static final Logger logger = LoggerFactory
