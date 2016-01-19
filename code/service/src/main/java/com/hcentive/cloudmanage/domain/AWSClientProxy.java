@@ -22,6 +22,7 @@ import com.amazonaws.auth.policy.conditions.StringCondition.StringComparisonType
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.regions.ServiceAbbreviations;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
@@ -36,7 +37,7 @@ public class AWSClientProxy {
 			.getLogger(AWSClientProxy.class.getName());
 
 	// Restricting at max 2 users to get tokens using the current user.
-	public ClientConfiguration getClientConfiguration() {
+	private ClientConfiguration getClientConfiguration() {
 		ClientConfiguration clientConfiguration = new ClientConfiguration();
 		clientConfiguration.setMaxConnections(2);
 		clientConfiguration.setProtocol(Protocol.HTTP);
@@ -50,7 +51,7 @@ public class AWSClientProxy {
 	 *            - ServiceAbbreviations
 	 * @return
 	 */
-	public AWSCredentials getSecurityToken(Regions regions, String awsService,
+	private AWSCredentials getSecurityToken(Regions regions, String awsService,
 			boolean applyPolicy, Map<String, String> accessCondition) {
 		// This client to STS will use default credentials.
 		AWSSecurityTokenServiceClient sts_client = new AWSSecurityTokenServiceClient();
@@ -148,5 +149,11 @@ public class AWSClientProxy {
 		return new AmazonSimpleEmailServiceClient(getSecurityToken(
 				Regions.US_EAST_1, ServiceAbbreviations.Email, applyPolicy,
 				accessCondition), getClientConfiguration());
+	}
+
+	public AmazonCloudWatchClient getCloudWatchClient(boolean applyPolicy) {
+		return new AmazonCloudWatchClient(getSecurityToken(Regions.US_EAST_1,
+				ServiceAbbreviations.CloudWatch, applyPolicy, null),
+				getClientConfiguration());
 	}
 }
