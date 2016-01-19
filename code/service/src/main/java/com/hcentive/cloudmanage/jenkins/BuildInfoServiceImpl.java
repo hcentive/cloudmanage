@@ -39,31 +39,6 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 				url, String.class, vars);
 		BuildInfo ref = new BuildInfo(result);
 		ref.setLastSuccessfulBuildID(lastSuccessfulBuildNumber);
-//		HttpMethod method = new GetMethod(AppConfig.jenkinsUrl + "job" + "/"
-//				+ jobName + "/" + lastSuccessfulBuildNumber
-//				+ "/api/json?pretty=true");
-//		session.executeMethod(method);
-//		checkResult(method.getStatusCode());
-//		String jsonResponse = method.getResponseBodyAsString();
-//		
-//
-//		// Get Log file as well.
-//		HttpMethod logMethod = new GetMethod(AppConfig.jenkinsUrl + "job" + "/"
-//				+ jobName + "/" + lastSuccessfulBuildNumber
-//				+ "/consoleText/api/json?pretty=true");
-//		session.executeMethod(logMethod);
-//		checkResult(logMethod.getStatusCode());
-//		String logFile = logMethod.getResponseBodyAsString();
-//		// Write it to file system.
-//		File file = new File(AppConfig.logBaseDir + ref.getLogFileLocation());
-//		// if file doesn't exists, then create it
-//		if (!file.exists()) {
-//			file.createNewFile();
-//		}
-//		BufferedWriter bw = new BufferedWriter(new FileWriter(
-//				file.getAbsoluteFile()));
-//		bw.write(logFile);
-
 		return ref;
 	}
 	

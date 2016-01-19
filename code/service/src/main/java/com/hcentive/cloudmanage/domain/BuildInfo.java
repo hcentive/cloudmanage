@@ -174,7 +174,7 @@ public class BuildInfo {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Integer.parseInt(buildId);
+		result = prime * result + ((buildId == null) ? 0 : buildId.hashCode());
 		result = prime * result + ((jobName == null) ? 0 : jobName.hashCode());
 		return result;
 	}
@@ -188,7 +188,10 @@ public class BuildInfo {
 		if (getClass() != obj.getClass())
 			return false;
 		BuildInfo other = (BuildInfo) obj;
-		if (buildId != other.buildId)
+		if (buildId == null) {
+			if (other.buildId != null)
+				return false;
+		} else if (!buildId.equals(other.buildId))
 			return false;
 		if (jobName == null) {
 			if (other.jobName != null)
