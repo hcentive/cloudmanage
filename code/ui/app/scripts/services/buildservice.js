@@ -12,7 +12,7 @@ angular.module('cloudmanageApp')
   	 	this.getList = function(){
     		return $http.get('/build/list')
     			.then(function(response){
-                	return response.data.jobs;
+                	return response.data;
             	});
     	};
     	this.getDetail = function(jobName){

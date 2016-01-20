@@ -1,21 +1,21 @@
 package com.hcentive.cloudmanage.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.util.MimeType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.amazonaws.services.cloudsearchdomain.model.ContentType;
 import com.hcentive.cloudmanage.domain.BuildInfo;
 import com.hcentive.cloudmanage.domain.BuildJobResponse;
+import com.hcentive.cloudmanage.domain.JobMetaInfo;
 import com.hcentive.cloudmanage.jenkins.BuildInfoService;
 
 @RestController
@@ -26,14 +26,28 @@ public class BuildInfoController {
 	private BuildInfoService buildInfoService;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	public BuildJobResponse buildJobs() throws IOException {
-		return buildInfoService.getBuilds();
+	public List<String> buildJobs() throws IOException {
+		BuildJobResponse response = buildInfoService.getBuilds();
+		List<String> jobs = extractDeployJobs(response);
+		return jobs;
 	}
 
-	@RequestMapping(value = "/{jobName}", method = RequestMethod.GET)
+	private List<String> extractDeployJobs(BuildJobResponse response) {
+		List<JobMetaInfo> jobs = response.getJobs();
+		List<String> deployJobs = new ArrayList<String>();
+		for(JobMetaInfo job : jobs){
+			String jobName = job.getName();
+			if(jobName.contains("deploy")){
+				deployJobs.add(jobName);
+			}
+		}
+		return deployJobs;
+	}
+
+	@RequestMapping(value = "/{jobName:.+}", method = RequestMethod.GET)
 	public BuildInfo getLastSuccessfulBuildInfo(@PathVariable(value = "jobName") String jobName)
 			throws IOException {
-		Integer lastSuccessfulBuild = buildInfoService.getLastSuccessfulBuildNumber(jobName);
+		Integer lastSuccessfulBuild = buildInfoService.getJobInfo(jobName);
 		if(lastSuccessfulBuild != null){
 			BuildInfo buildInfo = buildInfoService.getBuildInfo(jobName,
 					lastSuccessfulBuild);

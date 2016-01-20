@@ -11,7 +11,8 @@ angular.module('cloudmanageApp')
   .controller('BuilddetailCtrl', ['buildService','$stateParams',function (buildService, $stateParams) {
   	var that = this;
   	var jobName = $stateParams.jobName;
+  	this.detailsList = [];
     buildService.getDetail(jobName).then(function(data){
-    	that.details = data;
+    	that.detailsList.push(data);
     });
   }]);

@@ -77,17 +77,14 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 
 
 	@Override
-	public Integer getLastSuccessfulBuildNumber(String jobName) throws IOException {
+	public JobInfo getJobInfo(String jobName) throws IOException {
 		RestTemplate restTemplate = jenkinsServer.getRestTemplate();
 		Map<String, String> vars = Collections.singletonMap("jobName", jobName);
 		String url = AppConfig.jenkinsUrl + "job/{jobName}/api/json";
 		JobInfo result = restTemplate.getForObject(
 				url, JobInfo.class, vars);
-		Map<String, String> lastSuccessfulBuild = result.getLastSuccessfulBuild();
-		if(lastSuccessfulBuild != null){
-			return Integer.parseInt(lastSuccessfulBuild.get("number"));
-		}
-		return null;
+		Integer lastSuccessfulBuild = result.getLastSuccessfulBuildNumber();
+		return lastSuccessfulBuild;
 	}
 
 

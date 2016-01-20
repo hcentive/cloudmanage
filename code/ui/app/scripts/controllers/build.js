@@ -8,12 +8,16 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-  .controller('BuildCtrl', ['list','$state', function (list, $state) {
-
-    this.list = _.map(list, function(item){return item.name;});
-    this.getDetail = function($item, $model){
-    	$state.go('build.details',{
-    		jobName: $item
-    	});
+  .controller('BuildCtrl', ['list','$state','buildService', function (list, $state, buildService) {
+  	var that = this;
+    this.list = list;
+    this.detailsList = {};
+    this.getDetail = function(jobName){
+	    buildService.getDetail(jobName).then(function(data){
+	    	that.detailsList[jobName] = data;
+	    });
+    };
+    this.removeDetail = function(jobName){
+    	delete this.detailsList[jobName];
     };
   }]);

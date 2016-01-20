@@ -5,8 +5,8 @@
 </div>
 <div class="row">
 	<div class="col-md-12">
-		<ui-select ng-model="buildCtrl.model.job" on-select="buildCtrl.getDetail($item,$model)" theme="bootstrap" ng-disabled="disabled" style="width: 300px;">
-	    <ui-select-match placeholder="Select or search a job in the list...">{{$select.selected}}</ui-select-match>
+		<ui-select multiple ng-model="buildCtrl.model.job" on-select="buildCtrl.getDetail($item)" on-remove="buildCtrl.removeDetail($item)" theme="bootstrap" ng-disabled="disabled" style="width: 300px;">
+	    <ui-select-match placeholder="Select or search a job in the list...">{{$item}}</ui-select-match>
 	    <ui-select-choices repeat="job in buildCtrl.list | filter: $select.search">
 	      <span ng-bind-html="job | highlight: $select.search"></span>
 	    </ui-select-choices>
@@ -15,5 +15,27 @@
 </div>
 
 <div class="row top-buffer">
-	<div class="col-md-12" ui-view></div>
+	<div class="panel panel-default" ng-repeat="(job, details) in buildCtrl.detailsList">
+	    <div class="panel-heading">
+	       {{job}}
+	    </div>
+	    <div class="panel-body">
+	        <dl class="dl-horizontal">
+	            <dt>Successful Build ID</dt>
+	            <dd>{{details.lastSuccessfulBuildID}}</dd>
+	            <dt>Jira ID</dt>
+	            <dd>{{details.jiraId | hyphenate}}</dd>
+	            <dt>Revision Number</dt>
+	            <dd>{{details.revisionNumber | hyphenate}}</dd>
+	            <dt>Host Name</dt>
+	            <dd>{{details.hostName | hyphenate}}</dd>
+	            <dt>Initiated By</dt>
+	            <dd>{{details.initiatedBy}}</dd>
+	            <dt>Initiated At</dt>
+	            <dd>{{details.initiatedAt | date:'medium'}}</dd>
+	            <dt>Build Log</dt>
+	            <dd><a ng-href="/service/build/log/{{job}}/{{details.lastSuccessfulBuildID}}"><i class="fa fa-download"></i></a></dd>
+	        </dl>
+	    </div>
+	</div>
 </div>
