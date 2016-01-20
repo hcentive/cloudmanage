@@ -50,12 +50,11 @@ public class BuildInfo {
 						for (int j = 0; j < causes.length(); j++) {
 							JSONObject causesObj = causes.getJSONObject(j);
 							StringBuilder initiatedByStrBldr = new StringBuilder(
-									causesObj.getString("shortDescription"));
+									causesObj.getString("shortDescription")).append(" ");
 							if (causesObj.has("userId")) {
 								initiatedByStrBldr.append(causesObj
 										.getString("userId"));
-							}
-							if (causesObj.has("userName")) {
+							} else if (causesObj.has("userName")) {
 								initiatedByStrBldr.append(causesObj
 										.getString("userName"));
 							}
@@ -116,8 +115,6 @@ public class BuildInfo {
 		this.jobName = jobName;
 	}
 
-	
-
 	// Getters
 	public String getJobName() {
 		return jobName;
@@ -151,7 +148,6 @@ public class BuildInfo {
 		return logFileLocation;
 	}
 
-	
 	public String getBuildId() {
 		return buildId;
 	}
@@ -159,7 +155,6 @@ public class BuildInfo {
 	public void setBuildId(String buildId) {
 		this.buildId = buildId;
 	}
-	
 
 	public Integer getLastSuccessfulBuildID() {
 		return lastSuccessfulBuildID;
@@ -174,7 +169,7 @@ public class BuildInfo {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Integer.parseInt(buildId);
+		result = prime * result + ((buildId == null) ? 0 : buildId.hashCode());
 		result = prime * result + ((jobName == null) ? 0 : jobName.hashCode());
 		return result;
 	}
@@ -188,7 +183,10 @@ public class BuildInfo {
 		if (getClass() != obj.getClass())
 			return false;
 		BuildInfo other = (BuildInfo) obj;
-		if (buildId != other.buildId)
+		if (buildId == null) {
+			if (other.buildId != null)
+				return false;
+		} else if (!buildId.equals(other.buildId))
 			return false;
 		if (jobName == null) {
 			if (other.jobName != null)

@@ -1,0 +1,14 @@
+ad.url=ldap://hcentive.com:389
+ad.domain=hcentive.com
+logging.level.org.springframework=INFO
+logging.level.com.hcentive=DEBUG
+error.whitelabel.enabled=false
+db.driver.class=com.mysql.jdbc.Driver
+db.url=jdbc:mysql://localhost:3306/quartz
+db.username=cloudmanage
+db.password=cloudmanage
+jenkins.url=https://build.demo.hcentive.com/jenkins/
+jenkins.password=<blah-blah>
+jenkins.username=<ad-user-name>
+jenkins.log.base.dir=/usr/local/cloudmanage/buildlogs/
+jenkins.jobs.url=https://build.demo.hcentive.com/jenkins/api/json?pretty=true
