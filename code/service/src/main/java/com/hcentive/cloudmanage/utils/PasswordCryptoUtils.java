@@ -21,7 +21,7 @@ public class PasswordCryptoUtils {
 	}
 	
 	public static void main(String[] args){
-			String password = "Hcentive@12345678";
+			String password = "Qwerty123";
 			System.out.println(encryptPassword(password));
 			
 		}
