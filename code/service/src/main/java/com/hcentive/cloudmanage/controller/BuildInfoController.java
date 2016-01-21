@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hcentive.cloudmanage.domain.BuildInfo;
 import com.hcentive.cloudmanage.domain.BuildJobResponse;
+import com.hcentive.cloudmanage.domain.JobInfo;
 import com.hcentive.cloudmanage.domain.JobMetaInfo;
 import com.hcentive.cloudmanage.jenkins.BuildInfoService;
 
@@ -47,10 +48,10 @@ public class BuildInfoController {
 	@RequestMapping(value = "/{jobName:.+}", method = RequestMethod.GET)
 	public BuildInfo getLastSuccessfulBuildInfo(@PathVariable(value = "jobName") String jobName)
 			throws IOException {
-		Integer lastSuccessfulBuild = buildInfoService.getJobInfo(jobName);
-		if(lastSuccessfulBuild != null){
+		JobInfo jobInfo = buildInfoService.getJobInfo(jobName);
+		if(jobInfo != null && jobInfo.getLastSuccessfulBuild() != null){
 			BuildInfo buildInfo = buildInfoService.getBuildInfo(jobName,
-					lastSuccessfulBuild);
+					jobInfo.getLastSuccessfulBuild());
 			return buildInfo;
 		}
 		return null;

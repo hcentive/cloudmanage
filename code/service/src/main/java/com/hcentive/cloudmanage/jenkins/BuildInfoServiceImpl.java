@@ -16,6 +16,7 @@ import com.hcentive.cloudmanage.domain.BuildInfo;
 import com.hcentive.cloudmanage.domain.BuildJobResponse;
 import com.hcentive.cloudmanage.domain.JenkinsClientProxy;
 import com.hcentive.cloudmanage.domain.JobInfo;
+import com.hcentive.cloudmanage.domain.JobInfo.SuccessfulBuild;
 
 @Service("jenkinsService")
 public class BuildInfoServiceImpl implements BuildInfoService {
@@ -27,9 +28,9 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 			.getLogger(BuildInfoServiceImpl.class.getName());
 
 	@Override
-	public BuildInfo getBuildInfo(String jobName, int lastSuccessfulBuildNumber)
+	public BuildInfo getBuildInfo(String jobName, SuccessfulBuild successfulBuild)
 			throws IOException {
-		
+		Integer lastSuccessfulBuildNumber = successfulBuild.getNumber();
 		String url = AppConfig.jenkinsUrl + "job/{jobName}/{lastSuccessfulBuildNumber}/api/json";
 		RestTemplate restTemplate = jenkinsServer.getRestTemplate();
 		Map<String, String> vars = new HashMap<String, String>();
@@ -58,8 +59,7 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		String url = AppConfig.jenkinsUrl + "job/{jobName}/api/json";
 		JobInfo result = restTemplate.getForObject(
 				url, JobInfo.class, vars);
-		Integer lastSuccessfulBuild = result.getLastSuccessfulBuildNumber();
-		return lastSuccessfulBuild;
+		return result;
 	}
 
 
@@ -74,5 +74,7 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 				url, String.class, vars);
 		return result;
 	}
+	
+	
 
 }
