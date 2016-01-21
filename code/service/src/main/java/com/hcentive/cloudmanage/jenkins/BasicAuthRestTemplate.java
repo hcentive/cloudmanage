@@ -1,9 +1,10 @@
 package com.hcentive.cloudmanage.jenkins;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -44,8 +45,10 @@ public class BasicAuthRestTemplate extends RestTemplate {
 		@Override
 		public ClientHttpResponse intercept(HttpRequest request, byte[] body,
 				ClientHttpRequestExecution execution) throws IOException {
-			byte[] token = Base64.getEncoder().encode(
-					(this.username + ":" + this.password).getBytes());
+			
+			byte[] token = DatatypeConverter.printBase64Binary((this.username + ":" + this.password).getBytes()).getBytes();
+//			byte[] token = Base64.getEncoder().encode(
+//					(this.username + ":" + this.password).getBytes());
 			request.getHeaders().add("Authorization", "Basic " + new String(token));
 			return execution.execute(request, body);
 		}
