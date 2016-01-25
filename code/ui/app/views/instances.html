@@ -20,10 +20,11 @@
 				<td>{{instance.awsInstance.state.name}}</td>
 				<td>
 					<div class="btn-group" ng-switch on="instance.awsInstance.state.name">
-					  <button type="button" class="btn btn-default" ng-switch-when="running" ng-click="instanceCtrl.stopInstance(instance)" tooltip="Stop"><i class="fa fa-stop"></i></button>
-					   <button type="button" class="btn btn-default" ng-switch-when="stopped" ng-click="instanceCtrl.startInstance(instance)" tooltip="Start"><i class="fa fa-play"></i></button>
-					   <button type="button" class="btn btn-default" ng-click="instanceCtrl.schedule(instance)" tooltip="Schedule"><i class="fa fa-calendar"></i></button>
-					   <button type="button" class="btn btn-default" ng-click="instanceCtrl.audit(instance)" tooltip="Audit"><i class="fa fa-heartbeat"></i></button>
+					  <button type="button" class="btn btn-default" ng-switch-when="running" ng-click="instanceCtrl.stopInstance(instance)" uib-tooltip="Stop"><i class="fa fa-stop"></i></button>
+					   <button type="button" class="btn btn-default" ng-switch-when="stopped" ng-click="instanceCtrl.startInstance(instance)" uib-tooltip="Start"><i class="fa fa-play"></i></button>
+					   <button type="button" class="btn btn-default" ng-click="instanceCtrl.schedule(instance)" uib-tooltip="Schedule"><i class="fa fa-calendar"></i></button>
+					   <button type="button" class="btn btn-default" ng-click="instanceCtrl.audit(instance)" uib-tooltip="Audit"><i class="fa fa-heartbeat"></i></button>
+					   <button type="button" class="btn btn-default" ng-click="instanceCtrl.cpuUtilization(instance)" uib-tooltip="CPU"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span></button>
 					</div>
 				</td>
 			</tr>

@@ -19,7 +19,8 @@
   'smart-table',
   'ui.bootstrap',
   'ajoslin.promise-tracker',
-  'ui.select'
+  'ui.select',
+  'ui.mask'
   ])
  .config(['routesProvider','$httpProvider','InterceptorProxyProvider',
   function(routesProvider, $httpProvider,InterceptorProxyProvider){

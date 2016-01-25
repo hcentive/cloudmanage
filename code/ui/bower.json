@@ -4,7 +4,7 @@
   "dependencies": {
     "angular": "1.4.4",
     "angular-animate": "1.4.4",
-    "angular-bootstrap": "0.13.4",
+    "angular-bootstrap": "~1.1.0",
     "angular-cookies": "1.4.4",
     "angular-resource": "1.4.4",
     "angular-sanitize": "1.4.4",
@@ -20,7 +20,10 @@
     "angular-cron-jobs": "1.4.1",
     "jquery-cron": "https://github.com/hcentive/jquery-cron.git#master",
     "ui-select": "angular-ui-select#~0.13.2",
-    "startbootstrap-sb-admin-2": "~1.0.8"
+    "startbootstrap-sb-admin-2": "~1.0.8",
+    "highcharts": "~4.2.1",
+    "angular-ui-mask": "~1.6.8",
+    "moment": "~2.11.1"
   },
   "devDependencies": {
     "angular-mocks": "1.4.4",
@@ -29,6 +32,7 @@
   "appPath": "app",
   "resolutions": {
     "bootstrap": "~3.3.6",
-    "font-awesome": "4.4.0"
+    "font-awesome": "4.4.0",
+    "angular-bootstrap": "~1.1.0"
   }
 }

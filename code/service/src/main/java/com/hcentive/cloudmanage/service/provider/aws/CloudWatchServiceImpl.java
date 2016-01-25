@@ -1,14 +1,15 @@
 package com.hcentive.cloudmanage.service.provider.aws;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
@@ -17,6 +18,7 @@ import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
 
+@Service
 public class CloudWatchServiceImpl implements CloudWatchService {
 
 	private static final Logger logger = LoggerFactory
@@ -47,8 +49,9 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 	 *            - frequency of data expected in seconds.
 	 * @return - sorted list of data per timestamp.
 	 */
-	public List<Datapoint> getMetrics(String instanceId, Calendar fromTime,
-			Calendar tillTime, int period) {
+	@Override
+	public List<Datapoint> getMetrics(String instanceId, Date fromTime,
+			Date tillTime, int period) {
 		GetMetricStatisticsRequest getMetricRequest = new GetMetricStatisticsRequest();
 		// Only for EC2
 		getMetricRequest.setNamespace("AWS/EC2");
@@ -67,9 +70,9 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		// Period aka frequency of data capture
 		getMetricRequest.setPeriod(period);
 		// from time
-		getMetricRequest.withStartTime(fromTime.getTime());
+		getMetricRequest.withStartTime(fromTime);
 		// till time
-		getMetricRequest.withEndTime(tillTime.getTime());
+		getMetricRequest.withEndTime(tillTime);
 
 		GetMetricStatisticsResult response = getCloudWatchSession(false)
 				.getMetricStatistics(getMetricRequest);

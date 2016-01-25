@@ -1,6 +1,8 @@
 package com.hcentive.cloudmanage.controller;
 
 import java.nio.file.AccessDeniedException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.quartz.SchedulerException;
@@ -11,16 +13,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.domain.JobTriggerInfoDTO;
-import com.hcentive.cloudmanage.domain.StartJobTriggerInfo;
-import com.hcentive.cloudmanage.domain.StopJobTriggerInfo;
 import com.hcentive.cloudmanage.job.InstanceJobDetails;
 import com.hcentive.cloudmanage.service.provider.aws.AWSUtils;
+import com.hcentive.cloudmanage.service.provider.aws.CloudWatchService;
 import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
 
 @RestController
@@ -29,6 +31,9 @@ public class InstanceController {
 	
 	@Autowired
 	private EC2Service ec2Service;
+	
+	@Autowired
+	private CloudWatchService cloudWatchService;
 
 	
 	@RequestMapping(method=RequestMethod.GET)
@@ -83,6 +88,18 @@ public class InstanceController {
 		JobTriggerInfo startJobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, AWSUtils.START_INSTANCE_JOB_TYPE);
 		JobTriggerInfo stopJobTriggerInfo = new JobTriggerInfo(costCenter, instanceId, AWSUtils.STOP_INSTANCE_JOB_TYPE);
 		ec2Service.deleteJob(startJobTriggerInfo, stopJobTriggerInfo, instanceId);
+	}
+	
+	@RequestMapping(value="/cpu/{instanceID}", method=RequestMethod.GET)
+	public List<Datapoint> getCPUUtilizationData(@PathVariable(value="instanceID") String instanceId, @RequestParam(value="fromDate") Date fromDate, 
+			@RequestParam(value="toDate", required=false) Date toDate, @RequestParam(value="period", required=false) Integer period){
+		if(toDate == null){
+			toDate = new Date();
+		}
+		if(period == null){
+			period = 60*60;
+		}
+		return cloudWatchService.getMetrics(instanceId, fromDate, toDate, period);
 	}
 
 }

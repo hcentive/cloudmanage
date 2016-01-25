@@ -63,7 +63,7 @@
                             <a ui-sref="audit" ui-sref-active="active"><i class="fa fa-heartbeat fa-fw"></i>Audit</a>    
                         </li>
                         <li>
-                            <a ui-sref="build" ui-sref-active="active"><i class="fa fa-wrench fa-fw"></i>Build</a>    
+                            <a ui-sref="build" ui-sref-active="active"><i class="fa fa-wrench fa-fw"></i>Build Information</a>    
                         </li>
                     </ul>
                 </div>
@@ -111,6 +111,11 @@
     <script src="bower_components/datatables-responsive/js/dataTables.responsive.js"></script>
     <script src="bower_components/flot.tooltip/js/jquery.flot.tooltip.js"></script>
     <script src="bower_components/startbootstrap-sb-admin-2/dist/js/sb-admin-2.js"></script>
+    <script src="bower_components/highcharts/highcharts.js"></script>
+    <script src="bower_components/highcharts/highcharts-more.js"></script>
+    <script src="bower_components/highcharts/modules/exporting.js"></script>
+    <script src="bower_components/angular-ui-mask/dist/mask.js"></script>
+    <script src="bower_components/moment/moment.js"></script>
     <!-- endbower -->
      <script src="bower_components/promise-tracker/promise-tracker-http-interceptor.js"></script>
     <!-- endbuild -->
@@ -145,6 +150,8 @@
         <script src="scripts/services/buildservice.js"></script>
         <script src="scripts/controllers/builddetail.js"></script>
         <script src="scripts/filters/hyphenate.js"></script>
+        <script src="scripts/controllers/cpuutilization.js"></script>
+        <script src="scripts/directives/highchart.js"></script>
         <!-- endbuild -->
 </body>
 </html>

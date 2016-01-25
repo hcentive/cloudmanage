@@ -29,7 +29,8 @@
         var params = {};
         return $http.get(url,{
             params: params,
-            ignoreTracker : polling
+            ignoreTracker : polling,
+            cache: true
         }).then(function(response){
             return response.data;
         });
@@ -127,8 +128,8 @@
                 'Content-Type': 'application/x-www-form-urlencoded'
                 }
             }).catch(function(response){
-            $log.error(response);
-        });
+                $log.error(response);
+            });
     };
 
     this.getJobDetails = function(instance){
@@ -141,5 +142,17 @@
         });
     };
 
+    this.getCPUUtilization = function(instance, filter){
+        var fromDateString = moment(filter.fromDate).format('MM/DD/YYYY'),
+        toDateString = moment(filter.toDate).format('MM/DD/YYYY'),
+        instanceId = this.getInstanceId(instance),
+        url = '/instances/cpu/' + instanceId + '?fromDate='+fromDateString+'&toDate='+toDateString;
+        return $http.get(url,{ignoreTracker:true})
+        .then(function(response){
+            return response.data;
+        }, function(data){
+            $log.error(data);
+        });
+    };
 
 }]);

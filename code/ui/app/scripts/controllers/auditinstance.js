@@ -8,7 +8,7 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-  .controller('AuditinstanceCtrl', ['auditList','instance','$modalInstance',function (auditList, instance, $modalInstance) {
+  .controller('AuditinstanceCtrl', ['auditList','instance','$uibModalInstance',function (auditList, instance, $modalInstance) {
   	this.list = auditList;
   	this.dismiss = function () {
   		$modalInstance.dismiss('cancel');

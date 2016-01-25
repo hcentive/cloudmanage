@@ -17,6 +17,7 @@
     left: 50%;
     margin: -28px 0 0 -25px;
 }
+
 .cron-block select, .cron-period select{
     height: 34px;
     padding: 6px 12px;
@@ -45,3 +46,5 @@
 .top-buffer { margin-top:20px; }
 
 .bottom-buffer { margin-bottom:20px; }
+
+.applyFilter {margin-bottom:10px;}

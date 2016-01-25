@@ -14,33 +14,33 @@ angular.module('cloudmanageApp')
                                 '$log', 
                                 'pollingService',
                                 'auditService',
-                                '$modal',
+                                '$uibModal',
                                 function ($scope, ec2Service,instances, $log, pollingService, auditService, $modal) {
   	var that = this;
     that.list = instances;
 
-    that.stopInstance = function(instance){
+    this.stopInstance = function(instance){
       ec2Service.stopInstance(instance).then(function(response){
         var data = response.data;
         instance.awsInstance.state.name = data.stoppingInstances[0].currentState.name;
       });
     };
 
-    that.startInstance = function(instance){
+    this.startInstance = function(instance){
       ec2Service.startInstance(instance).then(function(response){
         var data = response.data;
         instance.awsInstance.state.name = data.startingInstances[0].currentState.name;
       });
     };
 
-    that.terminateInstance = function(instance){
+    this.terminateInstance = function(instance){
       ec2Service.terminateInstance(instance);
     };
 
-    that.getInstanceName = function(instance){
+    this.getInstanceName = function(instance){
       return ec2Service.getInstanceName(instance);
     };
-    that.audit = function(instance){
+    this.audit = function(instance){
       var modalInstance =  $modal.open({
         templateUrl: 'templates/_auditInstance.html',
         controller: 'AuditinstanceCtrl',
@@ -55,7 +55,7 @@ angular.module('cloudmanageApp')
         }
       });
     };
-    that.schedule = function(instance){
+    this.schedule = function(instance){
         var modalInstance =  $modal.open({
         templateUrl: 'templates/_scheduleInstance.html',
         controller: 'ScheduleCtrl',
@@ -66,6 +66,18 @@ angular.module('cloudmanageApp')
           },
           jobDetails: function(){
             return ec2Service.getJobDetails(instance);
+          }
+        }
+      });
+    };
+    this.cpuUtilization = function(instance){
+      var modalInstance = $modal.open({
+        templateUrl: 'templates/_cpuUtilization.html',
+        controller: 'CpuutilizationCtrl',
+        controllerAs: 'cPUUtilizationCtrl',
+        resolve: {
+          instance: function () {
+            return instance;
           }
         }
       });
