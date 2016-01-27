@@ -8,7 +8,7 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-  .controller('ScheduleCtrl', ['instance','jobDetails','$http','$log','ec2Service','$modalInstance','$timeout', function (instance, jobDetails, $http, $log, ec2Service, $modalInstance, $timeout) {
+  .controller('ScheduleCtrl', ['instance','jobDetails','$http','$log','ec2Service','$uibModalInstance','$timeout', function (instance, jobDetails, $http, $log, ec2Service, $modalInstance, $timeout) {
     this.jobDetails = jobDetails;
     this.instance = instance;
     this.update = (jobDetails)?true:false;
