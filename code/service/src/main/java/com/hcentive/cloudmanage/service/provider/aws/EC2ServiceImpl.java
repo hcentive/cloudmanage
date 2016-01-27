@@ -22,9 +22,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeInstanceStatusRequest;
+import com.amazonaws.services.ec2.model.DescribeInstanceStatusResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.InstanceState;
+import com.amazonaws.services.ec2.model.InstanceStatus;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
@@ -140,7 +144,7 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Lists AWS bucket.
 	 */
-	public Reservation getInstance(String instanceId) {
+	public Instance getInstance(String instanceId) {
 		logger.info("Instance info");
 		Reservation reservation = null;
 		DescribeInstancesRequest request = new DescribeInstancesRequest()
@@ -153,9 +157,10 @@ public class EC2ServiceImpl implements EC2Service {
 			reservation = reservations.get(0);
 		}
 		logger.debug("Instance info " + reservation);
-		return reservation;
+		Instance instance = AWSUtils.extractInstance(reservation);
+		return instance;
 	}
-
+	
 	/**
 	 * Lists EC2 Instances.
 	 */

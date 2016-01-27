@@ -10,7 +10,7 @@ angular.module('cloudmanageApp')
   .directive('highchart', function () {
   	var parseData = function(data){
   		return _.map(data, function(item){
-  			var average = Math.floor(item.average*100*100)/100;
+  			var average = Math.floor(item.average*100)/100;
   			return [item.timestamp, average];
   		});
   	},

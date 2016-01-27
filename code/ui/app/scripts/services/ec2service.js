@@ -17,7 +17,8 @@
             action: action
         };
         return $http.put(url,{},{
-            params: params
+            params: params,
+            ignoreTracker:true
         },{
              headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'

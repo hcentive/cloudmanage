@@ -1,7 +1,6 @@
 package com.hcentive.cloudmanage.controller;
 
 import java.nio.file.AccessDeniedException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.ec2.model.InstanceState;
+import com.amazonaws.services.ec2.model.InstanceStateChange;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
@@ -43,21 +44,27 @@ public class InstanceController {
 	}
 	
 	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=stop"})
-	public StopInstancesResult stopInstance(@PathVariable(value="instanceID") String instanceID){
+	public InstanceState stopInstance(@PathVariable(value="instanceID") String instanceID){
 		StopInstancesResult stoppedInstance = ec2Service.stopInstance(instanceID);
-		return stoppedInstance;
+		InstanceState currentStatus = getCurrentState(stoppedInstance.getStoppingInstances());
+		InstanceState finalStatus = pollInstance(currentStatus, instanceID);
+		return finalStatus;
 	}
 	
 	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=start"})
-	public StartInstancesResult startInstance(@PathVariable(value="instanceID") String instanceID){
+	public InstanceState startInstance(@PathVariable(value="instanceID") String instanceID){
 		StartInstancesResult startedInstance = ec2Service.startInstance(instanceID);
-		return startedInstance;
+		InstanceState currentStatus = getCurrentState(startedInstance.getStartingInstances());
+		InstanceState finalStatus = pollInstance(currentStatus, instanceID);
+		return finalStatus;
 	}
 	
 	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=terminate"})
-	public TerminateInstancesResult terminateInstance(@PathVariable(value="instanceID") String instanceID){
+	public InstanceState terminateInstance(@PathVariable(value="instanceID") String instanceID){
 		TerminateInstancesResult terminatedIntance = ec2Service.terminateInstance(instanceID);
-		return terminatedIntance;
+		InstanceState currentStatus = getCurrentState(terminatedIntance.getTerminatingInstances());
+		InstanceState finalStatus = pollInstance(currentStatus, instanceID);
+		return finalStatus;
 		
 	}
 	
@@ -101,5 +108,19 @@ public class InstanceController {
 		}
 		return cloudWatchService.getMetrics(instanceId, fromDate, toDate, period);
 	}
+	
+	private InstanceState pollInstance(InstanceState initialStatus, String instanceId){
+		InstanceState newStatus = initialStatus;
+		while(newStatus.equals(initialStatus)){
+			Instance instance = ec2Service.getInstance(instanceId);
+			newStatus = instance.getAwsInstance().getState();
+		}	
+		return newStatus;
+	}
+	
+	private InstanceState getCurrentState(List<InstanceStateChange> instances){
+		return instances.get(0).getCurrentState();
+	}
+	
 
 }

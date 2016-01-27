@@ -3,12 +3,11 @@ package com.hcentive.cloudmanage.service.provider.aws;
 import java.util.List;
 import java.util.Set;
 
-import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 
-import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.InstanceState;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
@@ -18,8 +17,8 @@ import com.hcentive.cloudmanage.job.InstanceJobDetails;
 
 public interface EC2Service {
 
-	public Reservation getInstance(String instanceId);
-
+	public Instance getInstance(String instanceId);
+	
 	public List<Instance> getInstanceLists();
 
 	public StopInstancesResult stopInstance(String instanceId);

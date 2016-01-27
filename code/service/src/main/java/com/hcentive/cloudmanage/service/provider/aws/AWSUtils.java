@@ -29,6 +29,12 @@ public class AWSUtils {
 		return instances;
 	}
 	
+	public static Instance extractInstance(Reservation reservation){
+		com.amazonaws.services.ec2.model.Instance instance =  reservation.getInstances().get(0);
+		Instance lInstance = new Instance(instance);
+		return lInstance;
+	}
+	
 	
 
 }
