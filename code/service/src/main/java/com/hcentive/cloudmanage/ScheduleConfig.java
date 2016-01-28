@@ -33,7 +33,8 @@ import com.hcentive.cloudmanage.job.AutowiringSpringBeanJobFactory;
 @EnableCaching
 @EnableScheduling
 @EnableJpaRepositories(basePackages = { "com.hcentive.cloudmanage.security",
-		"com.hcentive.cloudmanage.audit" })
+		"com.hcentive.cloudmanage.audit", "com.hcentive.cloudmanage.jenkins",
+		"com.hcentive.cloudmanage.billing" })
 public class ScheduleConfig {
 
 	@Value("${db.driver.class}")
@@ -68,14 +69,13 @@ public class ScheduleConfig {
 		quartzProps.setProperty("org.quartz.jobStore.tablePrefix", "QRTZ_");
 		// True if JobDataMaps will always have strings and no objects.
 		quartzProps.setProperty("org.quartz.jobStore.useProperties", "false");
-		
 
 		scheduler.setQuartzProperties(quartzProps);
 		scheduler.setJobFactory(jobFactory());
 
 		return scheduler;
 	}
-	
+
 	@Bean
 	public JobFactory jobFactory() {
 		return new AutowiringSpringBeanJobFactory();
@@ -86,11 +86,15 @@ public class ScheduleConfig {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setDataSource(getDatasource());
 		factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-		factory.setPackagesToScan("com.hcentive.cloudmanage.security","com.hcentive.cloudmanage.audit");
+		factory.setPackagesToScan("com.hcentive.cloudmanage.security",
+				"com.hcentive.cloudmanage.audit",
+				"com.hcentive.cloudmanage.jenkins",
+				"com.hcentive.cloudmanage.billing");
 		// -- mandatory dialect for factory.
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.dialect",
 				"org.hibernate.dialect.MySQL5Dialect");
+		jpaProperties.put("hibernate.show_sql", "true");
 		factory.setJpaProperties(jpaProperties);
 		//
 		factory.afterPropertiesSet();
@@ -125,7 +129,7 @@ public class ScheduleConfig {
 	// comma separate evictions
 	@Caching(evict = { @CacheEvict(value = "appAuthorityMapCache", allEntries = true) })
 	// Scheduled at 60 seconds for testing.
-	@Scheduled(cron = "59 * * * * ?")
+	@Scheduled(cron = "* 5 * * * ?")
 	public void flushAllCaches() {
 		// Marker - method
 		System.out.println(new DateTime() + "Removed all Cache!");

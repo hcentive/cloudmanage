@@ -103,4 +103,11 @@ public class S3ServiceImpl implements S3Service {
 		return policy;
 	}
 
+	/**
+	 * Read specific artifact from a bucket
+	 */
+	public File getArtifact(String artifactName) {
+		return new File(artifactName);		
+	}
+
 }

@@ -23,5 +23,7 @@ public interface S3Service {
 	// Write to a bucket contents
 	@PreAuthorize("hasAuthority('techops')")
 	public void uploadToBucket(File file, String bucketName);
+
+	public File getArtifact(String artifactName);
 	
 }
