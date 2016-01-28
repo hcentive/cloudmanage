@@ -72,10 +72,21 @@ angular.module('cloudmanageApp')
       controllerAs: 'buildCtrl'
      })
       .state('build.details',{
-      url: '/{jobName}',
-      templateUrl: 'views/build_details.html',
-      controller: 'BuilddetailCtrl',
-      controllerAs: 'buildDetailCtrl'
-     });
+        url: '/{jobName}',
+        templateUrl: 'views/build_details.html',
+        controller: 'BuilddetailCtrl',
+        controllerAs: 'buildDetailCtrl'
+     })
+      .state('profile',{
+        url: '/profile',
+        templateUrl: 'views/profile.html',
+        controller: 'ProfileCtrl',
+        controllerAs: 'profileCtrl',
+        resolve: {
+          profile: ['profileService', function(profileService){
+            return profileService.getProfile();
+          }]
+        }
+      });
     this.$get = function(){};
   }]);

@@ -49,6 +49,8 @@
                     <ul class="dropdown-menu dropdown-user">
                         <li><a ng-click="mainCtrl.logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>
+                        <li><a ui-sref="profile"><i class="fa fa-user fa-fw"></i> Profile</a>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -72,7 +74,6 @@
 
         <div ui-view id="page-wrapper"></div>
         <hc-processing></hc-processing>
-        
     </div>
 
     <!-- build:js(.) scripts/oldieshim.js -->
@@ -152,6 +153,8 @@
         <script src="scripts/filters/hyphenate.js"></script>
         <script src="scripts/controllers/cpuutilization.js"></script>
         <script src="scripts/directives/highchart.js"></script>
+        <script src="scripts/controllers/profile.js"></script>
+        <script src="scripts/services/profileservice.js"></script>
         <!-- endbuild -->
 </body>
 </html>
