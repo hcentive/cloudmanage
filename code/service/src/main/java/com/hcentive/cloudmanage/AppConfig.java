@@ -1,9 +1,6 @@
 package com.hcentive.cloudmanage;
 
-import org.jasypt.util.text.BasicTextEncryptor;
-import org.jasypt.util.text.TextEncryptor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.hcentive.cloudmanage.utils.PasswordCryptoUtils;
@@ -16,8 +13,8 @@ public class AppConfig {
 		// address that corresponds to an AWS resource, the JVM will refresh the
 		// cached IP value after a relatively brief period of time.
 		java.security.Security.setProperty("networkaddress.cache.ttl", "60");
-//		System.setProperty("javax.net.ssl.trustStore", "jenkinsKeystore");
-//		System.setProperty("javax.net.ssl.trustStorePassword", "jenkins");
+		// System.setProperty("javax.net.ssl.trustStore", "jenkinsKeystore");
+		// System.setProperty("javax.net.ssl.trustStorePassword", "jenkins");
 	}
 
 	public static String jenkinsUrl;
@@ -29,7 +26,9 @@ public class AppConfig {
 	public static String logBaseDir;
 
 	public static String jenkinsJobsUrl;
-	
+
+	public static Integer lastDaysForHostNames;
+
 	@Value("${jenkins.url}")
 	public void setJenkinsUrl(String jenkinsUrl) {
 		AppConfig.jenkinsUrl = jenkinsUrl;
@@ -37,7 +36,8 @@ public class AppConfig {
 
 	@Value("${jenkins.password}")
 	public void setJenkinsPassword(String jenkinsPassword) {
-		AppConfig.jenkinsPassword = PasswordCryptoUtils.decryptPassword(jenkinsPassword);
+		AppConfig.jenkinsPassword = PasswordCryptoUtils
+				.decryptPassword(jenkinsPassword);
 	}
 
 	@Value("${jenkins.username}")
@@ -54,6 +54,10 @@ public class AppConfig {
 	public void setJenkinsJobsUrl(String jenkinsJobsUrl) {
 		AppConfig.jenkinsJobsUrl = jenkinsJobsUrl;
 	}
-	
+
+	@Value("${jenkins.lastDaysForHostNames}")
+	public static void setLastDaysForHostNames(String lastDaysForHostNames) {
+		AppConfig.lastDaysForHostNames = new Integer(lastDaysForHostNames);
+	}
 
 }

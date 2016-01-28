@@ -27,6 +27,8 @@ public interface EC2Service {
 	
 	public TerminateInstancesResult terminateInstance(String instanceId);
 
+	public void updateInstanceMetaInfo();
+	
 	// QUARTZ SECTION *******************
 
 

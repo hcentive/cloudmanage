@@ -20,7 +20,6 @@ public class BuildInfo {
 
 	public BuildInfo(String source) {
 		JSONObject jsonObj = new JSONObject(source);
-		System.out.println("Received " + jsonObj);
 
 		setBuildId(jsonObj.getString("id"));
 
