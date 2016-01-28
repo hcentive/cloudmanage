@@ -17,6 +17,7 @@ public class BuildInfo {
 	private Calendar initiatedAt;
 	private String logFileLocation;
 	private Integer lastSuccessfulBuildID;
+	private String result;
 
 	public BuildInfo(String source) {
 		JSONObject jsonObj = new JSONObject(source);
@@ -38,6 +39,7 @@ public class BuildInfo {
 
 	// Extractor methods
 	private void extractAttributes(JSONObject jsonObj) {
+		setStatus(jsonObj.getString("result"));
 		JSONArray actions = (JSONArray) jsonObj.get("actions");
 		for (int i = 0; i < actions.length(); i++) {
 			Object actionsObj = actions.get(i);
@@ -49,7 +51,8 @@ public class BuildInfo {
 						for (int j = 0; j < causes.length(); j++) {
 							JSONObject causesObj = causes.getJSONObject(j);
 							StringBuilder initiatedByStrBldr = new StringBuilder(
-									causesObj.getString("shortDescription")).append(" ");
+									causesObj.getString("shortDescription"))
+									.append(" ");
 							if (causesObj.has("userId")) {
 								initiatedByStrBldr.append(causesObj
 										.getString("userId"));
@@ -114,6 +117,18 @@ public class BuildInfo {
 		this.jobName = jobName;
 	}
 
+	public void setStatus(String status) {
+		this.result = status;
+	}
+
+	public void setBuildId(String buildId) {
+		this.buildId = buildId;
+	}
+
+	public void setLastSuccessfulBuildID(Integer lastSuccessfulBuildID) {
+		this.lastSuccessfulBuildID = lastSuccessfulBuildID;
+	}
+
 	// Getters
 	public String getJobName() {
 		return jobName;
@@ -147,20 +162,16 @@ public class BuildInfo {
 		return logFileLocation;
 	}
 
+	public String getStatus() {
+		return result;
+	}
+
 	public String getBuildId() {
 		return buildId;
 	}
 
-	public void setBuildId(String buildId) {
-		this.buildId = buildId;
-	}
-
 	public Integer getLastSuccessfulBuildID() {
 		return lastSuccessfulBuildID;
-	}
-
-	public void setLastSuccessfulBuildID(Integer lastSuccessfulBuildID) {
-		this.lastSuccessfulBuildID = lastSuccessfulBuildID;
 	}
 
 	// Equals
@@ -199,9 +210,10 @@ public class BuildInfo {
 	@Override
 	public String toString() {
 		return "BuildInfo [buildId=" + buildId + ", jobName=" + jobName
-				+ ", jiraId=" + jiraId + ", stack=" + stack
-				+ ", revisionNumber=" + revisionNumber + ", hostName="
+				+ ", status=" + result + ", jiraId=" + jiraId + ", stack="
+				+ stack + ", revisionNumber=" + revisionNumber + ", hostName="
 				+ hostName + ", initiatedBy=" + initiatedBy + ", initiatedAt="
 				+ initiatedAt + ", logFileLocation=" + logFileLocation + "]";
 	}
+
 }

@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,10 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 	private JenkinsClientProxy jenkinsServer;
 
 	@Autowired
-	private BuildInfoRepository buildInfoDao;
+	private BuildHostMapRepository buildHostMapRepository;
+
+	@Autowired
+	private LastSuccessfulBuildRepository lastSuccessfulBuildRepository;
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(BuildInfoServiceImpl.class.getName());
@@ -105,12 +106,58 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Retrieve hosts for " + jobName + " from " + builds);
 		}
-		Set<String> hosts = getHostNames(jobName, builds);
+		Map<String, BuildInfo> hosts = getLastSuccessfulBuildForHosts(jobName,
+				builds);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Retrieved hosts for " + jobName + " as " + hosts);
 		}
+		persistHostBldMap(jobName, hosts);
+		// Also update the BuildObjects for job-host identifier.
+		persistHostBldInfo(jobName, hosts);
+	}
+
+	private void persistHostBldInfo(final String jobName,
+			Map<String, BuildInfo> hosts) {
 		// Get the BuildInfo
-		BuildMetaInfo buildMetaInfo = buildInfoDao.findByJobName(jobName);
+		List<LastSuccessfulBuildInfo> response = lastSuccessfulBuildRepository
+				.findByJobName(jobName);
+		// Create a host map - easy to work with
+		Map<String, LastSuccessfulBuildInfo> responseMap = new HashMap<String, LastSuccessfulBuildInfo>();
+		for (LastSuccessfulBuildInfo bld : response) {
+			responseMap.put(bld.getJobHostKey().getHostName(), bld);
+		}
+		// Either update or add the new hosts with build info.
+		for (String host : hosts.keySet()) {
+			LastSuccessfulBuildInfo lastBld = responseMap.get(host);
+			BuildInfo buildInfo = hosts.get(host);
+			if (lastBld == null // New Host Or Old Value
+					|| lastBld.getBuildNumber() < new Integer(
+							buildInfo.getBuildId())) {
+
+				LastSuccessfulBuildInfo ref = new LastSuccessfulBuildInfo();
+				JobHostKey comKey = new JobHostKey();
+
+				comKey.setHostName(host);
+				comKey.setJobName(jobName);
+				ref.setJobHostKey(comKey);
+
+				ref.setBuildNumber(new Integer(buildInfo.getBuildId()));
+				// UsingNew Value
+				ref.setBuildInfoJson(buildInfo.toString());
+
+				responseMap.put(host, ref);
+			}
+			// else its the same - so skip it.
+		}
+		// persist.
+		lastSuccessfulBuildRepository.save(responseMap.values());
+	}
+
+	private void persistHostBldMap(final String jobName,
+			Map<String, BuildInfo> hosts) {
+		// Get the BuildInfo
+		BuildMetaInfo buildMetaInfo = buildHostMapRepository
+				.findByJobName(jobName);
 		if (buildMetaInfo == null) {
 			buildMetaInfo = new BuildMetaInfo(jobName);
 		}
@@ -121,7 +168,7 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 			hostMetaInfoList = new ArrayList<HostMetaInfo>();
 		}
 		// Update the list
-		for (String host : hosts) {
+		for (String host : hosts.keySet()) {
 			HostMetaInfo hostObj = new HostMetaInfo(host);
 			if (!hostMetaInfoList.contains(hostObj)) {
 				hostMetaInfoList.add(hostObj);
@@ -129,26 +176,24 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		}
 		buildMetaInfo.setHostMetaInfoList(hostMetaInfoList);
 		// use repository to update them.
-		buildInfoDao.save(buildMetaInfo);
+		buildHostMapRepository.save(buildMetaInfo);
+
 		if (logger.isDebugEnabled()) {
 			logger.info("Updated hosts for " + jobName + " as " + buildMetaInfo);
 		}
 	}
 
 	// Utility method used only from one service.
-	private Set<String> getHostNames(String jobName, List<Builds> builds) {
+	private Map<String, BuildInfo> getLastSuccessfulBuildForHosts(
+			String jobName, List<Builds> builds) {
 		// For each build get the hostNames in a set till yesterday.
-		Set<String> hostNames = new HashSet<String>();
+		Map<String, BuildInfo> hostNames = new HashMap<String, BuildInfo>();
 
 		for (Builds build : builds) {
 			SuccessfulBuild previousBuild = new JobInfo().new SuccessfulBuild();
 			previousBuild.setNumber(build.getNumber());
 			BuildInfo buildObj = getBuildInfo(jobName, previousBuild);
-			// FIXME
-			if (AppConfig.lastDaysForHostNames == null) {
-				System.out.println("This is Insane!");
-				AppConfig.lastDaysForHostNames = -1;
-			}
+
 			// Till yesterday
 			Calendar yesterday = Calendar.getInstance();
 			yesterday.add(Calendar.DATE, AppConfig.lastDaysForHostNames);
@@ -157,7 +202,16 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 			}
 			// Gather unique hostnames.
 			String hostName = buildObj.getHostName();
-			hostNames.add(hostName);
+			// Gather last successful build
+			BuildInfo existingBuildInfo = hostNames.get(hostName);
+			if (existingBuildInfo == null) {
+				// Either its a new Host or Successful Build is missing.
+				if (!buildObj.getStatus().equalsIgnoreCase("success")) {
+					buildObj = null;
+				}
+				// Update host and build Info only if its successful.
+				hostNames.put(hostName, buildObj);
+			}
 		}
 		return hostNames;
 	}
