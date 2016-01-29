@@ -56,7 +56,7 @@ public class AppConfig {
 	}
 
 	@Value("${jenkins.lastDaysForHostNames}")
-	public static void setLastDaysForHostNames(String lastDaysForHostNames) {
+	public void setLastDaysForHostNames(String lastDaysForHostNames) {
 		AppConfig.lastDaysForHostNames = new Integer(lastDaysForHostNames);
 	}
 
