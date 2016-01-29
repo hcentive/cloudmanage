@@ -38,9 +38,15 @@ public class InstanceController {
 
 	
 	@RequestMapping(method=RequestMethod.GET)
-	public List<Instance> list(@RequestParam(value="group",required=false) List<String> groups) throws AccessDeniedException{
+	public List<Instance> list() throws AccessDeniedException{
 		List<Instance> ec2Instances = ec2Service.getInstanceLists();
 		return ec2Instances;
+	}
+	
+	@RequestMapping(value="/ip/{privateIPAddress:.+}")
+	public Instance getInstanceByIPAddress(@PathVariable(value="privateIPAddress") String privateIPAddress){
+		Instance instance = ec2Service.getInstanceByPrivateIP(privateIPAddress);
+		return instance;
 	}
 	
 	@RequestMapping(value="/{instanceID}",method=RequestMethod.PUT, params={"action=stop"})
@@ -86,9 +92,6 @@ public class InstanceController {
 			JobTriggerInfoDTO jobTriggerInfoDTO) throws SchedulerException{
 		ec2Service.updateTrigger(jobTriggerInfoDTO.getStartJobTriggerInfo(), jobTriggerInfoDTO.getStopJobTriggerInfo());
 	}
-	
-	
-	
 	
 	@RequestMapping(value="/schedule/delete/{instanceID}", method=RequestMethod.POST)
 	public void deleteScheduleInstance(@RequestParam(value="costCenter") String costCenter, @PathVariable(value="instanceID") String instanceId) throws SchedulerException{

@@ -29,7 +29,7 @@
       });
       instance.actionTracker.addPromise(promise);
     }
-    
+
   };
 
   this.startInstance = function(instance){
@@ -93,6 +93,14 @@
           return instance;
         }
       }
+    });
+  };
+
+  this.diagnose = function(){
+    var modalInstance = $modal.open({
+      templateUrl: 'templates/_diagnoseInstance.html',
+      controller: 'DiagnoseinstanceCtrl',
+      controllerAs : 'diagnoseinstanceCtrl'
     });
   };
 }]);

@@ -11,12 +11,15 @@ angular.module('cloudmanageApp')
     return {
       templateUrl: 'templates/_processing.html',
       restrict: 'E',
+      scope:{
+        tracker: '='
+      },
       controller: ['GlobalTrackerService','$scope',function(GlobalTrackerService, $scope){
       	var that = this;
-  		var globalTracker = GlobalTrackerService.getTracker();
-      	$scope.$watch(globalTracker.active, function(val){
-        	that.active = val;
-      	});
+    		var tracker = $scope.tracker || GlobalTrackerService.getTracker();
+        	$scope.$watch(tracker.active, function(val){
+          	that.active = val;
+        	});
       }],
       controllerAs: 'hcProcessingCtrl',
       link: function postLink(scope, element, attrs) {

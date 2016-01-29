@@ -11,6 +11,7 @@ angular.module('cloudmanageApp')
   .factory('securityContextHolder', function () {
     return {
       principal : {},
-      authenticated: false
+      authenticated: false,
+      profile : {}
     };
   });

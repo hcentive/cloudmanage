@@ -37,15 +37,15 @@
         });
     }
 
-    var getTagValue = function(instance, tagKey){
+    this.getTagValue = function(instance, tagKey){
         var tags = instance.awsInstance.tags,
         targetTag = _.find(tags, function(tag){
             if(tag.key === tagKey)
               return true;
           return false;
       });
-        return (targetTag)? targetTag.value : '-';
-    }
+        return (targetTag)? targetTag.value : null;
+    };
 
 
     this.getVpcs = function(){
@@ -76,11 +76,11 @@
     };
 
     this.getInstanceName = function(instance){
-        return getTagValue(instance, 'Name');
+        return this.getTagValue(instance, 'Name');
     };
 
     this.getCostCenter = function(instance){
-        return getTagValue(instance, 'cost-center');            
+        return this.getTagValue(instance, 'cost-center');            
     };
 
     this.getInstanceId = function(instance){
@@ -141,6 +141,17 @@
         }, function(data){
             $log.error(data);
         });
+    };
+
+    this.getInstanceByIP = function(ipAddress){
+        return $http.get('/instances/ip/' + ipAddress, {ignoreTracker:true})
+        .then(function(response){
+            return response.data;
+        },
+            function(data){
+                $log.error(data);
+            }
+        );
     };
 
     this.getCPUUtilization = function(instance, filter){

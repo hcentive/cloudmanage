@@ -48,3 +48,6 @@
 .bottom-buffer { margin-bottom:20px; }
 
 .applyFilter {margin-bottom:10px;}
+
+.validTag {color:green;}
+.invalidTag {color:red;}

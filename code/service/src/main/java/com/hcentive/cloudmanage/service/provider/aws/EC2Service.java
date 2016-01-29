@@ -19,6 +19,8 @@ public interface EC2Service {
 
 	public Instance getInstance(String instanceId);
 	
+	public Instance getInstanceByPrivateIP(String privateIP);
+	
 	public List<Instance> getInstanceLists();
 
 	public StopInstancesResult stopInstance(String instanceId);

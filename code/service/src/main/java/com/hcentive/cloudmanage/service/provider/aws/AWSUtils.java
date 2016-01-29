@@ -34,6 +34,17 @@ public class AWSUtils {
 		Instance lInstance = new Instance(instance);
 		return lInstance;
 	}
+
+	public static Instance extractInstance(
+			DescribeInstancesResult instanceResult) {
+		Reservation reservation = null;
+		List<Reservation> reservations = instanceResult.getReservations();
+		if (!reservations.isEmpty()) {
+			reservation = reservations.get(0);
+		}
+		Instance instance = AWSUtils.extractInstance(reservation);
+		return instance;
+	}
 	
 	
 

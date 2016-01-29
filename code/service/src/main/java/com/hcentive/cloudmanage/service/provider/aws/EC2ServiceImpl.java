@@ -67,6 +67,24 @@ public class EC2ServiceImpl implements EC2Service {
 		}
 		return awsClientProxy.getEC2Client(applyPolicy, decisionMapAsPolicy);
 	}
+	
+	@Override
+	public Instance getInstanceByPrivateIP(String privateIP) {
+		logger.info("Instance info");
+		DescribeInstancesRequest request = new DescribeInstancesRequest()
+				.withFilters(
+						getFilter("network-interface.addresses.private-ip-address",privateIP));
+		DescribeInstancesResult instanceResult = getEC2Session(false)
+				.describeInstances(request);
+		Instance instance = AWSUtils.extractInstance(instanceResult);
+		return instance;
+		
+	}
+
+	private Filter getFilter(String key, String value) {
+		Filter filter = new Filter(key).withValues(value);
+		return filter;
+	}
 
 	/**
 	 * Utility to translate the Decision Map for Policy to start-stop AWS
@@ -136,18 +154,12 @@ public class EC2ServiceImpl implements EC2Service {
 	 */
 	public Instance getInstance(String instanceId) {
 		logger.info("Instance info");
-		Reservation reservation = null;
 		DescribeInstancesRequest request = new DescribeInstancesRequest()
 				.withInstanceIds(instanceId).withFilters(
 						getDecisionMapAsFilters());
 		DescribeInstancesResult instanceResult = getEC2Session(false)
 				.describeInstances(request);
-		List<Reservation> reservations = instanceResult.getReservations();
-		if (!reservations.isEmpty()) {
-			reservation = reservations.get(0);
-		}
-		logger.debug("Instance info " + reservation);
-		Instance instance = AWSUtils.extractInstance(reservation);
+		Instance instance = AWSUtils.extractInstance(instanceResult);
 		return instance;
 	}
 
@@ -375,5 +387,7 @@ public class EC2ServiceImpl implements EC2Service {
 				jobTriggerInfo.getTriggerName(),
 				jobTriggerInfo.getCronExpression(), instanceId);
 	}
+
+	
 
 }

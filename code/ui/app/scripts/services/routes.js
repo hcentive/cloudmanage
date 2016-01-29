@@ -83,8 +83,8 @@ angular.module('cloudmanageApp')
         controller: 'ProfileCtrl',
         controllerAs: 'profileCtrl',
         resolve: {
-          profile: ['profileService', function(profileService){
-            return profileService.getProfile();
+          profile: ['securityContextHolder', function(securityContextHolder){
+            return securityContextHolder.profile;
           }]
         }
       });

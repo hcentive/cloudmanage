@@ -75,6 +75,7 @@
         <div ui-view id="page-wrapper"></div>
         <hc-processing></hc-processing>
     </div>
+    <ng-include src="'/templates/_templates.html'"></ng-include>
 
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>
@@ -155,6 +156,8 @@
         <script src="scripts/directives/highchart.js"></script>
         <script src="scripts/controllers/profile.js"></script>
         <script src="scripts/services/profileservice.js"></script>
+        <script src="scripts/services/securitycontextutils.js"></script>
+        <script src="scripts/controllers/diagnoseinstance.js"></script>
         <!-- endbuild -->
 </body>
 </html>
