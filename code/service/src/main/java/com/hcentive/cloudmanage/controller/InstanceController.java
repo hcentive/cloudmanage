@@ -18,6 +18,7 @@ import com.amazonaws.services.ec2.model.InstanceStateChange;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+import com.hcentive.cloudmanage.billing.AWSMetaInfo;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.domain.JobTriggerInfoDTO;
@@ -41,6 +42,13 @@ public class InstanceController {
 	public List<Instance> list() throws AccessDeniedException{
 		List<Instance> ec2Instances = ec2Service.getInstanceLists();
 		return ec2Instances;
+	}
+	
+	@RequestMapping(value="/meta", method=RequestMethod.GET)
+	public List<AWSMetaInfo> getInstanceMetaDataList(){
+		List<AWSMetaInfo> awsMetaInfoList = ec2Service.getAWSMetaInfoList();
+		return awsMetaInfoList;
+		
 	}
 	
 	@RequestMapping(value="/ip/{privateIPAddress:.+}")

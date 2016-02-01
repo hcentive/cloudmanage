@@ -79,11 +79,11 @@ angular.module('cloudmanageApp')
           return promise;
         },
         responseError: function (rejection) {
-          var promise = $q.when(rejection);
+          var promise = $q.reject(rejection);
           var counter = _responseInterceptors.length;
           while(counter){
             var _responseInterceptor = _responseInterceptors[--counter];
-            promise = promise.then(_responseInterceptor.responseError); 
+            promise = promise.catch(_responseInterceptor.responseError); 
           }
           return promise;
         }

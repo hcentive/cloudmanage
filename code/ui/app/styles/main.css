@@ -51,3 +51,4 @@
 
 .validTag {color:green;}
 .invalidTag {color:red;}
+.instanceMetaListContainer{width:985px; overflow-x:scroll;}

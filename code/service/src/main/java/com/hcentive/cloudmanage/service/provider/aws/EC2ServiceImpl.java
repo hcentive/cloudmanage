@@ -2,6 +2,7 @@ package com.hcentive.cloudmanage.service.provider.aws;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +23,6 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
@@ -386,6 +386,16 @@ public class EC2ServiceImpl implements EC2Service {
 				jobTriggerInfo.getJobName(), jobTriggerInfo.getTriggerGroup(),
 				jobTriggerInfo.getTriggerName(),
 				jobTriggerInfo.getCronExpression(), instanceId);
+	}
+
+	@Override
+	public List<AWSMetaInfo> getAWSMetaInfoList() {
+		List<AWSMetaInfo> list = new ArrayList<AWSMetaInfo>();
+		Iterable<AWSMetaInfo> awsMetaInfos = awsMetaRepository.findAll();
+		for(AWSMetaInfo awsMetaInfo : awsMetaInfos){
+			list.add(awsMetaInfo);
+		}
+		return list;
 	}
 
 	

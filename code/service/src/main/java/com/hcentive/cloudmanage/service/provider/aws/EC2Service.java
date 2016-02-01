@@ -7,10 +7,10 @@ import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 
-import com.amazonaws.services.ec2.model.InstanceState;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+import com.hcentive.cloudmanage.billing.AWSMetaInfo;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.job.InstanceJobDetails;
@@ -22,6 +22,8 @@ public interface EC2Service {
 	public Instance getInstanceByPrivateIP(String privateIP);
 	
 	public List<Instance> getInstanceLists();
+	
+	public List<AWSMetaInfo> getAWSMetaInfoList();
 
 	public StopInstancesResult stopInstance(String instanceId);
 

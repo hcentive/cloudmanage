@@ -114,9 +114,7 @@
              headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
-          }).catch(function(data){
-            $log.error(data);
-        });
+          });
     };
 
     this.deleteSchedule = function(instance){
@@ -128,8 +126,6 @@
              headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
                 }
-            }).catch(function(response){
-                $log.error(response);
             });
     };
 
@@ -138,8 +134,6 @@
         return $http.get('/instances/schedule/'+ instanceId)
         .then(function(data){
             return data.data;
-        }, function(data){
-            $log.error(data);
         });
     };
 
@@ -147,9 +141,6 @@
         return $http.get('/instances/ip/' + ipAddress, {ignoreTracker:true})
         .then(function(response){
             return response.data;
-        },
-            function(data){
-                $log.error(data);
             }
         );
     };
@@ -162,8 +153,12 @@
         return $http.get(url,{ignoreTracker:true})
         .then(function(response){
             return response.data;
-        }, function(data){
-            $log.error(data);
+        });
+    };
+
+     this.getInstanceMetaList = function(){
+        return $http.get('/instances/meta').then(function(response){
+            return response.data;
         });
     };
 
