@@ -8,9 +8,8 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('authenticationService', ['securityContextHolder','$q','$http','authenticationSuccessHandler','authenticationFailureHandler',
-    function authenticationService(securityContextHolder, $q, $http,authenticationSuccessHandler,authenticationFailureHandler) {
-
+  .service('authenticationService', ['$q','$http','authenticationSuccessHandler','authenticationFailureHandler',
+    function authenticationService($q, $http,authenticationSuccessHandler,authenticationFailureHandler) {
       this.authenticate = authenticate;
 
       function authenticate(credentials){

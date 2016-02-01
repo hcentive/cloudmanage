@@ -8,13 +8,12 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('authenticationFailureHandler', ['$log','securityContextHolder',
-  	function authenticationFailureHandler($log, securityContextHolder) {
+  .service('authenticationFailureHandler', ['$log','securityContextUtils',
+  	function authenticationFailureHandler($log, securityContextUtils) {
   	this.handle = handle;
 
   	function handle(data, credentials){
-  		securityContextHolder.principal = {};
-      	securityContextHolder.authenticated = false;
+  		securityContextUtils.clearSecurityContext();
   		$log.error(data);
   	}
   }]);

@@ -8,12 +8,11 @@
  * Factory in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .factory('logoutService', ['$http', 'serviceUrl', 'securityContextHolder',function ($http, serviceUrl, securityContextHolder) {
+  .factory('logoutService', ['$http',  'securityContextUtils',function ($http, securityContextUtils) {
     return {
       logout: function () {
         return $http.post('/logout').then(function(){
-            securityContextHolder.principal = null;
-            securityContextHolder.authenticated = false;
+            securityContextUtils.clearSecurityContext();
         });
       }
     };

@@ -2,6 +2,7 @@ package com.hcentive.cloudmanage.service.provider.aws;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +23,6 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
@@ -66,6 +66,24 @@ public class EC2ServiceImpl implements EC2Service {
 			decisionMapAsPolicy = getDecisionMapAsPolicy();
 		}
 		return awsClientProxy.getEC2Client(applyPolicy, decisionMapAsPolicy);
+	}
+	
+	@Override
+	public Instance getInstanceByPrivateIP(String privateIP) {
+		logger.info("Instance info");
+		DescribeInstancesRequest request = new DescribeInstancesRequest()
+				.withFilters(
+						getFilter("network-interface.addresses.private-ip-address",privateIP));
+		DescribeInstancesResult instanceResult = getEC2Session(false)
+				.describeInstances(request);
+		Instance instance = AWSUtils.extractInstance(instanceResult);
+		return instance;
+		
+	}
+
+	private Filter getFilter(String key, String value) {
+		Filter filter = new Filter(key).withValues(value);
+		return filter;
 	}
 
 	/**
@@ -136,18 +154,12 @@ public class EC2ServiceImpl implements EC2Service {
 	 */
 	public Instance getInstance(String instanceId) {
 		logger.info("Instance info");
-		Reservation reservation = null;
 		DescribeInstancesRequest request = new DescribeInstancesRequest()
 				.withInstanceIds(instanceId).withFilters(
 						getDecisionMapAsFilters());
 		DescribeInstancesResult instanceResult = getEC2Session(false)
 				.describeInstances(request);
-		List<Reservation> reservations = instanceResult.getReservations();
-		if (!reservations.isEmpty()) {
-			reservation = reservations.get(0);
-		}
-		logger.debug("Instance info " + reservation);
-		Instance instance = AWSUtils.extractInstance(reservation);
+		Instance instance = AWSUtils.extractInstance(instanceResult);
 		return instance;
 	}
 
@@ -375,5 +387,17 @@ public class EC2ServiceImpl implements EC2Service {
 				jobTriggerInfo.getTriggerName(),
 				jobTriggerInfo.getCronExpression(), instanceId);
 	}
+
+	@Override
+	public List<AWSMetaInfo> getAWSMetaInfoList() {
+		List<AWSMetaInfo> list = new ArrayList<AWSMetaInfo>();
+		Iterable<AWSMetaInfo> awsMetaInfos = awsMetaRepository.findAll();
+		for(AWSMetaInfo awsMetaInfo : awsMetaInfos){
+			list.add(awsMetaInfo);
+		}
+		return list;
+	}
+
+	
 
 }

@@ -30,11 +30,7 @@
 		</div>
 	</div>
 	<div id="chart" highchart highchart-data="cPUUtilizationCtrl.dataPoints"></div>
-	<div class="processing_overlay" ng-if="cPUUtilizationCtrl.loadingTracker.active()">
-	    <div class="processing_loading">
-	        <i class="fa fa-cog fa-spin fa-5x fa-fw"></i>
-	    </div>
-	</div>
+	<hc-processing tracker="cPUUtilizationCtrl.loadingTracker"></hc-processing>
 </div>
 <div class="modal-footer">
 	<button class="btn btn-primary" type="button" ng-click="cPUUtilizationCtrl.dismiss()">OK</button>

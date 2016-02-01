@@ -15,7 +15,7 @@
 		</thead>
 		<tbody>
 			<tr ng-repeat="instance in instanceCtrl.list">
-				<td>{{instanceCtrl.getInstanceName(instance)}}</td>
+				<td>{{instanceCtrl.getInstanceName(instance) | hyphenate}}</td>
 				<td>{{instance.awsInstance.instanceType}}</td>
 				<td>{{instance.awsInstance.state.name}}</td>
 				<td>
@@ -36,4 +36,7 @@
 			</tr>
 		</tbody>
 	</table>
+</div>
+<div class="row">
+	<p>Didn't find your instance? Use the <button type="button" class="btn btn-link" ng-click="instanceCtrl.diagnose()">diagnosis tool </button> to find out why.</p>
 </div>

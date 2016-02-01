@@ -26,7 +26,7 @@
   function(routesProvider, $httpProvider,InterceptorProxyProvider){
 
     InterceptorProxyProvider.addUrlsToIgnore('views','ui-grid','template','cronselection.html','selectize','bootstrap');
-    InterceptorProxyProvider.addInterceptor('GlobalTrackerInterceptor','serviceUrlInterceptor', 'accessDeniedInterceptor');
+    InterceptorProxyProvider.addInterceptor('HandleRequestResponseInterceptor','GlobalTrackerInterceptor','serviceUrlInterceptor', 'accessDeniedInterceptor');
     $httpProvider.interceptors.unshift('InterceptorProxy');
 
   }])
