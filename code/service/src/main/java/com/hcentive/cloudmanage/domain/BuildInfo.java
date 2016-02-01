@@ -5,6 +5,9 @@ import java.util.Calendar;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class BuildInfo {
 
 	private String buildId;
@@ -214,6 +217,13 @@ public class BuildInfo {
 				+ stack + ", revisionNumber=" + revisionNumber + ", hostName="
 				+ hostName + ", initiatedBy=" + initiatedBy + ", initiatedAt="
 				+ initiatedAt + ", logFileLocation=" + logFileLocation + "]";
+	}
+
+	public String toJson() throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonString = mapper.writeValueAsString(this);
+		System.out.println("Object as json " + jsonString);
+		return jsonString;
 	}
 
 }

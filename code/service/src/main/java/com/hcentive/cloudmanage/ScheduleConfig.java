@@ -34,7 +34,8 @@ import com.hcentive.cloudmanage.job.AutowiringSpringBeanJobFactory;
 @EnableScheduling
 @EnableJpaRepositories(basePackages = { "com.hcentive.cloudmanage.security",
 		"com.hcentive.cloudmanage.audit", "com.hcentive.cloudmanage.jenkins",
-		"com.hcentive.cloudmanage.billing" })
+		"com.hcentive.cloudmanage.billing",
+		"com.hcentive.cloudmanage.profiling" })
 public class ScheduleConfig {
 
 	@Value("${db.driver.class}")
@@ -89,7 +90,8 @@ public class ScheduleConfig {
 		factory.setPackagesToScan("com.hcentive.cloudmanage.security",
 				"com.hcentive.cloudmanage.audit",
 				"com.hcentive.cloudmanage.jenkins",
-				"com.hcentive.cloudmanage.billing");
+				"com.hcentive.cloudmanage.billing",
+				"com.hcentive.cloudmanage.profiling");
 		// -- mandatory dialect for factory.
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.dialect",

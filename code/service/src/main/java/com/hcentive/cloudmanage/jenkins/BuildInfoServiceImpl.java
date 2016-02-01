@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hcentive.cloudmanage.AppConfig;
 import com.hcentive.cloudmanage.domain.BuildInfo;
 import com.hcentive.cloudmanage.domain.BuildJobResponse;
@@ -89,20 +90,11 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 			logger.debug("Retrieved build Info from " + url + " for " + vars
 					+ " : " + result);
 		}
-
-		// Use separate thread to update the same.
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				updateHostNames(jobName, result.getBuilds());
-			}
-		});
-		t.start();
 		return result;
 	}
 
-	// Not exposed via Interface.
-	public void updateHostNames(final String jobName, final List<Builds> builds) {
+	public void updateHostNames(final String jobName, final List<Builds> builds)
+			throws JsonProcessingException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Retrieve hosts for " + jobName + " from " + builds);
 		}
@@ -113,11 +105,12 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		}
 		persistHostBldMap(jobName, hosts);
 		// Also update the BuildObjects for job-host identifier.
+		// Beware we might have hosts without successful build.
 		persistHostBldInfo(jobName, hosts);
 	}
 
 	private void persistHostBldInfo(final String jobName,
-			Map<String, BuildInfo> hosts) {
+			Map<String, BuildInfo> hosts) throws JsonProcessingException {
 		// Get the BuildInfo
 		List<LastSuccessfulBuildInfo> response = lastSuccessfulBuildRepository
 				.findByJobName(jobName);
@@ -130,9 +123,12 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		for (String host : hosts.keySet()) {
 			LastSuccessfulBuildInfo lastBld = responseMap.get(host);
 			BuildInfo buildInfo = hosts.get(host);
-			if (lastBld == null // New Host Or Old Value
+			// It could be null - means no successful build for that host, so
+			// skip that
+			if (buildInfo != null
+					&& (lastBld == null // New Host Or Old Value
 					|| lastBld.getBuildNumber() < new Integer(
-							buildInfo.getBuildId())) {
+							buildInfo.getBuildId()))) {
 
 				LastSuccessfulBuildInfo ref = new LastSuccessfulBuildInfo();
 				JobHostKey comKey = new JobHostKey();
@@ -143,7 +139,7 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 
 				ref.setBuildNumber(new Integer(buildInfo.getBuildId()));
 				// UsingNew Value
-				ref.setBuildInfoJson(buildInfo.toString());
+				ref.setBuildInfoJson(buildInfo.toJson());
 
 				responseMap.put(host, ref);
 			}
@@ -151,6 +147,10 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		}
 		// persist.
 		lastSuccessfulBuildRepository.save(responseMap.values());
+		if (logger.isDebugEnabled()) {
+			logger.info("Updated last successful builds for "
+					+ responseMap.keySet() + " as " + responseMap.values());
+		}
 	}
 
 	private void persistHostBldMap(final String jobName,

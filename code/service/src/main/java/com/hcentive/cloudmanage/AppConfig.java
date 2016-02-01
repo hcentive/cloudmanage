@@ -13,8 +13,6 @@ public class AppConfig {
 		// address that corresponds to an AWS resource, the JVM will refresh the
 		// cached IP value after a relatively brief period of time.
 		java.security.Security.setProperty("networkaddress.cache.ttl", "60");
-		// System.setProperty("javax.net.ssl.trustStore", "jenkinsKeystore");
-		// System.setProperty("javax.net.ssl.trustStorePassword", "jenkins");
 	}
 
 	public static String jenkinsUrl;
@@ -28,6 +26,14 @@ public class AppConfig {
 	public static String jenkinsJobsUrl;
 
 	public static Integer lastDaysForHostNames;
+
+	public static String billBaseDir;
+
+	public static String billFileName;
+
+	public static String billS3BucketName;
+
+	public static String accountId;
 
 	@Value("${jenkins.url}")
 	public void setJenkinsUrl(String jenkinsUrl) {
@@ -60,4 +66,23 @@ public class AppConfig {
 		AppConfig.lastDaysForHostNames = new Integer(lastDaysForHostNames);
 	}
 
+	@Value("${aws.bill.base.dir}")
+	public void setBillBaseDir(String billBaseDir) {
+		AppConfig.billBaseDir = billBaseDir;
+	}
+
+	@Value("${aws.bill.file.name}")
+	public void setBillFileName(String billFileName) {
+		AppConfig.billFileName = billFileName;
+	}
+
+	@Value("${aws.accountId}")
+	public void setAccountId(String accountId) {
+		AppConfig.accountId = accountId;
+	}
+
+	@Value("${aws.billS3BucketName}")
+	public void setBillS3BucketName(String billS3BucketName) {
+		AppConfig.billS3BucketName = billS3BucketName;
+	}
 }

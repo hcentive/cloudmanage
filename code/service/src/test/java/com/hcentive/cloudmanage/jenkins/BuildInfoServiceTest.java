@@ -59,14 +59,6 @@ public class BuildInfoServiceTest {
 				response.getDescription());
 		assertNotNull("Last Successful Build number is not available", response
 				.getLastSuccessfulBuild().getNumber());
-		try {
-			// Give time to have the host names updated in Database.
-			Thread.currentThread().sleep(30000);
-		} catch (InterruptedException e) {
-			System.out.println("Could not be saved!");
-			e.printStackTrace();
-		}
-
 	}
 
 	@Test
@@ -78,7 +70,7 @@ public class BuildInfoServiceTest {
 			fail("Builds log for " + jobName + ":" + buildNumber
 					+ " is not available " + e);
 		}
-		
+
 		File f = new File(jobName + "_" + buildNumber + ".log");
 		if (f.exists()) {
 			assertTrue("File" + f + " is 0 bytes", f.length() > 0);
@@ -102,5 +94,16 @@ public class BuildInfoServiceTest {
 		assertNotNull("Build Info Not available for " + jobName,
 				buildInfo.toString());
 		System.out.println("build Info " + buildInfo);
+	}
+
+	@Test
+	public void testUpdateHostNames() {
+		try {
+			JobInfo jobInfo = buildInfoService.getJobInfo(jobName);
+			buildInfoService.updateHostNames(jobName, jobInfo.getBuilds());
+		} catch (Exception e) {
+			fail("Update failed for " + jobName + " : " + e);
+		}
+
 	}
 }

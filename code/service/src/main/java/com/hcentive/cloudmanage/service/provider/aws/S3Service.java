@@ -1,6 +1,7 @@
 package com.hcentive.cloudmanage.service.provider.aws;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ public interface S3Service {
 
 	/*
 	 * @PreAuthorize("hasRole('XYZ')") is the same as
+	 * 
 	 * @PreAuthorize("hasAuthority('ROLE_XYZ')")
 	 */
 	@PreAuthorize("hasAuthority('techops')")
@@ -19,11 +21,15 @@ public interface S3Service {
 	// Read a bucket contents
 	@PreAuthorize("hasAuthority('techops')")
 	public List<String> getBucketList(String bucketName);
-	
+
 	// Write to a bucket contents
 	@PreAuthorize("hasAuthority('techops')")
 	public void uploadToBucket(File file, String bucketName);
 
-	public File getArtifact(String artifactName);
-	
+	public File getArtifact(String bucketName, String artifactName,
+			String fileLocation) throws IOException;
+
+	public File getBill(String bucketName, String billFileName,
+			String fileLocation) throws IOException;
+
 }

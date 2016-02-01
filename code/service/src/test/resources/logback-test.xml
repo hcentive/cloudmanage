@@ -18,10 +18,10 @@
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-	<logger name="org.hibernate.SQL" level="INFO" additivity="false">
+	<logger name="org.hibernate.SQL" level="ERROR" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
-	<logger name="org.hibernate.type" level="INFO" additivity="false">
+	<logger name="org.hibernate.type" level="ERROR" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 	<root level="error">

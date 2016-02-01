@@ -1,7 +1,6 @@
-package com.hcentive.cloudmanage.billing;
+package com.hcentive.cloudmanage.profiling;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -15,9 +14,11 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.hcentive.cloudmanage.billing.AWSMetaInfo;
+
 @Entity
-@Table(name = "AWS_BILL_INFO")
-public class BillingInfo implements Serializable {
+@Table(name = "AWS_CPU_INFO")
+public class ProfileInfo implements Serializable {
 
 	private static final long serialVersionUID = 006L;
 
@@ -26,24 +27,24 @@ public class BillingInfo implements Serializable {
 	@GeneratedValue
 	private Long id;
 
+	@Column(name = "AVG_CPU_HOURLY")
+	private String avgCPUHourly;
+
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "SNAPSHOT_AT")
 	private Date snapshotAt;
-
-	@Column(name = "BILL_TOTAL")
-	private BigDecimal dayTotal;
 
 	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "INSTANCE_ID", nullable = false)
 	private AWSMetaInfo instanceInfo;
 
-	public BillingInfo() {
+	public ProfileInfo() {
 	}
 
-	public BillingInfo(Date snapshotAt, BigDecimal dayTotal,
+	public ProfileInfo(String avgCPUHourly, Date snapshotAt,
 			AWSMetaInfo instanceInfo) {
+		this.avgCPUHourly = avgCPUHourly;
 		this.snapshotAt = snapshotAt;
-		this.dayTotal = dayTotal;
 		this.instanceInfo = instanceInfo;
 	}
 
@@ -63,12 +64,12 @@ public class BillingInfo implements Serializable {
 		this.snapshotAt = snapshotAt;
 	}
 
-	public BigDecimal getDayTotal() {
-		return dayTotal;
+	public String getAvgCPUHourly() {
+		return avgCPUHourly;
 	}
 
-	public void setDayTotal(BigDecimal dayTotal) {
-		this.dayTotal = dayTotal;
+	public void setAvgCPUHourly(String avgCPUHourly) {
+		this.avgCPUHourly = avgCPUHourly;
 	}
 
 	public AWSMetaInfo getInstanceInfo() {
@@ -81,9 +82,9 @@ public class BillingInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return "BillingInfo [id=" + id + ", snapshotAt=" + snapshotAt
-				+ ", dayTotal=" + dayTotal + ", instanceInfo=" + instanceInfo
-				+ "]";
+		return "ProfileInfo [id=" + id + ", avgCPUHourly=" + avgCPUHourly
+				+ ", snapshotAt=" + snapshotAt + ", instanceInfo="
+				+ instanceInfo + "]";
 	}
 
 }
