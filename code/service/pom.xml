@@ -27,6 +27,8 @@
 		<ehcache.version>2.10.1</ehcache.version>
 		<spring.data.version>1.9.1.RELEASE</spring.data.version>
 		<commons-csv.version>1.2</commons-csv.version>
+		<aws-java-sdk.version>1.9.0</aws-java-sdk.version>
+		<mysql.driver.version>5.1.37</mysql.driver.version>
 	</properties>
 
 	<dependencies>
@@ -53,7 +55,7 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
-			<version>1.9.0</version>
+			<version>${aws-java-sdk.version}</version>
 		</dependency>
 
 
@@ -106,6 +108,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.driver.version}</version>
 		</dependency>
 
 		<!-- AOP dependency -->
@@ -147,4 +150,30 @@
 		</dependency>
 		
 	</dependencies>
+
+	<build>
+    <plugins>
+        <plugin>
+            <groupId>com.dbdeploy</groupId>
+            <artifactId>maven-dbdeploy-plugin</artifactId>
+            <version>3.0M3</version>
+            <configuration>
+				<driver>com.mysql.jdbc.Driver</driver>
+				<url>jdbc:mysql://localhost:3306/quartz</url>
+				<userid>cloudmanage</userid>
+				<password>cloudmanage</password>
+				<scriptdirectory>../../scripts/changelog</scriptdirectory>
+			</configuration>
+			<dependencies>
+				<dependency>
+					<groupId>mysql</groupId>
+					<artifactId>mysql-connector-java</artifactId>
+					<version>${mysql.driver.version}</version>
+				</dependency>
+			</dependencies>
+        </plugin>
+    </plugins>
+	</build>
 </project>
+
+
