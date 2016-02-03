@@ -2,9 +2,8 @@ target
 .project
 .classpath
 .DS_Store
-tmpSTSActiveDirectoryFederation/
+STSActiveDirectoryFederation/
 code/service/.settings/
-scripts/application.properties
 cloudmanage.git
 scripts/application-dev.properties
 
