@@ -2,10 +2,14 @@ package com.hcentive.cloudmanage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 import com.hcentive.cloudmanage.utils.PasswordCryptoUtils;
 
 @Configuration
+@PropertySource("application.properties")
+@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
 public class AppConfig {
 
 	static {
@@ -34,6 +38,10 @@ public class AppConfig {
 	public static String billS3BucketName;
 
 	public static String accountId;
+
+	public static String accessKey;
+
+	public static String secret;
 
 	@Value("${jenkins.url}")
 	public void setJenkinsUrl(String jenkinsUrl) {
@@ -85,4 +93,20 @@ public class AppConfig {
 	public void setBillS3BucketName(String billS3BucketName) {
 		AppConfig.billS3BucketName = billS3BucketName;
 	}
+
+	@Value("${jenkins.lastDaysForHostNames}")
+	public void setLastDaysForHostNames(Integer lastDaysForHostNames) {
+		AppConfig.lastDaysForHostNames = lastDaysForHostNames;
+	}
+
+	@Value("${aws.bill.key}")
+	public void setAccessKey(String accessKey) {
+		AppConfig.accessKey = accessKey;
+	}
+
+	@Value("${aws.bill.secret}")
+	public void setSecret(String secret) {
+		AppConfig.secret = secret;
+	}
+
 }

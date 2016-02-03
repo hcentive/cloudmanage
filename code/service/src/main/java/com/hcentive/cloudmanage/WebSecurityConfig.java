@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -21,6 +22,8 @@ import com.hcentive.cloudmanage.security.CustomAuthenticationSuccessHandler;
 import com.hcentive.cloudmanage.security.LDAPGrantedAuthorityMapper;
 
 @Configuration
+@PropertySource("application.properties")
+@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
 // WARN: As of Spring Security 4.0, @EnableWebMvcSecurity is deprecated. The
 // replacement is
 @EnableWebSecurity

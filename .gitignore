@@ -6,3 +6,5 @@ tmpSTSActiveDirectoryFederation/
 code/service/.settings/
 scripts/application.properties
 cloudmanage.git
+scripts/application-dev.properties
+

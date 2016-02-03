@@ -1,24 +1,30 @@
+# Base application property file overridden by specific application-${env} files
 ad.url=ldap://hcentive.com:389
 ad.domain=hcentive.com
+# logging levels
 logging.level.org.springframework=INFO
 logging.level.com.hcentive=DEBUG
 error.whitelabel.enabled=false
+# database - password must be overridden
 db.driver.class=com.mysql.jdbc.Driver
 db.url=jdbc:mysql://localhost:3306/quartz
 db.username=cloudmanage
-db.password=cloudmanage
+db.password=<overridden in application-${env}.properties>
+# jenkins - username & password must be overridden
 jenkins.url=https://build.demo.hcentive.com/jenkins/
-jenkins.password=<blah-blah>
-jenkins.username=<ad-user-name>
+jenkins.password=<overridden in application-${env}.properties>
+jenkins.username=<overridden in application-${env}.properties>
 jenkins.lastDaysForHostNames=-1
 jenkins.log.base.dir=/usr/local/cloudmanage/buildlogs/
 jenkins.jobs.url=https://build.demo.hcentive.com/jenkins/api/json?pretty=true
+# aws - key & secret must be overridden
 aws.accountId=770377720390
 aws.bill.base.dir=/usr/local/cloudmanage/bills/
 aws.bill.file.name=${aws.accountId}-aws-billing-detailed-line-items-with-resources-and-tags-<year>-<month>.csv.zip
 aws.billS3BucketName=ostratohcentive
-aws.bill.key=<>
-aws.bill.secret=<>
+aws.bill.key=<overridden in application-${env}.properties>
+aws.bill.secret=<overridden in application-${env}.properties>
+# crons
 ec2.meta.refresh.cron=0 5 * * * *
 jenkins.build.refresh.cron=0 10 * * * *
 ec2.profile.refresh.cron=0 0 1 * * *

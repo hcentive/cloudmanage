@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,8 @@ import com.hcentive.cloudmanage.audit.AuditContextHolder;
 
 //Marks this class as configuration SEPARATE
 @Configuration
+@PropertySource("application.properties")
+@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
 @ComponentScan(basePackages = { "com.hcentive.*.controller" })
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {

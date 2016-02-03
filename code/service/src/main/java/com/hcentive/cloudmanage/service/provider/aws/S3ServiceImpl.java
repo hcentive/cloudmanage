@@ -16,7 +16,6 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -45,12 +44,6 @@ public class S3ServiceImpl implements S3Service {
 	@Autowired
 	private AWSClientProxy awsClientProxy;
 
-	@Value("${aws.bill.key}")
-	private String accessKey;
-
-	@Value("${aws.bill.secret}")
-	private String secret;
-
 	private static final int BUFFER_SIZE = 64 * 1024;
 
 	/**
@@ -63,7 +56,8 @@ public class S3ServiceImpl implements S3Service {
 	}
 
 	public AmazonS3Client getBillS3Session() {
-		return new AmazonS3Client(new BasicAWSCredentials(accessKey, secret));
+		return new AmazonS3Client(new BasicAWSCredentials(AppConfig.accessKey,
+				AppConfig.secret));
 	}
 
 	/**

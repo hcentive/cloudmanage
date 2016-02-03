@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -23,6 +24,8 @@ import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
 // <start from>/<every x units> for the above
 
 @Configuration
+@PropertySource("application.properties")
+@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
 @EnableScheduling
 public class IngestScheduler {
 
