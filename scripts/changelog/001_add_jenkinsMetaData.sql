@@ -1,5 +1,3 @@
-use cldmng
-
 -- Jenkins Metadata
 
 CREATE TABLE IF NOT EXISTS BUILD_MASTER (

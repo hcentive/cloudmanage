@@ -182,6 +182,7 @@
 				<url>${db.url}</url>
 				<userid>${db.username}</userid>
 				<password>${db.password}</password>
+				<changeLogTableName>CHANGELOG</changeLogTableName>
 				<scriptdirectory>../../scripts/changelog</scriptdirectory>
 			</configuration>
 			<dependencies>

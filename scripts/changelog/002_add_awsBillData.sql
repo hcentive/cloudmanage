@@ -1,5 +1,3 @@
-use cldmng
-
 -- AWS Metadata
 
 CREATE TABLE IF NOT EXISTS INSTANCE_MASTER (
