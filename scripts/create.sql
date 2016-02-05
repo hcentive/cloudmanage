@@ -1,6 +1,6 @@
-CREATE DATABASE quartz;
+CREATE DATABASE cldmng;
 
-USE quartz;
+USE cldmng;
 
 -- LDAP AD Authorities or Groups
 

@@ -21,7 +21,7 @@ public class PasswordCryptoUtils {
 	}
 	
 	public static void main(String[] args){
-			String password = "hCentive@3";
+			String password = "password";
 			String encryptPassword = encryptPassword(password);
 			System.out.println(encryptPassword);
 			System.out.println(decryptPassword(encryptPassword));

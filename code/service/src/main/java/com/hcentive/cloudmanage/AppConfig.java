@@ -3,7 +3,6 @@ package com.hcentive.cloudmanage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 
 import com.hcentive.cloudmanage.utils.PasswordCryptoUtils;
 
@@ -106,7 +105,7 @@ public class AppConfig {
 
 	@Value("${aws.bill.secret}")
 	public void setSecret(String secret) {
-		AppConfig.secret = secret;
+		AppConfig.secret = PasswordCryptoUtils.decryptPassword(secret);
 	}
 
 }
