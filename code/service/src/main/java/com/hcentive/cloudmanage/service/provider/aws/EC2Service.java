@@ -21,7 +21,7 @@ public interface EC2Service {
 	
 	public Instance getInstanceByPrivateIP(String privateIP);
 	
-	public List<Instance> getInstanceLists();
+	public List<Instance> getInstanceLists(boolean jobContext);
 	
 	public List<AWSMetaInfo> getAWSMetaInfoList();
 
@@ -31,7 +31,7 @@ public interface EC2Service {
 	
 	public TerminateInstancesResult terminateInstance(String instanceId);
 
-	public void updateInstanceMetaInfo();
+	public void updateInstanceMetaInfo(boolean jobContext);
 	
 	// QUARTZ SECTION *******************
 

@@ -2,7 +2,6 @@ package com.hcentive.cloudmanage.service.provider.aws;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +48,6 @@ public class EC2ServiceImpl implements EC2Service {
 	@Autowired
 	private AWSClientProxy awsClientProxy;
 
-	
 	@Autowired
 	private DecisionMapperService decisionMapperService;
 
@@ -67,18 +65,19 @@ public class EC2ServiceImpl implements EC2Service {
 		}
 		return awsClientProxy.getEC2Client(applyPolicy, decisionMapAsPolicy);
 	}
-	
+
 	@Override
 	public Instance getInstanceByPrivateIP(String privateIP) {
 		logger.info("Instance info");
 		DescribeInstancesRequest request = new DescribeInstancesRequest()
-				.withFilters(
-						getFilter("network-interface.addresses.private-ip-address",privateIP));
+				.withFilters(getFilter(
+						"network-interface.addresses.private-ip-address",
+						privateIP));
 		DescribeInstancesResult instanceResult = getEC2Session(false)
 				.describeInstances(request);
 		Instance instance = AWSUtils.extractInstance(instanceResult);
 		return instance;
-		
+
 	}
 
 	private Filter getFilter(String key, String value) {
@@ -145,7 +144,8 @@ public class EC2ServiceImpl implements EC2Service {
 	 * ldapAuthNames=techops,Ops,qa-*]
 	 */
 	private Set<DecisionMapper> getDecisionMap() {
-		Set<DecisionMapper> decisionMapper = decisionMapperService.getDecisionMap();
+		Set<DecisionMapper> decisionMapper = decisionMapperService
+				.getDecisionMap();
 		return decisionMapper;
 	}
 
@@ -166,13 +166,14 @@ public class EC2ServiceImpl implements EC2Service {
 	/**
 	 * Lists EC2 Instances.
 	 */
-	public List<Instance> getInstanceLists() {
+	public List<Instance> getInstanceLists(boolean jobContext) {
 		logger.info("Listing instances");
+		List<Instance> instances = null;
 		DescribeInstancesRequest instanceRequest = new DescribeInstancesRequest()
-				.withFilters(getDecisionMapAsFilters());
+				.withFilters(jobContext ? null : getDecisionMapAsFilters());
 		DescribeInstancesResult instancesResult = getEC2Session(false)
 				.describeInstances(instanceRequest);
-		List<Instance> instances = AWSUtils.extractInstances(instancesResult);
+		instances = AWSUtils.extractInstances(instancesResult);
 		return instances;
 	}
 
@@ -216,8 +217,12 @@ public class EC2ServiceImpl implements EC2Service {
 		return result;
 	}
 
-	public void updateInstanceMetaInfo() {
-		List<Instance> instances = getInstanceLists();
+	public void updateInstanceMetaInfo(boolean jobContext) {
+		List<Instance> instances = getInstanceLists(jobContext);
+		if (logger.isInfoEnabled()) {
+			logger.info("updateInstanceMetaInfo triggered for {}", instances);
+		}
+
 		// Retrieve all existing entities from database.
 		Iterable<AWSMetaInfo> awsMetaInstances = awsMetaRepository.findAll();
 		Map<String, AWSMetaInfo> awsMetaInstanceMap = new HashMap<String, AWSMetaInfo>();
@@ -228,7 +233,10 @@ public class EC2ServiceImpl implements EC2Service {
 		// Round up all existing objects.
 		List<AWSMetaInfo> entitiesToSave = new ArrayList<AWSMetaInfo>();
 		for (Instance instance : instances) {
-			logger.debug("Instance being considered for update {}", instance);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Instance being considered for update {}",
+						instance);
+			}
 			// New Object.
 			AWSMetaInfo metaInfo = new AWSMetaInfo();
 			// Data elements
@@ -262,22 +270,21 @@ public class EC2ServiceImpl implements EC2Service {
 			boolean match = true;
 			if (awsMetaInfo != null) {
 				// All other attributes can change except cost center and stack
+
 				// For cost center
 				String costCenter1 = awsMetaInfo.getCostCenter();
 				String costCenter2 = metaInfo.getCostCenter();
-				if (costCenter1 == null) {
-					if (costCenter2 != null)
-						match = false;
-				} else if (!costCenter1.equalsIgnoreCase(costCenter2))
+				if (costCenter1 != null
+						&& !costCenter1.equalsIgnoreCase(costCenter2)) {
 					match = false;
+				}
+
 				// Same for stack
 				String stack1 = awsMetaInfo.getStack();
 				String stack2 = metaInfo.getStack();
-				if (stack1 == null) {
-					if (stack2 != null)
-						match = false;
-				} else if (!stack1.equals(stack2))
+				if (stack1 != null && !stack1.equals(stack2)) {
 					match = false;
+				}
 
 				if (!match) {
 					logger.warn(
@@ -300,7 +307,16 @@ public class EC2ServiceImpl implements EC2Service {
 			logger.debug("Updating aws ec2 meta info master with "
 					+ entitiesToSave);
 		}
-		awsMetaRepository.save(entitiesToSave);
+		// Iterate and save 1-by-1 as some of them might fail.
+		for (AWSMetaInfo entityToSave : entitiesToSave) {
+			try {
+				awsMetaRepository.save(entityToSave);
+			} catch (Exception e) {
+				logger.error(
+						"Skipping: Failed to update aws ec2 meta info master for {}:{} ",
+						entityToSave.getAwsInstanceId(), e);
+			}
+		}
 		if (logger.isInfoEnabled()) {
 			logger.info("Updated aws ec2 meta info master list with "
 					+ entitiesToSave.size() + " items: " + entitiesToSave);
@@ -392,12 +408,10 @@ public class EC2ServiceImpl implements EC2Service {
 	public List<AWSMetaInfo> getAWSMetaInfoList() {
 		List<AWSMetaInfo> list = new ArrayList<AWSMetaInfo>();
 		Iterable<AWSMetaInfo> awsMetaInfos = awsMetaRepository.findAll();
-		for(AWSMetaInfo awsMetaInfo : awsMetaInfos){
+		for (AWSMetaInfo awsMetaInfo : awsMetaInfos) {
 			list.add(awsMetaInfo);
 		}
 		return list;
 	}
-
-	
 
 }

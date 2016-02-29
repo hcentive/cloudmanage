@@ -1,9 +1,29 @@
 package com.hcentive.cloudmanage.domain;
 
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.HOST_NAME;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.ID;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.INITIAL_REVISION_NUMBER;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JIRA_TICKET;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JOB_ACTIONS;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JOB_CAUSES;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JOB_DISPLAY_NAME;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JOB_PARAMETERS;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JOB_PARAMETER_NAME;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JOB_RESULT;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JOB_TIMESTAMP;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.JSON_PARAMETER_VALUE;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.SERVER_TYPE;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.SHORT_DESCRIPTION;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.SPACE;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.USER_ID;
+import static com.hcentive.cloudmanage.domain.BuildInfoConstants.USER_NAME;
+
 import java.util.Calendar;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,19 +42,22 @@ public class BuildInfo {
 	private Integer lastSuccessfulBuildID;
 	private String result;
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(BuildInfo.class.getName());
+
 	public BuildInfo(String source) {
 		JSONObject jsonObj = new JSONObject(source);
 
-		setBuildId(jsonObj.getString("id"));
+		setBuildId(jsonObj.getString(ID));
 
 		// Split job name by space.
-		String displayName = jsonObj.getString("fullDisplayName");
-		setJobName(displayName.split(" ")[0]);
+		String displayName = jsonObj.getString(JOB_DISPLAY_NAME);
+		setJobName(displayName.split(SPACE)[0]);
 
 		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(jsonObj.getLong("timestamp"));
+		cal.setTimeInMillis(jsonObj.getLong(JOB_TIMESTAMP));
 		setInitiatedAt(cal);
-
+		logger.debug("Extracting attributes from {}", jsonObj.toString());
 		extractAttributes(jsonObj);
 
 		setLogFileLocation(getJobName() + "/" + getBuildId() + ".log");
@@ -42,42 +65,43 @@ public class BuildInfo {
 
 	// Extractor methods
 	private void extractAttributes(JSONObject jsonObj) {
-		setStatus(jsonObj.getString("result"));
-		JSONArray actions = (JSONArray) jsonObj.get("actions");
+		setStatus(jsonObj.getString(JOB_RESULT));
+		JSONArray actions = (JSONArray) jsonObj.get(JOB_ACTIONS);
 		for (int i = 0; i < actions.length(); i++) {
 			Object actionsObj = actions.get(i);
 			if (actionsObj instanceof JSONObject) {
 				JSONObject actionsJsonObj = (JSONObject) actionsObj;
 				for (String key : actionsJsonObj.keySet()) {
-					if (key.equals("causes")) {
+					if (key.equals(JOB_CAUSES)) {
 						JSONArray causes = actionsJsonObj.getJSONArray(key);
 						for (int j = 0; j < causes.length(); j++) {
 							JSONObject causesObj = causes.getJSONObject(j);
 							StringBuilder initiatedByStrBldr = new StringBuilder(
-									causesObj.getString("shortDescription"))
-									.append(" ");
-							if (causesObj.has("userId")) {
+									causesObj.getString(SHORT_DESCRIPTION))
+									.append(SPACE);
+							if (causesObj.has(USER_ID)) {
 								initiatedByStrBldr.append(causesObj
-										.getString("userId"));
-							} else if (causesObj.has("userName")) {
+										.getString(USER_ID));
+							} else if (causesObj.has(USER_NAME)) {
 								initiatedByStrBldr.append(causesObj
-										.getString("userName"));
+										.getString(USER_NAME));
 							}
 							setInitiatedBy(initiatedByStrBldr.toString());
 						}
-					} else if (key.equals("parameters")) {
+					} else if (key.equalsIgnoreCase(JOB_PARAMETERS)) {
 						JSONArray params = actionsJsonObj.getJSONArray(key);
 						for (int k = 0; k < params.length(); k++) {
 							JSONObject paramsObj = params.getJSONObject(k);
-							String name = paramsObj.getString("name");
-							if (name.equals("Jira_Ticket")) {
-								setJiraId(paramsObj.getString("value"));
-							} else if (name.equals("Server_Type")) {
-								setStack(paramsObj.getString("value"));
-							} else if (name.equals("Initial_Revision_Number")) {
-								setRevisionNumber(paramsObj.getString("value"));
-							} else if (name.equals("Host_Name")) {
-								setHostName(paramsObj.getString("value"));
+							String name = paramsObj.getString(JOB_PARAMETER_NAME);
+							if (name.equalsIgnoreCase(JIRA_TICKET)) {
+								setJiraId(paramsObj.getString(JSON_PARAMETER_VALUE));
+							} else if (name.equalsIgnoreCase(SERVER_TYPE)) {
+								setStack(paramsObj.getString(JSON_PARAMETER_VALUE));
+							} else if (name
+									.equalsIgnoreCase(INITIAL_REVISION_NUMBER)) {
+								setRevisionNumber(paramsObj.getString(JSON_PARAMETER_VALUE));
+							} else if (name.equalsIgnoreCase(HOST_NAME)) {
+								setHostName(paramsObj.getString(JSON_PARAMETER_VALUE));
 							}
 						}
 

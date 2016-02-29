@@ -110,40 +110,54 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		fromTimeCal.set(Calendar.SECOND, 0);
 		fromTimeCal.set(Calendar.MILLISECOND, 0);
 
-		Calendar tillTimeCal = Calendar.getInstance();
-		tillTimeCal.setTime(tillTime);
-		tillTimeCal.set(Calendar.HOUR_OF_DAY, 23);
-		tillTimeCal.set(Calendar.MINUTE, 59);
-		tillTimeCal.set(Calendar.SECOND, 59);
-		tillTimeCal.set(Calendar.MILLISECOND, 999);
+		// Check if the entry is already there - if yes:skip
+		ProfileInfo response = awsProfileInfoRepository
+				.findByInstanceIdAndSnapshotAt(instanceId,
+						fromTimeCal.getTime());
+		logger.debug("Profile Info exists for {} & {}", instanceId,
+				fromTimeCal.getTime());
+		if (response == null) {
+			Calendar tillTimeCal = Calendar.getInstance();
+			tillTimeCal.setTime(tillTime);
+			tillTimeCal.set(Calendar.HOUR_OF_DAY, 23);
+			tillTimeCal.set(Calendar.MINUTE, 59);
+			tillTimeCal.set(Calendar.SECOND, 59);
+			tillTimeCal.set(Calendar.MILLISECOND, 999);
 
-		// Loop per day
-		List<ProfileInfo> profileInfoList = new ArrayList<ProfileInfo>();
-		while (tillTimeCal.after(fromTimeCal)) {
+			// Loop per day
+			List<ProfileInfo> profileInfoList = new ArrayList<ProfileInfo>();
+			while (tillTimeCal.after(fromTimeCal)) {
 
-			Calendar dailyWindow = (Calendar) fromTimeCal.clone();
-			dailyWindow.set(Calendar.HOUR_OF_DAY, 23);
-			dailyWindow.set(Calendar.MINUTE, 59);
-			dailyWindow.set(Calendar.SECOND, 59);
-			dailyWindow.set(Calendar.MILLISECOND, 999);
+				Calendar dailyWindow = (Calendar) fromTimeCal.clone();
+				dailyWindow.set(Calendar.HOUR_OF_DAY, 23);
+				dailyWindow.set(Calendar.MINUTE, 59);
+				dailyWindow.set(Calendar.SECOND, 59);
+				dailyWindow.set(Calendar.MILLISECOND, 999);
 
-			List<Datapoint> dpList = retrieveMetrics(instanceId,
-					fromTimeCal.getTime(), dailyWindow.getTime(), period);
+				List<Datapoint> dpList = retrieveMetrics(instanceId,
+						fromTimeCal.getTime(), dailyWindow.getTime(), period);
 
-			// Get ec2 info - not attempting to fetch all.
-			AWSMetaInfo ec2 = awsMetaRepository.findByAwsInstanceId(instanceId);
-			if (dpList != null && dpList.size() > 0) {
-				ObjectMapper mapper = new ObjectMapper();
-				ProfileInfo profileInfo = new ProfileInfo();
-				profileInfo.setInstanceInfo(ec2);
-				profileInfo.setSnapshotAt(fromTimeCal.getTime());
-				profileInfo.setAvgCPUHourly(mapper.writeValueAsString(dpList));
-				profileInfoList.add(profileInfo);
+				// Get ec2 info - not attempting to fetch all.
+				AWSMetaInfo ec2 = awsMetaRepository
+						.findByAwsInstanceId(instanceId);
+				if (dpList != null && dpList.size() > 0) {
+					ObjectMapper mapper = new ObjectMapper();
+					ProfileInfo profileInfo = new ProfileInfo();
+					profileInfo.setInstanceInfo(ec2);
+					profileInfo.setSnapshotAt(fromTimeCal.getTime());
+					profileInfo.setAvgCPUHourly(mapper
+							.writeValueAsString(dpList));
+					profileInfoList.add(profileInfo);
+				}
+				// Move the counter to the next Day
+				fromTimeCal.add(Calendar.DATE, 1);
 			}
-			// Move the counter to the next Day
-			fromTimeCal.add(Calendar.DATE, 1);
+			awsProfileInfoRepository.save(profileInfoList);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Profile Info Ingested for {} & {}", instanceId,
+						fromTimeCal.getTime());
+			}
 		}
-		awsProfileInfoRepository.save(profileInfoList);
 	}
 
 	@Override

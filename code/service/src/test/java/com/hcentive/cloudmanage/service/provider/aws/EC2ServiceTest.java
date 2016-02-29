@@ -65,7 +65,7 @@ public class EC2ServiceTest {
 	@Test
 	public void testGetInstanceLists() {
 		try {
-			List<Instance> response = ec2Service.getInstanceLists();
+			List<Instance> response = ec2Service.getInstanceLists(false);
 			assertTrue("Not able to retrieve instances ", response.size() > 500);
 			// System.out.println("Response " + response);
 		} catch (Exception e) {
@@ -105,7 +105,7 @@ public class EC2ServiceTest {
 	@Test
 	public void testUpdateInstanceMetaInfo() {
 		try {
-			ec2Service.updateInstanceMetaInfo();
+			ec2Service.updateInstanceMetaInfo(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Not able to update the ec2 meta info list.");

@@ -7,8 +7,8 @@ import org.springframework.context.annotation.PropertySource;
 import com.hcentive.cloudmanage.utils.PasswordCryptoUtils;
 
 @Configuration
-@PropertySource("application.properties")
-@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
+@PropertySource("classpath:application.properties")
+@PropertySource(value = "classpath:application-${env}.properties", ignoreResourceNotFound = true)
 public class AppConfig {
 
 	static {

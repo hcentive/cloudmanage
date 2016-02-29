@@ -49,7 +49,7 @@ public class InstanceController {
 
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Instance> list() throws AccessDeniedException{
-		List<Instance> ec2Instances = ec2Service.getInstanceLists();
+		List<Instance> ec2Instances = ec2Service.getInstanceLists(false);
 		return ec2Instances;
 	}
 	
@@ -132,7 +132,7 @@ public class InstanceController {
 		List<Datapoint> response = new ArrayList<Datapoint>();
 		try {
 			response.add(mapper.readValue(
-					// TODO: assuming just 1 day and reponse else loop
+					// TODO: assuming just 1 day and response else loop
 					profileInfo.get(0).getAvgCPUHourly(),
 					TypeFactory.defaultInstance().constructCollectionType(
 							List.class, Datapoint.class)));

@@ -24,13 +24,15 @@ import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
 // <start from>/<every x units> for the above
 
 @Configuration
-@PropertySource("application.properties")
-@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
+@PropertySource("classpath:application.properties")
+@PropertySource(value = "classpath:application-${env}.properties", ignoreResourceNotFound = true)
 @EnableScheduling
 public class IngestScheduler {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(IngestScheduler.class.getName());
+
+	private boolean jobContext = true;
 
 	@Autowired
 	private BuildInfoService jenkinsService;
@@ -52,16 +54,24 @@ public class IngestScheduler {
 			for (JobMetaInfo job : builds.getJobs()) {
 				String jobName = job.getName();
 				if (jobName.contains("deploy")) {
-					JobInfo jobInfo = jenkinsService.getJobInfo(jobName);
-					logger.debug("Ingesting host data for job {} ", jobName);
-					jenkinsService
-							.updateHostNames(jobName, jobInfo.getBuilds());
-					logger.info("Ingested host data for job {}", jobName);
+					try {
+						JobInfo jobInfo = jenkinsService.getJobInfo(jobName);
+						logger.debug("Ingesting host data for job {} ", jobName);
+						jenkinsService.updateHostNames(jobName,
+								jobInfo.getBuilds());
+						logger.info("Ingested host data for job {}", jobName);
+					} catch (Exception e) {
+						logger.error(
+								"Skipping: Failed to ingest host data for job {}:{} ",
+								jobName, e);
+					}
 				}
 			}
 		} catch (Exception e) {
-			logger.error("Failed to ingest Host Names with error " + e);
+			logger.error(
+					"Failed to ingest Host Names for this run with error {}", e);
 		}
+		logger.info("Ingested host data for all jobs");
 	}
 
 	// Intended Monthly
@@ -88,7 +98,7 @@ public class IngestScheduler {
 	public void ingestCPUUtilizationInfo() {
 		try {
 			logger.debug("Ingesting ec2 cpu data");
-			List<Instance> ec2List = ec2Service.getInstanceLists();
+			List<Instance> ec2List = ec2Service.getInstanceLists(jobContext);
 			// Todays data
 			Calendar calendar = Calendar.getInstance();
 			int year = calendar.get(Calendar.YEAR);
@@ -101,9 +111,15 @@ public class IngestScheduler {
 			dailyWindow.set(year, month, yesterday, 23, 59, 59);
 			// Loop for all instances.
 			for (Instance ec2 : ec2List) {
-				cloudWatchService.updateMetrics(ec2.getAwsInstance()
-						.getInstanceId(), calendar.getTime(), dailyWindow
-						.getTime());
+				try {
+					cloudWatchService.updateMetrics(ec2.getAwsInstance()
+							.getInstanceId(), calendar.getTime(), dailyWindow
+							.getTime());
+				} catch (Exception e) {
+					logger.error(
+							"Skipping: Failed to ingest cpu data for {}:{} ",
+							ec2.getAwsInstance().getInstanceId(), e);
+				}
 			}
 			logger.info("Ingested ec2 cpu data for " + calendar);
 		} catch (Exception e) {
@@ -115,8 +131,8 @@ public class IngestScheduler {
 	@Scheduled(cron = "${ec2.meta.refresh.cron}")
 	public void ingestEC2MasterInfo() {
 		try {
-			logger.debug("Ingesting aws data for ec2");
-			ec2Service.updateInstanceMetaInfo();
+			logger.debug("Ingesting aws data for ec2 using {}");
+			ec2Service.updateInstanceMetaInfo(jobContext);
 			logger.info("Ingested aws data for ec2");
 		} catch (Exception e) {
 			logger.error("Failed to ingest ec2 master info with error " + e);

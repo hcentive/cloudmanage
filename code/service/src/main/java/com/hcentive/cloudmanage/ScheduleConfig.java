@@ -31,8 +31,8 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import com.hcentive.cloudmanage.job.AutowiringSpringBeanJobFactory;
 
 @Configuration
-@PropertySource("application.properties")
-@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
+@PropertySource("classpath:application.properties")
+@PropertySource(value = "classpath:application-${env}.properties", ignoreResourceNotFound = true)
 @EnableCaching
 @EnableScheduling
 @EnableJpaRepositories(basePackages = { "com.hcentive.cloudmanage.security",

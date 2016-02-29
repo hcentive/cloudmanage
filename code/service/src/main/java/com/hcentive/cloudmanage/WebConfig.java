@@ -27,8 +27,8 @@ import com.hcentive.cloudmanage.audit.AuditContextHolder;
 
 //Marks this class as configuration SEPARATE
 @Configuration
-@PropertySource("application.properties")
-@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
+@PropertySource("classpath:application.properties")
+@PropertySource(value = "classpath:application-${env}.properties", ignoreResourceNotFound = true)
 @ComponentScan(basePackages = { "com.hcentive.*.controller" })
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {

@@ -14,4 +14,9 @@ public interface ProfilingInfoRepository extends
 	public List<ProfileInfo> findByInstanceIdForDates(
 			@Param("instanceId") String instanceId,
 			@Param("fromDate") Date fromDate, @Param("tillDate") Date tillDate);
+
+	@Query("select b from ProfileInfo b where b.instanceInfo.awsInstanceId = :instanceId and b.snapshotAt = :snapshotAt")
+	public ProfileInfo findByInstanceIdAndSnapshotAt(
+			@Param("instanceId") String instanceId,
+			@Param("snapshotAt") Date snapshotAt);
 }

@@ -22,8 +22,8 @@ import com.hcentive.cloudmanage.security.CustomAuthenticationSuccessHandler;
 import com.hcentive.cloudmanage.security.LDAPGrantedAuthorityMapper;
 
 @Configuration
-@PropertySource("application.properties")
-@PropertySource(value = "application-${env}.properties", ignoreResourceNotFound = true)
+@PropertySource("classpath:application.properties")
+@PropertySource(value = "classpath:application-${env}.properties", ignoreResourceNotFound = true)
 // WARN: As of Spring Security 4.0, @EnableWebMvcSecurity is deprecated. The
 // replacement is
 @EnableWebSecurity

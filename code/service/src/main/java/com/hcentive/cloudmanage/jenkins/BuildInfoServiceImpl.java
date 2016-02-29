@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,8 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 	private BuildHostMapRepository buildHostMapRepository;
 
 	@Autowired
+	private HostMetaInfoRepository hostMetaInfoRepository;
+	@Autowired
 	private LastSuccessfulBuildRepository lastSuccessfulBuildRepository;
 
 	private static final Logger logger = LoggerFactory
@@ -55,7 +59,7 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		BuildInfo ref = new BuildInfo(result);
 		ref.setLastSuccessfulBuildID(lastSuccessfulBuildNumber);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Retrieved biuld Info from " + url + " for " + vars
+			logger.debug("Retrieved build Info from " + url + " for " + vars
 					+ " : " + ref);
 		}
 		return ref;
@@ -93,6 +97,7 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		return result;
 	}
 
+	@Transactional
 	public void updateHostNames(final String jobName, final List<Builds> builds)
 			throws JsonProcessingException {
 		if (logger.isDebugEnabled()) {
@@ -147,7 +152,7 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		}
 		// persist.
 		lastSuccessfulBuildRepository.save(responseMap.values());
-		if (logger.isDebugEnabled()) {
+		if (logger.isInfoEnabled()) {
 			logger.info("Updated last successful builds for "
 					+ responseMap.keySet() + " as " + responseMap.values());
 		}
@@ -161,6 +166,9 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		if (buildMetaInfo == null) {
 			buildMetaInfo = new BuildMetaInfo(jobName);
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Existing Build Info {}", buildMetaInfo);
+		}
 		// Get all the hosts
 		List<HostMetaInfo> hostMetaInfoList = buildMetaInfo
 				.getHostMetaInfoList();
@@ -169,16 +177,23 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 		}
 		// Update the list
 		for (String host : hosts.keySet()) {
-			HostMetaInfo hostObj = new HostMetaInfo(host);
+			// Create only if not already exist - so fetch the hosts
+			HostMetaInfo hostObj = hostMetaInfoRepository.findByHostName(host);
+			if (hostObj == null) {
+				hostObj = new HostMetaInfo(host);
+			}
 			if (!hostMetaInfoList.contains(hostObj)) {
 				hostMetaInfoList.add(hostObj);
 			}
 		}
 		buildMetaInfo.setHostMetaInfoList(hostMetaInfoList);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Updating Build Info {}", buildMetaInfo);
+		}
 		// use repository to update them.
 		buildHostMapRepository.save(buildMetaInfo);
 
-		if (logger.isDebugEnabled()) {
+		if (logger.isInfoEnabled()) {
 			logger.info("Updated hosts for " + jobName + " as " + buildMetaInfo);
 		}
 	}
