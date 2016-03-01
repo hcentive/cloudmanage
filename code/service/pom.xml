@@ -149,52 +149,80 @@
 			<artifactId>commons-csv</artifactId>
 			<version>${commons-csv.version}</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
-    <plugins>
-		<plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>properties-maven-plugin</artifactId>
-			<version>1.0.0</version>
-			<executions>
-				<execution>
-					<phase>initialize</phase>
-					<goals>
-						<goal>read-project-properties</goal>
-					</goals>
-					<configuration>
-						<files>
-							<file>../../scripts/application.properties</file>
-							<file>../../scripts/application-${env}.properties</file>
-						</files>
-					</configuration>
-				</execution>
-			</executions>
-		</plugin>
-        <plugin>
-            <groupId>com.dbdeploy</groupId>
-            <artifactId>maven-dbdeploy-plugin</artifactId>
-            <version>3.0M3</version>
-            <configuration>
-				<driver>${db.driver.class}</driver>
-				<url>${db.url}</url>
-				<userid>${db.username}</userid>
-				<password>${db.password}</password>
-				<changeLogTableName>CHANGELOG</changeLogTableName>
-				<scriptdirectory>../../scripts/changelog</scriptdirectory>
-			</configuration>
-			<dependencies>
-				<dependency>
-					<groupId>mysql</groupId>
-					<artifactId>mysql-connector-java</artifactId>
-					<version>${mysql.driver.version}</version>
-				</dependency>
-			</dependencies>
-        </plugin>
-    </plugins>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>read-project-properties</goal>
+						</goals>
+						<configuration>
+							<files>
+								<file>../../scripts/application.properties</file>
+								<file>../../scripts/application-${env}.properties</file>
+							</files>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.dbdeploy</groupId>
+				<artifactId>maven-dbdeploy-plugin</artifactId>
+				<version>3.0M3</version>
+				<configuration>
+					<driver>${db.driver.class}</driver>
+					<url>${db.url}</url>
+					<userid>${db.username}</userid>
+					<password>${db.password}</password>
+					<changeLogTableName>CHANGELOG</changeLogTableName>
+					<scriptdirectory>../../scripts/changelog</scriptdirectory>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>mysql</groupId>
+						<artifactId>mysql-connector-java</artifactId>
+						<version>${mysql.driver.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>encrypt-password</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.4.0</version>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>java</goal>
+								</goals>
+								<configuration>
+									<mainClass>com.hcentive.cloudmanage.utils.PasswordCryptoUtils</mainClass>
+									<arguments>
+										<argument>${password}</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
 
 
