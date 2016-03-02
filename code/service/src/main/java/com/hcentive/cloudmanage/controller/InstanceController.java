@@ -138,8 +138,8 @@ public class InstanceController {
 							List.class, Datapoint.class)));
 		} catch (IOException e) {
 			logger.error(
-					"Failed to parse json avg cpu utilization back to Datapoints for instance {} on {}",
-					instanceId, fromDate);
+					"Failed to parse json avg cpu utilization back to Datapoints for instance {} on {} with {}",
+					instanceId, fromDate, e);
 		}
 		return response;
 	}

@@ -114,8 +114,10 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		ProfileInfo response = awsProfileInfoRepository
 				.findByInstanceIdAndSnapshotAt(instanceId,
 						fromTimeCal.getTime());
-		logger.debug("Profile Info exists for {} & {}", instanceId,
-				fromTimeCal.getTime());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Profile Info exists for {} & {}", instanceId,
+					fromTimeCal.getTime());
+		}
 		if (response == null) {
 			Calendar tillTimeCal = Calendar.getInstance();
 			tillTimeCal.setTime(tillTime);
@@ -163,8 +165,14 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 	@Override
 	public List<ProfileInfo> getMetrics(String instanceId, Date fromTime,
 			Date tillTime) {
-		return awsProfileInfoRepository.findByInstanceIdForDates(instanceId,
-				fromTime, tillTime);
+		List<ProfileInfo> response = awsProfileInfoRepository
+				.findByInstanceIdForDates(instanceId, fromTime, tillTime);
+		if (logger.isInfoEnabled()) {
+			logger.info(
+					"Metrics for {} between {} & {} returned as ProfileInfo list of size {}",
+					instanceId, fromTime, tillTime, response.size());
+		}
+		return response;
 	}
 
 }
