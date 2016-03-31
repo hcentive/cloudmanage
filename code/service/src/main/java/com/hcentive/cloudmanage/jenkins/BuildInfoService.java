@@ -22,5 +22,9 @@ public interface BuildInfoService {
 
 	public void updateHostNames(final String jobName, final List<Builds> builds)
 			throws JsonProcessingException;
+	
+	public List<BuildMetaInfo> getAllBuilds();
+	
+	public List<LastSuccessfulBuildInfo> getLastSuccessBuildInfo(String jobName);
 
 }

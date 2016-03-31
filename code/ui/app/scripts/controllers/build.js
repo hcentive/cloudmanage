@@ -11,10 +11,10 @@ angular.module('cloudmanageApp')
   .controller('BuildCtrl', ['list','$state','buildService', function (list, $state, buildService) {
   	var that = this;
     this.list = list;
-    this.detailsList = {};
+    this.detailsList = [];
     this.getDetail = function(jobName){
 	    buildService.getDetail(jobName).then(function(data){
-	    	that.detailsList[jobName] = data;
+	    	that.detailsList = data;
 	    });
     };
     this.removeDetail = function(jobName){

@@ -23,6 +23,7 @@ import com.hcentive.cloudmanage.domain.JenkinsClientProxy;
 import com.hcentive.cloudmanage.domain.JobInfo;
 import com.hcentive.cloudmanage.domain.JobInfo.Builds;
 import com.hcentive.cloudmanage.domain.JobInfo.SuccessfulBuild;
+import com.hcentive.cloudmanage.utils.Utils;
 
 @Service("jenkinsService")
 public class BuildInfoServiceImpl implements BuildInfoService {
@@ -248,5 +249,18 @@ public class BuildInfoServiceImpl implements BuildInfoService {
 					+ " : " + result);
 		}
 		return result;
+	}
+
+	@Override
+	public List<BuildMetaInfo> getAllBuilds() {
+		Iterable<BuildMetaInfo> buildInfos = buildHostMapRepository.findAll();
+		List<BuildMetaInfo> buildInfosList = Utils.makeCollection(buildInfos);
+		return buildInfosList;
+	}
+
+	@Override
+	public List<LastSuccessfulBuildInfo> getLastSuccessBuildInfo(String jobName) {
+		List<LastSuccessfulBuildInfo> lastSuccessfulBuildInfoList = lastSuccessfulBuildRepository.findByJobName(jobName);
+		return lastSuccessfulBuildInfoList;
 	}
 }

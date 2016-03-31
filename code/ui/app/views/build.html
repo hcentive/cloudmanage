@@ -5,8 +5,8 @@
 </div>
 <div class="row">
 	<div class="col-md-12">
-		<ui-select multiple ng-model="buildCtrl.model.job" on-select="buildCtrl.getDetail($item)" on-remove="buildCtrl.removeDetail($item)" theme="bootstrap" ng-disabled="disabled" style="width: 300px;">
-	    <ui-select-match placeholder="Select or search a job in the list...">{{$item}}</ui-select-match>
+		<ui-select  ng-model="buildCtrl.model.job" on-select="buildCtrl.getDetail($item)"  theme="bootstrap" style="width: 300px;">
+	    <ui-select-match placeholder="Select or search a job in the list...">{{$select.selected}}</ui-select-match>
 	    <ui-select-choices repeat="job in buildCtrl.list | filter: $select.search">
 	      <span ng-bind-html="job | highlight: $select.search"></span>
 	    </ui-select-choices>
@@ -14,28 +14,35 @@
 	</div>
 </div>
 
-<div class="row top-buffer">
-	<div class="panel panel-default" ng-repeat="(job, details) in buildCtrl.detailsList">
-	    <div class="panel-heading">
-	       {{job}}
-	    </div>
-	    <div class="panel-body">
-	        <dl class="dl-horizontal">
-	            <dt>Successful Build ID</dt>
-	            <dd>{{details.lastSuccessfulBuildID}}</dd>
-	            <dt>Jira ID</dt>
-	            <dd>{{details.jiraId | hyphenate}}</dd>
-	            <dt>Revision Number</dt>
-	            <dd>{{details.revisionNumber | hyphenate}}</dd>
-	            <dt>Host Name</dt>
-	            <dd>{{details.hostName | hyphenate}}</dd>
-	            <dt>Initiated By</dt>
-	            <dd>{{details.initiatedBy}}</dd>
-	            <dt>Initiated At</dt>
-	            <dd>{{details.initiatedAt | date:'medium'}}</dd>
-	            <dt>Build Log</dt>
-	            <dd><a ng-href="/service/build/log/{{job}}/{{details.lastSuccessfulBuildID}}"><i class="fa fa-download"></i></a></dd>
-	        </dl>
-	    </div>
+<div class="row top-buffer" ng-if="buildCtrl.model.job">
+	<div class="col-lg-6 col-md-6 col-sm-6" ng-repeat="detail in buildCtrl.detailsList">
+		<div class="panel" ng-class="{'panel-success': detail.buildInfo.status== 'SUCCESS', 'panel-danger': detail.buildInfo.status != 'SUCCESS'}">
+		    <div class="panel-heading">
+		       {{::detail.buildInfo.hostName | hyphenate}}
+		    </div>
+		    <div class="panel-body">
+		        <dl class="dl-horizontal">
+		            <dt>Build ID</dt>
+		            <dd>{{detail.buildNumber}}</dd>
+		            <dt>Jira ID</dt>
+		            <dd>{{detail.buildInfo.jiraId | hyphenate}}</dd>
+		            <dt>Revision Number</dt>
+		            <dd>{{detail.buildInfo.revisionNumber | hyphenate}}</dd>
+		            <dt>Initiated By</dt>
+		            <dd>{{detail.buildInfo.initiatedBy}}</dd>
+		            <dt>Initiated At</dt>
+		            <dd>{{detail.buildInfo.initiatedAt | date:'medium'}}</dd>
+		            <dt>Status</dt>
+		            <dd>{{detail.buildInfo.status}}</dd>
+		            <dt>Last Successful Build ID</dt>
+		            <dd>{{detail.buildInfo.lastSuccessfulBuildID}}</dd>
+		            <dt>Build Log</dt>
+		            <dd><a ng-href="/service/build/log/{{buildCtrl.model.job}}/{{detail.buildNumber}}"><i class="fa fa-download"></i></a></dd>
+		        </dl>
+		    </div>
+		</div>
+	</div>
+	<div class="col-md-12" ng-if="!buildCtrl.detailsList.length">
+		<p>No Build Information available</p>
 	</div>
 </div>

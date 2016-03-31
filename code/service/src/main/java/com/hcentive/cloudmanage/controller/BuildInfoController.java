@@ -3,6 +3,8 @@ package com.hcentive.cloudmanage.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,6 +20,8 @@ import com.hcentive.cloudmanage.domain.BuildJobResponse;
 import com.hcentive.cloudmanage.domain.JobInfo;
 import com.hcentive.cloudmanage.domain.JobMetaInfo;
 import com.hcentive.cloudmanage.jenkins.BuildInfoService;
+import com.hcentive.cloudmanage.jenkins.BuildMetaInfo;
+import com.hcentive.cloudmanage.jenkins.LastSuccessfulBuildInfo;
 
 @RestController
 @RequestMapping("/build")
@@ -28,33 +32,30 @@ public class BuildInfoController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public List<String> buildJobs() throws IOException {
-		BuildJobResponse response = buildInfoService.getBuilds();
-		List<String> jobs = extractDeployJobs(response);
-		return jobs;
+		List<BuildMetaInfo> buildMetaInfoList = buildInfoService.getAllBuilds();
+		List<String> jobNames  = getJobNames(buildMetaInfoList);
+		return jobNames;
 	}
-
-	private List<String> extractDeployJobs(BuildJobResponse response) {
-		List<JobMetaInfo> jobs = response.getJobs();
-		List<String> deployJobs = new ArrayList<String>();
-		for(JobMetaInfo job : jobs){
-			String jobName = job.getName();
-			if(jobName.contains("deploy")){
-				deployJobs.add(jobName);
+	
+	
+	private List<String> getJobNames(List<BuildMetaInfo> buildMetaInfoList){
+		List<String> jobNames = buildMetaInfoList.stream().map(new Function<BuildMetaInfo, String>(){
+			@Override
+			public String apply(BuildMetaInfo buildMetaInfo){
+				return buildMetaInfo.getJobName();
 			}
-		}
-		return deployJobs;
+		}).collect(Collectors.toList());
+		return jobNames;
+		
 	}
+	
 
 	@RequestMapping(value = "/{jobName:.+}", method = RequestMethod.GET)
-	public BuildInfo getLastSuccessfulBuildInfo(@PathVariable(value = "jobName") String jobName)
+	public List<LastSuccessfulBuildInfo> getLastSuccessfulBuildInfo(@PathVariable(value = "jobName") String jobName)
 			throws IOException {
-		JobInfo jobInfo = buildInfoService.getJobInfo(jobName);
-		if(jobInfo != null && jobInfo.getLastSuccessfulBuild() != null){
-			BuildInfo buildInfo = buildInfoService.getBuildInfo(jobName,
-					jobInfo.getLastSuccessfulBuild());
-			return buildInfo;
-		}
-		return null;
+		
+		List<LastSuccessfulBuildInfo> lastSuccessfulBuildInfoList = buildInfoService.getLastSuccessBuildInfo(jobName);
+		return lastSuccessfulBuildInfoList;
 	}
 	
 	@RequestMapping(value = "/log/{jobName}/{buildNumber}", method = RequestMethod.GET)
