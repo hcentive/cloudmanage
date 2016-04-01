@@ -1,36 +1,52 @@
-<div class="row">
-    <div class="col-lg-12">
-        <h1 class="page-header">Login</h1>
-    </div>
-    <!-- /.col-lg-12 -->
-</div>
+<div class="container loginPanel">
 <div class="row" ng-controller="LoginCtrl as loginCtrl">
 	<div class="col-lg-12">
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="alert alert-danger" ng-show="loginCtrl.error">
-							There was a problem logging in. Please try again.
+		<h1 class="text-center page-header">Sign In to Cloud Manage</h1>
+		<div class="row">
+			<div class="col-sm-8 col-md-offset-2">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-sm-12">
+								
+								<div class="alert alert-danger" ng-show="loginCtrl.error">
+									There was a problem logging in. Please try again.
+								</div>
+							</div>
+						</div>
+						<div id="input">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="loginBG"></div>
+							</div>
+							<div class="col-sm-6">
+								<form ng-submit="loginCtrl.login()">
+									
+										
+									<!-- <div class="form-group label-floating">
+						                	<label for="i5" class="control-label">label-floating</label>
+						                	<input type="email" class="form-control" id="i5">
+						                	<span class="help-block">This is a hint as a <code>span.help-block.hint</code><span>
+						              	</div> -->
+									<div class="form-group label-floating">
+										<label for="username" class="control-label">Username</label> <input type="text"
+											class="form-control" id="username" name="username" ng-model="loginCtrl.credentials.username"/>
+									</div>
+									<div class="form-group">
+										<label for="password">Password</label> <input type="password"
+											class="form-control" id="password" name="password" ng-model="loginCtrl.credentials.password"/>
+									</div>
+									<button type="submit" class="btn btn-primary btn-raised">Submit</button>
+								
+								</form>
+							</div>
 						</div>
 					</div>
-				</div>
-				<div class="row">
-					<div class="col-lg-12">
-						<form ng-submit="loginCtrl.login()">
-							<div class="form-group">
-								<label for="username">Username:</label> <input type="text"
-									class="form-control" id="username" name="username" ng-model="loginCtrl.credentials.username"/>
-							</div>
-							<div class="form-group">
-								<label for="password">Password:</label> <input type="password"
-									class="form-control" id="password" name="password" ng-model="loginCtrl.credentials.password"/>
-							</div>
-							<button type="submit" class="btn btn-primary">Submit</button>
-						</form>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	</div>
+</div>
 </div>

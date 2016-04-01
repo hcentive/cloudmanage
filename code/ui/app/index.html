@@ -8,6 +8,8 @@
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css(.) styles/vendor.css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="styles/bootstrap-material-design.css" />
+    <link rel="stylesheet" href="styles/ripples.css" />
     <link rel="stylesheet" href="bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css"/>
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <!-- bower:css -->
@@ -39,7 +41,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Cloud Manage</a>
+                <a class="navbar-brand" href="#"><img src="../images/logo.png" alt="Cloud Manage"/></a>
             </div>
             <ul class="nav navbar-top-links navbar-right" ng-if="mainCtrl.securityContextHolder.authenticated">
                 <li class="dropdown">
@@ -48,8 +50,6 @@
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li><a ng-click="mainCtrl.logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
-                        </li>
-                        <li><a ui-sref="profile"><i class="fa fa-user fa-fw"></i> Profile</a>
                         </li>
                     </ul>
                 </li>
@@ -67,18 +67,16 @@
                         <li>
                             <a ui-sref="build" ui-sref-active="active"><i class="fa fa-wrench fa-fw"></i>Build Information</a>    
                         </li>
-                        <li>
-                            <a ui-sref="instanceMetaList" ui-sref-active="active"><i class="fa fa-server fa-fw"></i>Instance Meta Data</a>    
-                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <div ui-view id="page-wrapper"></div>
+        <div ui-view id="{{mainCtrl.securityContextHolder.authenticated ? 'page-wrapper' : 'page-wrapper-anonymous'}}">
+        </div>
         <hc-processing></hc-processing>
+        
     </div>
-    <ng-include src="'/templates/_templates.html'"></ng-include>
 
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>
@@ -99,6 +97,9 @@
     <script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
     <script src="bower_components/angular-touch/angular-touch.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="scripts/arrive.js"></script>
+    <script src="scripts/material.js"></script>
+    <script src="scripts/ripples.js"></script>
     <script src="bower_components/json3/lib/json3.min.js"></script>
     <script src="bower_components/promise-tracker/promise-tracker.js"></script>
     <script src="bower_components/ui-router/release/angular-ui-router.js"></script>
@@ -157,13 +158,9 @@
         <script src="scripts/filters/hyphenate.js"></script>
         <script src="scripts/controllers/cpuutilization.js"></script>
         <script src="scripts/directives/highchart.js"></script>
-        <script src="scripts/controllers/profile.js"></script>
-        <script src="scripts/services/profileservice.js"></script>
-        <script src="scripts/services/securitycontextutils.js"></script>
-        <script src="scripts/controllers/diagnoseinstance.js"></script>
-        <script src="scripts/controllers/instancemetalist.js"></script>
-        <script src="scripts/services/handlerequestresponseinterceptor.js"></script>
-        <script src="scripts/directives/st-search-watch.js"></script>
+        <script>
+            $.material.init();
+        </script>
         <!-- endbuild -->
 </body>
 </html>
