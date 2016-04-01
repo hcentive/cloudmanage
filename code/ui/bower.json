@@ -23,7 +23,9 @@
     "startbootstrap-sb-admin-2": "~1.0.8",
     "highcharts": "~4.2.1",
     "angular-ui-mask": "~1.6.8",
-    "moment": "~2.11.1"
+    "moment": "~2.11.1",
+    "arrive": "~2.3.1",
+    "bootstrap-material-design": "0.5.9"
   },
   "devDependencies": {
     "angular-mocks": "1.4.4",
