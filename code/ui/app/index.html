@@ -31,7 +31,7 @@
     <![endif]-->
 
     <!-- Add your site or application content here -->
-    <div id="wrapper" ng-controller="MainCtrl as mainCtrl">
+    <div id="wrapper" ng-controller="MainCtrl as mainCtrl" class="{{mainCtrl.securityContextHolder.authenticated ? 'innerPages' : 'homePage'}}">
          <!-- Navigation -->
         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
             <div class="navbar-header">
@@ -45,7 +45,7 @@
             </div>
             <ul class="nav navbar-top-links navbar-right" ng-if="mainCtrl.securityContextHolder.authenticated">
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0);">
                         <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
@@ -96,7 +96,6 @@
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
     <script src="bower_components/angular-touch/angular-touch.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/json3/lib/json3.min.js"></script>
     <script src="bower_components/promise-tracker/promise-tracker.js"></script>
     <script src="bower_components/ui-router/release/angular-ui-router.js"></script>
@@ -124,9 +123,6 @@
     <script src="bower_components/bootstrap-material-design/dist/js/material.js"></script>
     <script src="bower_components/bootstrap-material-design/dist/js/ripples.js"></script>
     <!-- endbower -->
-    <script src="scripts/arrive.js"></script>
-    <script src="scripts/material.js"></script>
-    <script src="scripts/ripples.js"></script>
      <script src="bower_components/promise-tracker/promise-tracker-http-interceptor.js"></script>
     <!-- endbuild -->
 
