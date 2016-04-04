@@ -32,8 +32,8 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button class="btn btn-primary" type="submit">{{(scheduleCtrl.update) ? 'Update' : 'Save'}}</button>
-    <button class="btn btn-warning" type="button" ng-click="scheduleCtrl.cancel()">Cancel</button>
-    <button class="btn btn-danger" type="button" ng-click="scheduleCtrl.delete()" ng-if="scheduleCtrl.update">Delete</button>
+    <button class="btn btn-primary btn-raised" type="submit">{{(scheduleCtrl.update) ? 'Update' : 'Save'}}</button>
+    <button class="btn btn-default" type="button" ng-click="scheduleCtrl.cancel()">Cancel</button>
+    <button class="btn btn-default" type="button" ng-click="scheduleCtrl.delete()" ng-if="scheduleCtrl.update">Delete</button>
   </div>
 </form>

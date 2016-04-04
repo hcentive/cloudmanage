@@ -1,3 +1,104 @@
+.innerPages {
+    background-color: #194b66;
+}
+.navbar .navbar-brand {
+    padding: 5px 15px;
+    height: 50px;
+}
+.innerPages .navbar .navbar-brand  {
+    padding: 12px 15px;
+}
+.nav.navbar-top-links > li > a:hover, .nav.navbar-top-links > li > a:focus {
+    background-color: #194b66;
+}
+a, a:hover, a:focus {
+    color: #22536d;
+}
+.btn.btn-raised.btn-primary, .input-group-btn .btn.btn-raised.btn-primary, 
+.btn.btn-fab.btn-primary, .input-group-btn .btn.btn-fab.btn-primary, 
+.btn-group-raised .btn.btn-primary, .btn-group-raised .input-group-btn .btn.btn-primary {
+    background-color: #22536d;
+}
+.btn.btn-raised.btn-primary:hover:not(.btn-link), .input-group-btn .btn.btn-raised.btn-primary:hover:not(.btn-link),
+ .btn-group-raised .btn.btn-primary:hover:not(.btn-link), .btn-group-raised .input-group-btn .btn.btn-primary:hover:not(.btn-link), 
+ .btn.btn-raised.btn-primary:focus:not(.btn-link), .input-group-btn .btn.btn-raised.btn-primary:focus:not(.btn-link), 
+ .btn-group-raised .btn.btn-primary:focus:not(.btn-link), .btn-group-raised .input-group-btn .btn.btn-primary:focus:not(.btn-link),
+  .btn.btn-raised.active.btn-primary:not(.btn-link), .input-group-btn .btn.btn-raised.active.btn-primary:not(.btn-link), 
+  .btn-group-raised .btn.active.btn-primary:not(.btn-link), .btn-group-raised .input-group-btn .btn.active.btn-primary:not(.btn-link), 
+  .btn.btn-raised.btn-primary:active:not(.btn-link), .input-group-btn .btn.btn-raised.btn-primary:active:not(.btn-link), 
+  .btn-group-raised .btn.btn-primary:active:not(.btn-link), .btn-group-raised .input-group-btn .btn.btn-primary:active:not(.btn-link) {
+    background-color: #2f6f91;
+  }
+.navbar, .navbar.navbar-default {
+    background-color: #194b66;
+}
+.navbar-top-links li a {
+    color: #f0f0f0;
+}
+.loginPanel {
+    margin-top: 50px;
+}
+.loginPanel .page-header {
+    border-bottom: 0;
+}
+.loginBG {
+    background: url("../images/cloud_login.jpg") no-repeat;
+    width: 300px;
+    height: 300px;
+}
+.sidebar {
+    margin-top: 64px;
+}
+.sidebar ul li {
+    border-bottom: 1px solid #194b66;
+}
+.sidebar ul li a {
+    background-color: #2f6f91;
+    color: #f0f0f0;
+}
+.sidebar .nav > li > a:hover, .sidebar .nav > li > a:focus {
+   background-color: #d14c22; 
+}
+.sidebar ul li a.active {
+    background-color: #d14c22;
+    color: #f0f0f0;
+}
+.sidebar .fa {
+    margin-right: 5px;
+}
+#page-wrapper {
+    border-left: 0;
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 1px 0 0 1px;
+    min-height: 680px !important;
+}
+.form-group select {
+    -moz-appearance: listbox;
+}
+.table > thead > tr > th, .table > tbody > tr > th, 
+.table > tfoot > tr > th, .table > thead > tr > td, 
+.table > tbody > tr > td, .table > tfoot > tr > td {
+    vertical-align: middle;
+}
+.table .btn-group, .table .btn-group-vertical {
+    margin: 0;
+}
+.table .btn-group > .btn.btn-default {
+    border-radius: 3px !important;
+}
+.ui-select-container.ui-select-bootstrap {
+    width: auto !important;  
+}
+.btn.btn-default.form-control.ui-select-toggle {
+    background-color: transparent;
+}
+.ui-select-match.btn-default-focus {
+    background-color: transparent;
+    box-shadow: none;
+}
+.panel.panel-success > .panel-heading {
+    background-color: #56b3d8;
+}
 .processing_overlay {
     position: absolute;
     left: 0;
@@ -48,30 +149,4 @@
 .bottom-buffer { margin-bottom:20px; }
 
 .applyFilter {margin-bottom:10px;}
-.navbar .navbar-brand {
-    padding: 5px 15px;
-    height: 50px;
-}
-.navbar-top-links li a {
-    color: #f0f0f0;
-}
-.loginPanel {
-    margin-top: 50px;
-}
-.loginPanel .page-header {
-    border-bottom: 0;
-}
-.loginBG {
-    background: url("../images/cloud_login.jpg") no-repeat;
-    width: 300px;
-    height: 300px;
-}
-.table > thead > tr > th, .table > tbody > tr > th, 
-.table > tfoot > tr > th, .table > thead > tr > td, 
-.table > tbody > tr > td, .table > tfoot > tr > td {
-    vertical-align: middle;
-}
-.table .btn-group, .table .btn-group-vertical {
-    margin: 0;
-}
 
