@@ -10,6 +10,7 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,6 +30,7 @@ import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.domain.JobTriggerInfoDTO;
 import com.hcentive.cloudmanage.job.InstanceJobDetails;
+import com.hcentive.cloudmanage.profiling.DatapointMixin;
 import com.hcentive.cloudmanage.profiling.ProfileInfo;
 import com.hcentive.cloudmanage.service.provider.aws.AWSUtils;
 import com.hcentive.cloudmanage.service.provider.aws.CloudWatchService;
@@ -126,20 +128,24 @@ public class InstanceController {
 		if(period == null){
 			period = 60*60;
 		}
+		List<Datapoint> response = new ArrayList<Datapoint>();
 		List<ProfileInfo> profileInfo = cloudWatchService.getMetrics(
 				instanceId, fromDate, toDate);
-		ObjectMapper mapper = new ObjectMapper();
-		List<Datapoint> response = new ArrayList<Datapoint>();
-		try {
-			response.add(mapper.readValue(
-					// TODO: assuming just 1 day and response else loop
-					profileInfo.get(0).getAvgCPUHourly(),
-					TypeFactory.defaultInstance().constructCollectionType(
-							List.class, Datapoint.class)));
-		} catch (IOException e) {
-			logger.error(
-					"Failed to parse json avg cpu utilization back to Datapoints for instance {} on {} with {}",
-					instanceId, fromDate, e);
+		if(!CollectionUtils.isEmpty(profileInfo)){
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.addMixInAnnotations(Datapoint.class, DatapointMixin.class);
+			
+			try {
+				response.addAll(mapper.readValue(
+						// TODO: assuming just 1 day and response else loop
+						profileInfo.get(0).getAvgCPUHourly(),
+						TypeFactory.defaultInstance().constructCollectionType(
+								List.class, Datapoint.class)));
+			} catch (IOException e) {
+				logger.error(
+						"Failed to parse json avg cpu utilization back to Datapoints for instance {} on {} with {}",
+						instanceId, fromDate, e);
+			}
 		}
 		return response;
 	}
