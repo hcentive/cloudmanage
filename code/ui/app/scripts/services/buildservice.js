@@ -20,6 +20,6 @@ angular.module('cloudmanageApp')
     			.then(function(response){
     				return response.data;
     			});
-    	};
+    	}; 
 
   }]);

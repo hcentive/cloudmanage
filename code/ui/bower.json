@@ -32,8 +32,6 @@
   },
   "appPath": "app",
   "resolutions": {
-    "bootstrap": "~3.3.6",
-    "font-awesome": "4.4.0",
-    "angular-bootstrap": "~1.1.0"
+    "font-awesome": "4.4.0"
   }
 }

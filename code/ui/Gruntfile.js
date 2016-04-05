@@ -165,7 +165,7 @@ module.exports = function (grunt) {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
         ignorePath:  /\.\.\//,
-        exclude: ['bower_components/datatables/media/css/jquery.dataTables.css' ]
+        exclude: ['bower_components/datatables/media/css/jquery.dataTables.css','bower_components/bootstrap-sass/assets/javascripts/bootstrap.js']
       }
     },
 
