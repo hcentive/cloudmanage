@@ -14,6 +14,9 @@
 a, a:hover, a:focus {
     color: #22536d;
 }
+.input-group .input-group-btn .btn {
+    padding: 8px 12px;
+}
 .btn.btn-raised.btn-primary, .input-group-btn .btn.btn-raised.btn-primary, 
 .btn.btn-fab.btn-primary, .input-group-btn .btn.btn-fab.btn-primary, 
 .btn-group-raised .btn.btn-primary, .btn-group-raised .input-group-btn .btn.btn-primary {
@@ -34,6 +37,23 @@ a, a:hover, a:focus {
 }
 .navbar-top-links li a {
     color: #f0f0f0;
+}
+.navbar-top-links .dropdown-menu li a {
+    color: #006699;
+    cursor: pointer;
+}
+.navbar .navbar-top-links .dropdown-menu li a:hover, .navbar .navbar-top-links .dropdown-menu li a:focus {
+    color: #045279;
+}
+.navbar.navbar-default .dropdown-menu li > a {
+    padding: 5px 16px;
+}
+.nav.navbar-top-links .open > a, .nav.navbar-top-links .open > a:hover, .nav.navbar-top-links .open > a:focus {
+    color: #006699;
+    background-color: #eee;
+}
+.dropdown-menu.dropdown-user {
+    background-color: #eee;
 }
 .loginPanel {
     margin-top: 50px;
@@ -86,6 +106,14 @@ a, a:hover, a:focus {
 .table .btn-group > .btn.btn-default {
     border-radius: 3px !important;
 }
+.instanceTable.table > thead > tr > th:last-child {
+    width: 32%;
+}
+.instanceMetaContainer {
+    width: 100%;
+    max-width: 100%;
+    overflow: scroll;
+}
 .ui-select-container.ui-select-bootstrap {
     width: auto !important;  
 }
@@ -99,6 +127,29 @@ a, a:hover, a:focus {
 .panel.panel-success > .panel-heading {
     background-color: #56b3d8;
 }
+.modal-content .modal-footer {
+    padding: 15px 7px;
+}
+.cron-period select, .cron-block select {
+    font-size: 16px;
+    height: 38px;
+    line-height: 1.42857;
+    padding: 7px 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: linear-gradient(#009688, #009688), linear-gradient(#d2d2d2, #d2d2d2);
+    background-position: center bottom, center calc(100% - 1px);
+    background-repeat: no-repeat;
+    background-size: 0 2px, 100% 1px;
+    border: 0 none;
+    border-radius: 0;
+    box-shadow: none;
+    float: none;
+    margin-left: 15px;
+    transition: background 0s ease-out 0s;
+     -moz-appearance: none;
+     -webkit-appearance: none;
+}
+
 .processing_overlay {
     position: absolute;
     left: 0;
@@ -119,7 +170,7 @@ a, a:hover, a:focus {
     margin: -28px 0 0 -25px;
 }
 
-.cron-block select, .cron-period select{
+/*.cron-block select, .cron-period select{
     height: 34px;
     padding: 6px 12px;
     font-size: 14px;
@@ -135,7 +186,7 @@ a, a:hover, a:focus {
     -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
-
+*/
 .st-sort-ascent:before{
     content: '\25B2';
   }

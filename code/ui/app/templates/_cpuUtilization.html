@@ -1,13 +1,14 @@
 <div class="modal-header">
+	<button aria-hidden="true" ng-click="cPUUtilizationCtrl.dismiss()" class="close" type="button">×</button>
 	<h3 class="modal-title">CPU Utilization - {{cPUUtilizationCtrl.instanceName}}</h3>
 </div>
 <div class="modal-body">
 	<div class="row">
 		<div class="col-md-12">
-			<form class="form-inline" ng-submit="cPUUtilizationCtrl.filterData()">
+			<form ng-submit="cPUUtilizationCtrl.filterData()">
 				<div class="form-group">
-					<label for="fromDate">From:</label>
-					<p class="input-group">
+					<label for="fromDate" class="control-label col-sm-2">From:</label>
+					<p class="input-group col-sm-6">
 						<input type="text" class="form-control" id="fromDate"  ng-model="cPUUtilizationCtrl.filter.fromDate" uib-datepicker-popup="MM/dd/yyyy" is-open="cPUUtilizationCtrl.fromDatePopover.opened">
 						<span class="input-group-btn" max-date="cPUUtilizationCtrl.filter.toDate">
 							<button type="button" class="btn btn-default" ng-click="cPUUtilizationCtrl.fromDatePopover.open()"><i class="glyphicon glyphicon-calendar"></i></button>
@@ -15,8 +16,8 @@
 					</p>             
 				</div>
 				<div class="form-group">
-					<label for="toDate">To:</label>
-					<p class="input-group">
+					<label for="toDate" class="control-label col-sm-2">To:</label>
+					<p class="input-group col-sm-6">
 						<input type="text" class="form-control" id="toDate" ng-model="cPUUtilizationCtrl.filter.toDate" uib-datepicker-popup="MM/dd/yyyy" min-date="cPUUtilizationCtrl.filter.fromDate" is-open="cPUUtilizationCtrl.toDatePopover.opened">
 						<span class="input-group-btn">
 							<button type="button" class="btn btn-default" ng-click="cPUUtilizationCtrl.toDatePopover.open()"><i class="glyphicon glyphicon-calendar"></i></button>
@@ -24,7 +25,7 @@
 					</p>
 				</div>
 				<div class="form-group">
-					<button type="submit" class="btn btn-default applyFilter">Apply</button>
+					<button type="submit" class="btn btn-primary btn-raised applyFilter">Apply</button>
 				</div>
 			</form>
 		</div>
@@ -32,6 +33,6 @@
 	<div id="chart" highchart highchart-data="cPUUtilizationCtrl.dataPoints"></div>
 	<hc-processing tracker="cPUUtilizationCtrl.loadingTracker"></hc-processing>
 </div>
-<div class="modal-footer">
-	<button class="btn btn-primary" type="button" ng-click="cPUUtilizationCtrl.dismiss()">OK</button>
-</div>
+<!-- <div class="modal-footer">
+	<button class="btn btn-default" type="button" ng-click="cPUUtilizationCtrl.dismiss()">OK</button>
+</div> -->
