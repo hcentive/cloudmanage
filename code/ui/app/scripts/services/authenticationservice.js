@@ -8,8 +8,8 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('authenticationService', ['$q','$http','authenticationSuccessHandler','authenticationFailureHandler',
-    function authenticationService($q, $http,authenticationSuccessHandler,authenticationFailureHandler) {
+  .service('authenticationService', ['$q','$http','authenticationSuccessHandler','authenticationFailureHandler','stateCache','$state',
+    function authenticationService($q, $http,authenticationSuccessHandler,authenticationFailureHandler, stateCache, $state) {
       this.authenticate = authenticate;
 
       function authenticate(credentials){
@@ -21,6 +21,7 @@ angular.module('cloudmanageApp')
               }).then(
                 function(principal){
                   authenticationSuccessHandler.handle(principal);
+                  redirect();
                   return principal;
                 },
                 function(reason){
@@ -36,5 +37,18 @@ angular.module('cloudmanageApp')
                 });
           }
          
+        }
+
+        function redirect(){
+          var cachedState = stateCache.getState();
+          if(cachedState){
+            $state.go(cachedState.name)
+            .then(function(){
+              stateCache.removeState();
+            });
+          }
+          else{
+            $state.go('instances');  
+          }
         }
   }]);

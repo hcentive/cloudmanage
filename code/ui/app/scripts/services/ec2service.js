@@ -30,8 +30,7 @@
         var params = {};
         return $http.get(url,{
             params: params,
-            ignoreTracker : polling,
-            cache: true
+            ignoreTracker : polling
         }).then(function(response){
             return response.data;
         });

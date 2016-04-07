@@ -8,8 +8,8 @@
  * Service in the cloudmanageApp.
  */
 angular.module('cloudmanageApp')
-  .service('authenticationSuccessHandler',['stateCache','$state','securityContextHolder','profileService', 
-    function authenticationSuccessHandler(stateCache, $state, securityContextHolder,profileService) {
+  .service('authenticationSuccessHandler',['securityContextHolder','profileService', 
+    function authenticationSuccessHandler(securityContextHolder,profileService) {
       this.handle = handle;
     	function handle(data){
         securityContextHolder.principal = data;
@@ -17,15 +17,5 @@ angular.module('cloudmanageApp')
         profileService.getProfile().then(function(data){
           securityContextHolder.profile = data;
         });
-    		var cachedState = stateCache.getState();
-          if(cachedState){
-            $state.go(cachedState.name)
-            .then(function(){
-              stateCache.removeState();
-            });
-          }
-          else{
-            $state.go('instances');  
-          }
     	}
   }]);
