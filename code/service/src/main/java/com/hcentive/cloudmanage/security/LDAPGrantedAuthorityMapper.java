@@ -39,7 +39,9 @@ public class LDAPGrantedAuthorityMapper implements GrantedAuthoritiesMapper {
 				}
 			}
 		}
-
+		if(appAuthorities.size() == 0){
+			throw new RuntimeException("User is not setup with AD group - please contact IT");
+		}
 		int nextId = appAuthorities.get(appAuthorities.size() - 1)
 				.getAppAuthId() + 1;
 		// Retain the original authority as well.

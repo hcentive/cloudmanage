@@ -38,8 +38,9 @@
 
     this.getTagValue = function(instance, tagKey){
         var tags = instance.awsInstance.tags,
+        lTagKey = tagKey.toLowerCase(),
         targetTag = _.find(tags, function(tag){
-            if(tag.key.toLowerCase().indexOf(tagKey.toLowerCase()) != -1 )
+            if(tag.key.toLowerCase() === lTagKey)
               return true;
           return false;
       });

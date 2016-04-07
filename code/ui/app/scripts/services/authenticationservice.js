@@ -26,6 +26,7 @@ angular.module('cloudmanageApp')
                 },
                 function(reason){
                   authenticationFailureHandler.handle(reason);
+                  if()
                   return $q.reject(reason);
                 }
               );

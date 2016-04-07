@@ -17,10 +17,12 @@ angular.module('cloudmanageApp')
   		authenticationService.authenticate(vm.credentials)
   		.then(
         function(data){
-          vm.error = false;     
+          vm.error = false;    
+          vm.errorMessage = null; 
   		  },
-  		  function(data){
+  		  function(response){
           vm.error = true;    
+          vm.errorMessage = response.data.message;
   		  });
   	};
 

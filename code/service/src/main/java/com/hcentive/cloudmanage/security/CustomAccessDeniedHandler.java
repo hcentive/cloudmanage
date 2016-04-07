@@ -10,6 +10,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
+import com.hcentive.cloudmanage.utils.Utils;
+
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
@@ -18,6 +20,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 			HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException,
 			ServletException {
+		Utils.storeErrorAttributes(request, accessDeniedException);
 		response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		
 	}
