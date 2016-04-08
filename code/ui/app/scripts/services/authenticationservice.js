@@ -26,7 +26,9 @@ angular.module('cloudmanageApp')
                 },
                 function(reason){
                   authenticationFailureHandler.handle(reason);
-                  if()
+                  if(reason.status === 401){
+                    reason.data.message = reason.data.message
+                  }
                   return $q.reject(reason);
                 }
               );

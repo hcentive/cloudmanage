@@ -20,5 +20,6 @@ angular.module('cloudmanageApp')
           state.go('login');
         }
         return $q.reject(rejection);  
-    };
-  }]);
+    }
+  }
+}]);
