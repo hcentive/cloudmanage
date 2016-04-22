@@ -56,6 +56,7 @@
       templateUrl: 'templates/_auditInstance.html',
       controller: 'AuditinstanceCtrl',
       controllerAs: 'auditInstanceCtrl',
+      size: 'lg',
       resolve: {
         instance: function () {
           return instance;
@@ -88,6 +89,7 @@
       templateUrl: 'templates/_cpuUtilization.html',
       controller: 'CpuutilizationCtrl',
       controllerAs: 'cPUUtilizationCtrl',
+      size: 'lg',
       resolve: {
         instance: function () {
           return instance;

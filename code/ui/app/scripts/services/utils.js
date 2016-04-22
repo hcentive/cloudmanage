@@ -57,6 +57,19 @@ angular.module('cloudmanageApp')
                 }
             };
             return serializeJSON;
-        })()
+        })(),
+        getStartOfDayTimeStamp: function(timestamp){
+            return +moment(timestamp).startOf('day').valueOf();
+        },
+        uptoDecimals: function(n, decimals){
+            var t = Math.pow(10,decimals);
+            return Math.floor(n*t)/t;
+        },
+        average: function(){
+            var input = arguments,
+            size = input.length,
+            sum = _.reduce(input, function(memo, num){ return memo + num; }, 0);
+            return sum/size;
+        }
     };
   });

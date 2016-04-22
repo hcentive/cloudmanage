@@ -7,12 +7,17 @@
  * # highchart
  */
 angular.module('cloudmanageApp')
-  .directive('highchart', function () {
+  .directive('highchart', ['utils',function (utils) {
   	var parseData = function(data){
-  		return _.map(data, function(item){
-  			var average = Math.floor(item.average*100)/100;
+  		var mainData = _.map(data, function(item){
+  			var average = utils.uptoDecimals(item.average, 3);
   			return [item.timestamp, average];
   		});
+  		var averageData = getAverage(mainData);
+  		return {
+  			main : mainData,
+  			average: averageData
+  		};
   	},
   	getOptions = function(data, elementId){
   		var options = {
@@ -41,40 +46,35 @@ angular.module('cloudmanageApp')
 	        exporting:{
 	        	enabled: false
 	        },
-	        plotOptions: {
-	            area: {
-	                fillColor: {
-	                    linearGradient: {
-	                        x1: 0,
-	                        y1: 0,
-	                        x2: 0,
-	                        y2: 1
-	                    },
-	                    stops: [
-	                        [0, Highcharts.getOptions().colors[0]],
-	                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-	                    ]
-	                },
-	                marker: {
-	                    radius: 2
-	                },
-	                lineWidth: 1,
-	                states: {
-	                    hover: {
-	                        lineWidth: 1
-	                    }
-	                },
-	                threshold: null
-	            }
-	        },
-	        series: [{
-	            type: 'area',
+	        series: [
+	        {
 	            name: 'CPU Usage',
-	            data: data
+	            data: data.main
+	        },
+	        {
+	            type: 'line',
+	            name: 'Average',
+	            data: data.average
 	        }]
 	    };
 	    return options;
-  	};
+  	},
+  	getAverage = function(data){
+  		var _data = {};
+  		_.each(data, function(item){
+  			var timestamp = item[0],
+  			cpuUsage = item[1],
+  			startOfDayTimeStamp = utils.getStartOfDayTimeStamp(timestamp);
+  			if(_data[startOfDayTimeStamp] == undefined){
+  				_data[startOfDayTimeStamp] = [];
+  			}
+  			_data[startOfDayTimeStamp].push(cpuUsage);
+  		});
+  		return _.map(_data, function(cpuUsages, timestamp){
+  			var avg = utils.uptoDecimals(utils.average.apply(utils, cpuUsages), 3);
+  			return [+timestamp, avg];
+  		});
+  	}
   	
     return {     
       restrict: 'A',
@@ -84,17 +84,18 @@ angular.module('cloudmanageApp')
       link: function postLink(scope, element, attrs) {
    		var chart = null;
    		scope.$watch('data', function(data){
-   			var parsedData = parseData(data);
    			if(data){
+   				var parsedData = parseData(data);
    				if(! chart){
    					var options = getOptions(parsedData, element[0].id);
    					chart = new Highcharts.Chart(options);
    				}
    				else{
-   					chart.series[0].setData(parsedData);
+   					chart.series[0].setData(parsedData.main);
+   					chart.series[1].setData(parsedData.average);
    				}
    			}
    		});
       }
     };
-  });
+  }]);
