@@ -136,11 +136,13 @@ public class InstanceController {
 			mapper.addMixInAnnotations(Datapoint.class, DatapointMixin.class);
 			
 			try {
-				response.addAll(mapper.readValue(
-						// TODO: assuming just 1 day and response else loop
-						profileInfo.get(0).getAvgCPUHourly(),
-						TypeFactory.defaultInstance().constructCollectionType(
-								List.class, Datapoint.class)));
+				for(ProfileInfo _profileInfo : profileInfo){
+					response.addAll(mapper.readValue(
+							_profileInfo.getAvgCPUHourly(),
+							TypeFactory.defaultInstance().constructCollectionType(
+									List.class, Datapoint.class)));
+				}
+				
 			} catch (IOException e) {
 				logger.error(
 						"Failed to parse json avg cpu utilization back to Datapoints for instance {} on {} with {}",
