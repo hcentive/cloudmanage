@@ -51,10 +51,19 @@ public class BillingServiceImpl implements BillingService {
 		return billingInfoRepository.findByInstanceId(instanceId, fromTime,
 				tillTime);
 	}
+	
+	@Override
+	public List<BillingInfo> getBilling(Date fromTime,
+			Date tillTime) {
+		return billingInfoRepository.findByPeriod(fromTime,
+				tillTime);
+	}
 
 	@Override
 	public void updateBilling(String accountId, int year, int month)
 			throws IOException {
+		year = 2015;
+		month = 1;
 		// Get the file from S3 if not available.
 		File billDetailFile = readBillingInfo(accountId, year, month);
 		// Extract and save Data
@@ -70,7 +79,7 @@ public class BillingServiceImpl implements BillingService {
 	private File readBillingInfo(String accountId, int year, int month)
 			throws IOException {
 		// Check local folder
-		String artifactName = AppConfig.billFileName;
+		String artifactName =  AppConfig.billBaseDir + '/' + AppConfig.billFileName;
 		artifactName = artifactName.replace("<year>", String.valueOf(year));
 		artifactName = artifactName.replace("<month>", String.valueOf(month));
 		File billFile = new File(artifactName);

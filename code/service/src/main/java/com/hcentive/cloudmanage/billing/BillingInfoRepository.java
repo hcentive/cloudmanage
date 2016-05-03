@@ -14,5 +14,9 @@ public interface BillingInfoRepository extends
 	public List<BillingInfo> findByInstanceId(
 			@Param("instanceId") String instanceId,
 			@Param("fromDate") Date fromDate, @Param("tillDate") Date tillDate);
+	
+	@Query("select b from BillingInfo b where b.snapshotAt between :fromDate and :tillDate")
+	public List<BillingInfo> findByPeriod(
+			@Param("fromDate") Date fromDate, @Param("tillDate") Date tillDate);
 
 }

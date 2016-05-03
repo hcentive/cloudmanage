@@ -7,7 +7,7 @@
  * # ec2Service
  * Service in the cloudmanageApp.
  */
- angular.module('cloudmanageApp')
+angular.module('cloudmanageApp')
  .service('ec2Service', ['$http','$log',function ec2Service($http, $log) {
 
     this.performActionOnInstance = function(action, instance){
@@ -15,14 +15,14 @@
         url = '/instances/' + instanceID,
         params = {
             action: action
-        };
+          };
         return $http.put(url,{},{
             params: params,
             ignoreTracker:true
         },{
-             headers: {
+            headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
-            }
+              }
           });
     };
 
@@ -158,6 +158,16 @@
 
      this.getInstanceMetaList = function(){
         return $http.get('/instances/meta').then(function(response){
+            return response.data;
+        });
+    };
+
+    this.getBillingInfo = function(filter){
+        var fromDateString = moment(filter.fromDate).format('MM/DD/YYYY'),
+        toDateString = moment(filter.toDate).format('MM/DD/YYYY'),
+        url = '/billing' +'?from='+fromDateString+'&to='+toDateString;
+        return $http.get(url)
+        .then(function(response){
             return response.data;
         });
     };

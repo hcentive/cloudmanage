@@ -99,6 +99,12 @@
     controller: 'InstancemetalistCtrl',
     controllerAs: 'instancemetalistCtrl'
 
+  })
+  .state('billing',{
+    url: '/billing',
+    templateUrl: 'views/billing.html',
+    controller: 'BillingCtrl',
+    controllerAs: 'billingCtrl'
   });
   this.$get = function(){};
 }]);

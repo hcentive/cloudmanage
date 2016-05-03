@@ -8,6 +8,9 @@ public interface BillingService {
 
 	public List<BillingInfo> getBilling(String instanceId, Date fromTime,
 			Date tillTime);
+	
+	public List<BillingInfo> getBilling(Date fromTime,
+			Date tillTime);
 
 	public void updateBilling(String accountId, int year, int month)
 			throws IOException;

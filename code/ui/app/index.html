@@ -70,6 +70,9 @@
                         <li>
                             <a ui-sref="instanceMetaList" ui-sref-active="active"><i class="fa fa-server fa-fw"></i>Instance Meta Data</a>    
                         </li>
+                         <li>
+                            <a ui-sref="billing" ui-sref-active="active"><i class="fa fa-money fa-fw"></i>Billing</a>    
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -128,6 +131,7 @@
     <script src="bower_components/arrive/src/arrive.js"></script>
     <!-- endbower -->
     <script src="bower_components/promise-tracker/promise-tracker-http-interceptor.js"></script>
+    <script src="bower_components/highcharts/modules/drilldown.src.js"></script>
 
     <!-- endbuild -->
 
@@ -170,6 +174,8 @@
         <script src="scripts/controllers/instancemetalist.js"></script>
         <script src="scripts/services/handlerequestresponseinterceptor.js"></script>
         <script src="scripts/directives/st-search-watch.js"></script>
+        <script src="scripts/controllers/billing.js"></script>
+        <script src="scripts/directives/billing-chart.js"></script>
         <!-- endbuild -->
         <script>
             $.material.init();
