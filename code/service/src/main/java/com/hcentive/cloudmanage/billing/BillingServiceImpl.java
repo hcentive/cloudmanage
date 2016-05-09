@@ -15,6 +15,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -22,9 +25,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.hcentive.cloudmanage.AppConfig;
 import com.hcentive.cloudmanage.service.provider.aws.S3Service;
 
 @Service("billingService")
@@ -38,6 +41,8 @@ public class BillingServiceImpl implements BillingService {
 
 	@Autowired
 	private AWSMetaRepository awsMetaRepository;
+	@Autowired
+	private BillFileInfoRepository billingFileInfoRepository;
 
 	private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -51,55 +56,50 @@ public class BillingServiceImpl implements BillingService {
 		return billingInfoRepository.findByInstanceId(instanceId, fromTime,
 				tillTime);
 	}
-	
+
 	@Override
-	public List<BillingInfo> getBilling(Date fromTime,
-			Date tillTime) {
-		return billingInfoRepository.findByPeriod(fromTime,
-				tillTime);
+	public List<BillingInfo> getBilling(Date fromTime, Date tillTime) {
+		return billingInfoRepository.findByPeriod(fromTime, tillTime);
 	}
 
 	@Override
-	public void updateBilling(String accountId, int year, int month)
-			throws IOException {
-		year = 2015;
-		month = 1;
-		// Get the file from S3 if not available.
-		File billDetailFile = readBillingInfo(accountId, year, month);
+	public void updateBilling(File billFile) throws IOException {
 		// Extract and save Data
 		List<BillingInfo> billLineItems = null;
 		try {
-			billLineItems = extractBill(billDetailFile, year, month);
-			billingInfoRepository.save(billLineItems);
+			logger.info("Ingest records from " + billFile);
+			billLineItems = extractBill(billFile);
+			for (BillingInfo billLineItem : billLineItems) {
+				try {
+					billingInfoRepository.save(billLineItem);
+				} catch (DataIntegrityViolationException e) {
+					logger.warn("Skipping {} as it could not be saved for {}",
+							billLineItem.toString(), e.getMessage());
+				}
+			}
+			logger.info("All records updated for " + billFile);
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
+			logger.error("Failed to Ingest records from {} for {}", billFile, e);
 		}
 	}
 
-	private File readBillingInfo(String accountId, int year, int month)
-			throws IOException {
-		// Check local folder
-		String artifactName =  AppConfig.billBaseDir + '/' + AppConfig.billFileName;
-		artifactName = artifactName.replace("<year>", String.valueOf(year));
-		artifactName = artifactName.replace("<month>", String.valueOf(month));
-		File billFile = new File(artifactName);
-		// fetch from S3 if not available.
-		if (!billFile.exists()) {
-			logger.info(
-					"Bill file {} not available ... getting form S3 bucket",
-					artifactName);
-			billFile = s3bucketService.getBill(AppConfig.billS3BucketName,
-					artifactName, AppConfig.billBaseDir);
-			logger.info("Bill file now available at {} ",
-					billFile.getAbsolutePath());
-		}
-		return billFile;
-	}
-
-	private List<BillingInfo> extractBill(File billDetailFile, int year,
-			int month) throws IOException, ParseException {
+	private List<BillingInfo> extractBill(File billDetailFile)
+			throws IOException, ParseException {
 
 		List<BillingInfo> billLineItems = new ArrayList<BillingInfo>();
+		// Extract Year and Month from file name pattern.
+		Pattern p = Pattern.compile("-\\d{4}-\\d{2}");
+		Matcher m = p.matcher(billDetailFile.getName());
+		int year = 0, month = 0;
+		if (m.find()) {
+			StringTokenizer strTkn = new StringTokenizer(m.group(0));
+			year = Integer.parseInt(strTkn.nextToken("-"));
+			month = Integer.parseInt(strTkn.nextToken("-"));
+		} else {
+			throw new IOException(
+					"The file name does not conatin pattern -YYYY-MM and hence can not be ingested");
+		}
 
 		Reader reader = new InputStreamReader(new FileInputStream(
 				billDetailFile), "UTF-8");
@@ -115,6 +115,7 @@ public class BillingServiceImpl implements BillingService {
 					// Instantiate a List of total for this EC2
 					List<BigDecimal> brList = resources.get(resourceId);
 					if (brList == null) {
+						// There are 31 days in a month - 1 for each day.
 						brList = new ArrayList<BigDecimal>(32);
 						for (int i = 1; i <= 32; i++) {
 							brList.add(null);
@@ -172,5 +173,16 @@ public class BillingServiceImpl implements BillingService {
 			}
 		}
 		return billLineItems;
+	}
+
+	@Override
+	public List<String> billsIngested() {
+		return billingFileInfoRepository.getBillsIngested();
+	}
+
+	@Override
+	public void markBillIngested(String billFile) {
+		BillFileInfo billFileInfo = new BillFileInfo(billFile);
+		billingFileInfoRepository.save(billFileInfo);
 	}
 }

@@ -49,15 +49,17 @@ public class S3ServiceImpl implements S3Service {
 	/**
 	 * Runtime retrieving the Session.
 	 * 
+	 * @param bucketType
+	 * 
 	 * @return A Client with Session.
 	 */
-	public AmazonS3Client getS3Session() {
-		return awsClientProxy.getS3Client();
-	}
-
-	public AmazonS3Client getBillS3Session() {
-		return new AmazonS3Client(new BasicAWSCredentials(AppConfig.accessKey,
-				AppConfig.secret));
+	public AmazonS3Client getS3Session(String bucketType) {
+		if (bucketType != null && "bill".equalsIgnoreCase(bucketType)) {
+			return new AmazonS3Client(new BasicAWSCredentials(
+					AppConfig.accessKey, AppConfig.secret));
+		} else {
+			return awsClientProxy.getS3Client();
+		}
 	}
 
 	/**
@@ -66,7 +68,8 @@ public class S3ServiceImpl implements S3Service {
 	public List<Bucket> getBucketLists() {
 		logger.info("Listing buckets");
 		List<Bucket> buckets = null;
-		buckets = getS3Session().listBuckets();
+		String bucketType = null;
+		buckets = getS3Session(bucketType).listBuckets();
 		for (Bucket bucket : buckets) {
 			logger.debug("List of Buckets - " + bucket.getName());
 		}
@@ -76,7 +79,7 @@ public class S3ServiceImpl implements S3Service {
 	/**
 	 * Read a bucket for contents.
 	 */
-	public List<String> getBucketList(String bucketName) {
+	public List<String> getBucketList(String bucketName, String bucketType) {
 		logger.info("Listing bucket's content for " + bucketName);
 		List<String> returnContentList = new ArrayList<>();
 		ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
@@ -84,7 +87,8 @@ public class S3ServiceImpl implements S3Service {
 		ObjectListing contentList = null;
 		logger.debug("List of " + bucketName + "bucket's content - ");
 		do {
-			contentList = getS3Session().listObjects(listObjectsRequest);
+			contentList = getS3Session(bucketType).listObjects(
+					listObjectsRequest);
 			// Lookup for Summaries.
 			List<S3ObjectSummary> objSummaries = contentList
 					.getObjectSummaries();
@@ -101,7 +105,8 @@ public class S3ServiceImpl implements S3Service {
 	 * Write to a bucket.
 	 */
 	public void uploadToBucket(File file, String bucketName) {
-		AmazonS3Client session = getS3Session();
+		String bucketType = null;
+		AmazonS3Client session = getS3Session(bucketType);
 		Policy policy = getPolicyFor(bucketName);
 		session.setBucketPolicy(bucketName, policy.toJson());
 		// Now an attempt to write will fail.
@@ -131,7 +136,8 @@ public class S3ServiceImpl implements S3Service {
 	 */
 	public File getArtifact(String bucketName, String artifactName,
 			String fileLocation) throws IOException {
-		S3Object s3object = getS3Session().getObject(
+		String bucketType = null;
+		S3Object s3object = getS3Session(bucketType).getObject(
 				new GetObjectRequest(bucketName, artifactName));
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				s3object.getObjectContent()));
@@ -151,7 +157,8 @@ public class S3ServiceImpl implements S3Service {
 			bucketName = AppConfig.billS3BucketName;
 		}
 		// S3 bill account is different.
-		S3Object s3object = getBillS3Session().getObject(
+		String bucketType = "bill";
+		S3Object s3object = getS3Session(bucketType).getObject(
 				new GetObjectRequest(bucketName, billFileName));
 
 		// Read the binary file
@@ -198,11 +205,11 @@ public class S3ServiceImpl implements S3Service {
 			}
 			logger.info("Unzipped file available as {} ",
 					newFile.getAbsoluteFile());
-			// Delete the main file.
+			// Move the main file to archive folder.
 			File zipFile = new File(fileLocation + File.separator
 					+ billFileName);
-			zipFile.delete();
-			logger.info("Zipped file {} is now deleted.",
+			zipFile.renameTo(new File(fileLocation + "/archive/" + billFileName));
+			logger.info("Zipped file {} is now moved to archive",
 					zipFile.getAbsoluteFile());
 		} finally {
 			zis.closeEntry();
