@@ -20,7 +20,7 @@ public interface CloudWatchService {
 
 	public List<Instance> getIneffectiveInstances(List<Instance> ec2List);
 
-	@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
+	@PreAuthorize("hasAnyAuthority(['techops'])")
 	public void setCPUThreshold(CPUThresholdInfo cpuThresholdInfo);
 
 	public CPUThresholdInfo getCPUThreshold(String instanceId);
