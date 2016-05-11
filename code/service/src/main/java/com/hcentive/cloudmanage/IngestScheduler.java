@@ -3,6 +3,8 @@ package com.hcentive.cloudmanage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -14,12 +16,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.hcentive.cloudmanage.audit.AuditContext;
+import com.hcentive.cloudmanage.audit.AuditContextHolder;
 import com.hcentive.cloudmanage.billing.BillingService;
 import com.hcentive.cloudmanage.domain.BuildJobResponse;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobInfo;
 import com.hcentive.cloudmanage.domain.JobMetaInfo;
 import com.hcentive.cloudmanage.jenkins.BuildInfoService;
+import com.hcentive.cloudmanage.service.provider.aws.AWSUtils;
 import com.hcentive.cloudmanage.service.provider.aws.CloudWatchService;
 import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
 import com.hcentive.cloudmanage.service.provider.aws.S3Service;
@@ -182,11 +187,53 @@ public class IngestScheduler {
 	@Scheduled(cron = "${ec2.meta.refresh.cron}")
 	public void ingestEC2MasterInfo() {
 		try {
-			logger.debug("Ingesting aws data for ec2 using {}");
+			logger.info("Ingesting aws data for ec2");
 			ec2Service.updateInstanceMetaInfo(jobContext);
 			logger.info("Ingested aws data for ec2");
 		} catch (Exception e) {
 			logger.error("Failed to ingest ec2 master info with error " + e);
+		}
+	}
+
+	// Intended hourly
+	@Scheduled(cron = "${ec2.cost.effectiveness.cron}")
+	public void costEffectivenessEC2() {
+		try {
+			logger.info("Ensuring Cost effectiveness for ec2");
+			List<Instance> ec2List = ec2Service.getRunningInstances(jobContext);
+			// last 24 hours.
+			Calendar now = Calendar.getInstance();
+			now.add(Calendar.HOUR_OF_DAY, -24);
+			Date yesterday = now.getTime();
+			// Now filter out EC2 started less than 24 hours.
+			StringBuilder strBld = new StringBuilder();
+			for (Iterator<Instance> it = ec2List.iterator(); it.hasNext();) {
+				Instance ec2 = it.next();
+				if (ec2.getAwsInstance().getLaunchTime().after(yesterday)) {
+					logger.info("Skip the new instance {}; create time {}", ec2
+							.getAwsInstance().getInstanceId(), ec2
+							.getAwsInstance().getLaunchTime());
+					it.remove();
+				} else {
+					strBld.append(ec2.getAwsInstance().getInstanceId()).append(
+							", ");
+				}
+			}
+			logger.info("Manage effectiveness for {}.", strBld.toString());
+			ec2List = cloudWatchService.getIneffectiveInstances(ec2List);
+			for (Instance ec2 : ec2List) {
+				String instanceId = ec2.getAwsInstance().getInstanceId();
+				logger.info("Ineffective instances {}", instanceId);
+				AuditContext auditContext = new AuditContext();
+				auditContext.setInitiator(instanceId + "_stopUnutlized-ec2");
+				AuditContextHolder.setContext(auditContext);
+				ec2Service.stopInstance(instanceId);
+			}
+			logger.info("Ensured Cost effectiveness for ec2 complete");
+		} catch (Exception e) {
+			logger.error("Failed to ensure ec2 cost effectiveness with error "
+					+ e);
+			e.printStackTrace();
 		}
 	}
 }

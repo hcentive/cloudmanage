@@ -35,9 +35,11 @@ public class StopEC2InstanceJob implements Job {
 				+ context.getJobDetail() + " & Trigger-->"
 				+ context.getTrigger());
 		JobDetail jobDetail = context.getJobDetail();
+		// Set for Audit aspect
 		AuditContext auditContext = new AuditContext();
 		auditContext.setInitiator(jobDetail.getKey().getName());
 		AuditContextHolder.setContext(auditContext);
+		// Call the stop.
 		StopInstancesResult stopInstance = ec2Service.stopInstance(jobDetail.getJobDataMap().getString(AWSUtils.INSTANCE_ID));
 		logger.info(stopInstance.toString());
 	}

@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.Request;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -177,6 +178,25 @@ public class EC2ServiceImpl implements EC2Service {
 		return instances;
 	}
 
+	@Override
+	public List<Instance> getRunningInstances(boolean jobContext) {
+		logger.info("Listing running instances");
+		List<Instance> instances = null;
+		List<Filter> filters = new ArrayList<Filter>();
+		filters.add(new Filter().withName("instance-state-name").withValues(
+				"running"));
+		// If not called from JOB
+		if (!jobContext) {
+			filters.addAll(getDecisionMapAsFilters());
+		}
+		DescribeInstancesRequest instanceRequest = new DescribeInstancesRequest()
+				.withFilters(filters);
+		DescribeInstancesResult instancesResult = getEC2Session(false)
+				.describeInstances(instanceRequest);
+		instances = AWSUtils.extractInstances(instancesResult);
+		return instances;
+	}
+
 	/**
 	 * Stops an EC2 instance.
 	 */
@@ -186,11 +206,19 @@ public class EC2ServiceImpl implements EC2Service {
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
 		StopInstancesRequest stopRequest = new StopInstancesRequest()
 				.withInstanceIds(instanceId);
-		StopInstancesResult stoppedInstances = getEC2Session(
-				SecurityContextHolder.getContext().getAuthentication() != null)
-				.stopInstances(stopRequest);
-		logger.debug("Instance stopped " + stoppedInstances);
-		return stoppedInstances;
+		StopInstancesResult stoppedInstance = null;
+		if (!System.getProperty("env").equalsIgnoreCase("dev")) {
+			logger.info("Stopping Instance {}", instanceId);
+			/*
+			 * stoppedInstance = getEC2Session(
+			 * SecurityContextHolder.getContext().getAuthentication() != null)
+			 * .stopInstances(stopRequest);
+			 */
+		} else {
+			logger.info("Request to stop {} skipped in dev", instanceId);
+		}
+		logger.info("Instance stopped " + stoppedInstance);
+		return stoppedInstance;
 	}
 
 	/**
@@ -414,4 +442,10 @@ public class EC2ServiceImpl implements EC2Service {
 		return list;
 	}
 
+	@Override
+	public AWSMetaInfo getAWSMetaInfo(String instanceId) {
+		AWSMetaInfo awsMetaInfo = awsMetaRepository
+				.findByAwsInstanceId(instanceId);
+		return awsMetaInfo;
+	}
 }
