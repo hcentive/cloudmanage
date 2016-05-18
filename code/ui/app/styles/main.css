@@ -204,3 +204,5 @@ a, a:hover, a:focus {
 .start {color: green;}
 .stop {color: red;}
 
+tr.error > td {background-color: #f2dede; color: #a94442;}
+
