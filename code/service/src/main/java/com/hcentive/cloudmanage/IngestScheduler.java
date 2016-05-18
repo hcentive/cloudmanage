@@ -1,7 +1,12 @@
 package com.hcentive.cloudmanage;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +16,18 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.hcentive.cloudmanage.audit.AuditContext;
+import com.hcentive.cloudmanage.audit.AuditContextHolder;
 import com.hcentive.cloudmanage.billing.BillingService;
 import com.hcentive.cloudmanage.domain.BuildJobResponse;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobInfo;
 import com.hcentive.cloudmanage.domain.JobMetaInfo;
 import com.hcentive.cloudmanage.jenkins.BuildInfoService;
+import com.hcentive.cloudmanage.service.provider.aws.AWSUtils;
 import com.hcentive.cloudmanage.service.provider.aws.CloudWatchService;
 import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
+import com.hcentive.cloudmanage.service.provider.aws.S3Service;
 
 // <Seconds> <Minutes> <Hours> <Day-of-Month> <Month> <Day-of-Week> [Year]
 // <start from>/<every x units> for the above
@@ -42,6 +51,8 @@ public class IngestScheduler {
 
 	@Autowired
 	private BillingService billingService;
+	@Autowired
+	private S3Service s3bucketService;
 
 	@Autowired
 	private CloudWatchService cloudWatchService;
@@ -75,22 +86,67 @@ public class IngestScheduler {
 	}
 
 	// Intended Monthly
-	@Scheduled(cron = "${s3.bill.refresh.cron}")
-	public void ingestBillingData() {
-		Calendar now = Calendar.getInstance();
-		int year = now.get(Calendar.YEAR);
-		int previousMonth = now.get(Calendar.MONTH) - 1;
+	@Scheduled(cron = "${s3.bill.sync.cron}")
+	public void syncBillingData() {
 		try {
-			logger.debug("Ingesting Billing data for {}-{} for account {}",
-					previousMonth, year, AppConfig.accountId);
-			billingService.updateBilling(AppConfig.accountId, year,
-					previousMonth);
-			logger.info("Ingested billing data for {}-{} for account {}",
-					previousMonth, year, AppConfig.accountId);
+			logger.debug("Sync bill info for account {}", AppConfig.accountId);
+			// Get list of files ingested from database.
+			List<String> ingested = billingService.billsIngested();
+			// List of available files on S3 limits to 1000 - good for now
+			List<String> filesAvailable = s3bucketService.getBucketList(
+					AppConfig.billS3BucketName, "bill");
+			// Regex removal of files not matching pattern.
+			List<String> matches = new ArrayList<String>();
+			Pattern p = Pattern.compile(AppConfig.billFileName);
+			for (String fileAvailable : filesAvailable) {
+				if (p.matcher(fileAvailable).matches()) {
+					matches.add(fileAvailable);
+				}
+			}
+			// Now remove already ingested files
+			matches.removeAll(ingested);
+			String fileDest = AppConfig.billBaseDir + "/ingest";
+			for (String billFile : matches) {
+				s3bucketService.getBill(AppConfig.billS3BucketName, billFile,
+						fileDest);
+			}
+			logger.info("Sync'd bill files for account {}", AppConfig.accountId);
 		} catch (Exception e) {
-			logger.error("Failed to ingest Billing Data for {}-{} with error "
-					+ e.getMessage(), previousMonth, year);
+			logger.error("Failed to synchronize bill files for {} with error "
+					+ e.getMessage(), AppConfig.accountId);
 		}
+	}
+
+	// Can be scheduled on need basis.
+	@Scheduled(cron = "${s3.bill.ingest.cron}")
+	public void ingestBillingData() {
+		String billsLocation = AppConfig.billBaseDir + "/ingest";
+		logger.info("Ingest bill info from {}", billsLocation);
+
+		// List all files and ingest 1-by-1 if already not ingested
+		// Its a double check but necessary
+		// Get list of files ingested from database.
+		List<String> ingested = billingService.billsIngested();
+
+		// On file system
+		File folder = new File(billsLocation);
+		File[] listOfFiles = folder.listFiles();
+		for (File file : listOfFiles) {
+			if (!file.isHidden() && !ingested.contains(file.getName() + ".zip")) {
+				try {
+					logger.info("Ingest bill from {} ", file.getName());
+					billingService.updateBilling(file);
+					// Update the table that the file has been ingeted.
+					billingService.markBillIngested(file.getName() + ".zip");
+					logger.info("Ingested bill from {}", file.getName());
+				} catch (Exception e) {
+					logger.error("Failed to ingest bill file {} with error "
+							+ e.getMessage(), AppConfig.accountId);
+					e.printStackTrace();
+				}
+			}
+		}
+		logger.info("Ingested bill info from {}", billsLocation);
 	}
 
 	// Intended daily
@@ -131,11 +187,53 @@ public class IngestScheduler {
 	@Scheduled(cron = "${ec2.meta.refresh.cron}")
 	public void ingestEC2MasterInfo() {
 		try {
-			logger.debug("Ingesting aws data for ec2 using {}");
+			logger.info("Ingesting aws data for ec2");
 			ec2Service.updateInstanceMetaInfo(jobContext);
 			logger.info("Ingested aws data for ec2");
 		} catch (Exception e) {
 			logger.error("Failed to ingest ec2 master info with error " + e);
+		}
+	}
+
+	// Intended hourly
+	@Scheduled(cron = "${ec2.cost.effectiveness.cron}")
+	public void costEffectivenessEC2() {
+		try {
+			logger.info("Ensuring Cost effectiveness for ec2");
+			List<Instance> ec2List = ec2Service.getRunningInstances(jobContext);
+			// last 24 hours.
+			Calendar now = Calendar.getInstance();
+			now.add(Calendar.HOUR_OF_DAY, -24);
+			Date yesterday = now.getTime();
+			// Now filter out EC2 started less than 24 hours.
+			StringBuilder strBld = new StringBuilder();
+			for (Iterator<Instance> it = ec2List.iterator(); it.hasNext();) {
+				Instance ec2 = it.next();
+				if (ec2.getAwsInstance().getLaunchTime().after(yesterday)) {
+					logger.info("Skip the new instance {}; create time {}", ec2
+							.getAwsInstance().getInstanceId(), ec2
+							.getAwsInstance().getLaunchTime());
+					it.remove();
+				} else {
+					strBld.append(ec2.getAwsInstance().getInstanceId()).append(
+							", ");
+				}
+			}
+			logger.info("Manage effectiveness for {}.", strBld.toString());
+			ec2List = cloudWatchService.getIneffectiveInstances(ec2List);
+			for (Instance ec2 : ec2List) {
+				String instanceId = ec2.getAwsInstance().getInstanceId();
+				logger.info("Ineffective instances {}", instanceId);
+				AuditContext auditContext = new AuditContext();
+				auditContext.setInitiator(instanceId + "_stopUnutlized-ec2");
+				AuditContextHolder.setContext(auditContext);
+				ec2Service.stopInstance(instanceId);
+			}
+			logger.info("Ensured Cost effectiveness for ec2 complete");
+		} catch (Exception e) {
+			logger.error("Failed to ensure ec2 cost effectiveness with error "
+					+ e);
+			e.printStackTrace();
 		}
 	}
 }

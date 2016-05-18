@@ -18,39 +18,46 @@ import com.hcentive.cloudmanage.job.InstanceJobDetails;
 public interface EC2Service {
 
 	public Instance getInstance(String instanceId);
-	
+
 	public Instance getInstanceByPrivateIP(String privateIP);
-	
+
 	public List<Instance> getInstanceLists(boolean jobContext);
-	
+
+	public List<Instance> getRunningInstances(boolean jobContext);
+
 	public List<AWSMetaInfo> getAWSMetaInfoList();
+
+	public AWSMetaInfo getAWSMetaInfo(String instanceId);
 
 	public StopInstancesResult stopInstance(String instanceId);
 
 	public StartInstancesResult startInstance(String instanceId);
-	
+
 	public TerminateInstancesResult terminateInstance(String instanceId);
 
 	public void updateInstanceMetaInfo(boolean jobContext);
-	
+
 	// QUARTZ SECTION *******************
 
+	public InstanceJobDetails getInstanceJobDetails(String instanceId)
+			throws SchedulerException;
 
-	public InstanceJobDetails getInstanceJobDetails(String instanceId) throws SchedulerException;
-
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
+	// @PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
 	public Set<JobKey> listScheduledInstanceJobs() throws SchedulerException;
 
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
+	// @PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
 	public Set<TriggerKey> listScheduledInstanceTriggers()
 			throws SchedulerException;
 
-	//@PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
-	public void updateTrigger(JobTriggerInfo startJobTriggerInfo, JobTriggerInfo stopJobTriggerInfo) throws SchedulerException;
-	
+	// @PreAuthorize("hasAnyAuthority(['techops','techops-int'])")
+	public void updateTrigger(JobTriggerInfo startJobTriggerInfo,
+			JobTriggerInfo stopJobTriggerInfo) throws SchedulerException;
+
 	public void scheduleInstance(JobTriggerInfo startJobTriggerInfo,
-			JobTriggerInfo stopJobTriggerInfo, String instanceId) throws SchedulerException;
+			JobTriggerInfo stopJobTriggerInfo, String instanceId)
+			throws SchedulerException;
 
 	public void deleteJob(JobTriggerInfo startJobTriggerInfo,
-			JobTriggerInfo stopJobTriggerInfo, String instanceId) throws SchedulerException;
+			JobTriggerInfo stopJobTriggerInfo, String instanceId)
+			throws SchedulerException;
 }

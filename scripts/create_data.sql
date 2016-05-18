@@ -479,7 +479,7 @@ insert into APP_AUTHORITY_MASTER(APP_AUTH_NAME) value ('Manager');
 -- sample data
 -- insert into AUTHORITY_MAP value (<LDAP_AUTH_NAME of value techops>,<APP_AUTH_ID of value Administrator>);
 
-insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('cost-center','CP','techops,Ops');
-insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('stack','qa','techops,Ops');
-insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('stack','dev','techops,Ops,dev-all');
+insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('Cost-Center','phix','techops');
+insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('Stack','qa','techops');
+insert into AUTHORITY_TAG_MAP(TAG_TYPE,TAG_VALUE,LDAP_AUTH_NAMES) value ('Stack','dev','techops,Ops');
 

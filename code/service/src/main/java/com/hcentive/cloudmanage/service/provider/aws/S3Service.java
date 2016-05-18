@@ -15,12 +15,10 @@ public interface S3Service {
 	 * 
 	 * @PreAuthorize("hasAuthority('ROLE_XYZ')")
 	 */
-	@PreAuthorize("hasAuthority('techops')")
 	public List<Bucket> getBucketLists();
 
 	// Read a bucket contents
-	@PreAuthorize("hasAuthority('techops')")
-	public List<String> getBucketList(String bucketName);
+	public List<String> getBucketList(String bucketName, String bucketType);
 
 	// Write to a bucket contents
 	@PreAuthorize("hasAuthority('techops')")

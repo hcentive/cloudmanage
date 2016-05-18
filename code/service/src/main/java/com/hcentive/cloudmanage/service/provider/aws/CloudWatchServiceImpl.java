@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -22,6 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcentive.cloudmanage.billing.AWSMetaInfo;
 import com.hcentive.cloudmanage.billing.AWSMetaRepository;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
+import com.hcentive.cloudmanage.domain.Instance;
+import com.hcentive.cloudmanage.profiling.CPUThresholdInfo;
+import com.hcentive.cloudmanage.profiling.CPUThresholdInfoRepository;
 import com.hcentive.cloudmanage.profiling.ProfileInfo;
 import com.hcentive.cloudmanage.profiling.ProfilingInfoRepository;
 
@@ -31,14 +35,24 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 	private static final Logger logger = LoggerFactory
 			.getLogger(CloudWatchServiceImpl.class.getName());
 
+	// Minimum value made available.
+	private static final int period = 60;
+	private static final int DefaultDailyCPUThreshold = 5;
+
 	@Autowired
 	private AWSClientProxy awsClientProxy;
+
+	@Autowired
+	private EC2Service ec2Service;
 
 	@Autowired
 	private ProfilingInfoRepository awsProfileInfoRepository;
 
 	@Autowired
 	private AWSMetaRepository awsMetaRepository;
+
+	@Autowired
+	private CPUThresholdInfoRepository cpuThresholdInfoRepository;
 
 	/**
 	 * A session must be requested for each call because it has a role
@@ -48,14 +62,14 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		return awsClientProxy.getCloudWatchClient(applyPolicy);
 	}
 
-	private List<Datapoint> retrieveMetrics(String instanceId, Date fromTime,
-			Date tillTime, int period) {
+	private List<Datapoint> retrieveMetrics(String statsName,
+			String instanceId, Date fromTime, Date tillTime, int period) {
 		GetMetricStatisticsRequest getMetricRequest = new GetMetricStatisticsRequest();
 		// Only for EC2
 		getMetricRequest.setNamespace("AWS/EC2");
 		// Average, Minimum or Maximum
 		ArrayList<String> stats = new ArrayList<String>();
-		stats.add("Average");
+		stats.add(statsName);
 		getMetricRequest.setStatistics(stats);
 		// CPU
 		getMetricRequest.withMetricName("CPUUtilization");
@@ -89,8 +103,8 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 
 		if (logger.isDebugEnabled()) {
 			for (Datapoint dp : datapoints) {
-				logger.debug("Avg CPU " + dp.getTimestamp() + ":"
-						+ dp.getAverage());
+				logger.debug("CPU Stats {}: avg {} and max {}",
+						dp.getTimestamp(), dp.getAverage(), dp.getMaximum());
 			}
 		}
 
@@ -100,7 +114,6 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 	@Override
 	public void updateMetrics(String instanceId, Date fromTime, Date tillTime)
 			throws JsonProcessingException {
-		int period = 60; // Minimum value made available.
 
 		// Transform to calendar for comparison and remove hh:mm:ss:sss
 		Calendar fromTimeCal = Calendar.getInstance();
@@ -136,7 +149,7 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 				dailyWindow.set(Calendar.SECOND, 59);
 				dailyWindow.set(Calendar.MILLISECOND, 999);
 
-				List<Datapoint> dpList = retrieveMetrics(instanceId,
+				List<Datapoint> dpList = retrieveMetrics("Average", instanceId,
 						fromTimeCal.getTime(), dailyWindow.getTime(), period);
 
 				// Get ec2 info - not attempting to fetch all.
@@ -175,4 +188,76 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		return response;
 	}
 
+	@Override
+	// Filter list to ineffective ec2s i.e. Max in the last 24 hours <
+	// configured value.
+	public List<Instance> getIneffectiveInstances(List<Instance> ec2List) {
+		// 24 hour window
+		Calendar fromTime = Calendar.getInstance();
+		fromTime.add(Calendar.HOUR_OF_DAY, -24);
+		Calendar tillTime = Calendar.getInstance();
+		for (Iterator<Instance> it = ec2List.iterator(); it.hasNext();) {
+			Instance ec2 = it.next();
+			String instanceId = ec2.getAwsInstance().getInstanceId();
+			logger.info("{} effectiveness.", instanceId);
+			List<Datapoint> dpList = retrieveMetrics("Maximum", instanceId,
+					fromTime.getTime(), tillTime.getTime(), 3600 * 24);
+			// Get the value to be compared if not skipped.
+			CPUThresholdInfo cpuThreshold = getCPUThreshold(instanceId);
+			// If threshold is defined and correct and|or skipped.
+			int threshHold = DefaultDailyCPUThreshold;
+			if (cpuThreshold != null) {
+				if (cpuThreshold.isSkipMeFlag()) {
+					// skip
+					it.remove();
+					logger.info("{} is safe as skipped", instanceId);
+					continue;
+				}
+				threshHold = cpuThreshold.getDailyCPUThreshold();
+				if (threshHold <= 0) {
+					// Precaution wrt junk data.
+					threshHold = DefaultDailyCPUThreshold;
+					logger.debug(
+							"Setting default value of 5% to CPU threshold for {}",
+							instanceId);
+				}
+			}
+			// A single value will be returned for a 24 hour period
+			for (Datapoint dp : dpList) {
+				logger.debug("Datapoint " + dp.toString());
+				Double max = dp.getMaximum();
+				if (max.compareTo(new Double(threshHold)) >= 0) {
+					logger.info("{} is safe with {} as compared to {}",
+							instanceId, max, threshHold);
+					it.remove();
+				} else {
+					logger.info("{} is unsafe with {} as compared to {}",
+							instanceId, max, threshHold);
+				}
+			}
+
+		}
+		return ec2List;
+	}
+
+	@Override
+	/**
+	 * Has Authorization requirements. Not everybody can set it.
+	 */
+	public void setCPUThreshold(CPUThresholdInfo cpuThresholdInfo) {
+		cpuThresholdInfoRepository.save(cpuThresholdInfo);
+	}
+
+	@Override
+	public CPUThresholdInfo getCPUThreshold(String instanceId) {
+		CPUThresholdInfo cpuThreshold = cpuThresholdInfoRepository
+				.findByInstanceId(instanceId);
+		if (cpuThreshold == null) {
+			boolean skipMeFlag = false;
+			AWSMetaInfo instanceInfo = ec2Service.getAWSMetaInfo(instanceId);
+			cpuThreshold = new CPUThresholdInfo(DefaultDailyCPUThreshold,
+					skipMeFlag, instanceInfo);
+		}
+		return cpuThreshold;
+	}
 }

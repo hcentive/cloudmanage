@@ -2,11 +2,11 @@ package com.hcentive.cloudmanage.billing;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,7 @@ import com.hcentive.cloudmanage.Application;
 @ContextConfiguration(classes = Application.class)
 @WebAppConfiguration
 @TestPropertySource("classpath:config/application-test.properties")
+@Ignore
 public class BillingServiceTest {
 
 	@Autowired
@@ -45,22 +46,5 @@ public class BillingServiceTest {
 				fromTime, tillTime);
 		assertNotNull("Billing Info Not Available for " + instanceId,
 				billingInfo.get(0));
-	}
-
-	@Test
-	public void testUpdateBilling() {
-		System.out.println("Update Billing");
-		String accountId = "770377720390";
-		int month = 12;
-		int year = 2015;
-		try {
-			billingService.updateBilling(accountId, year, month);
-			System.out.println("Updated Billing for " + accountId + " for "
-					+ month + "-" + year);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Failed to update Billing for " + accountId
-					+ " for " + month + "-" + year);
-		}
 	}
 }
