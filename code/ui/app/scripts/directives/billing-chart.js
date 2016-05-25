@@ -6,25 +6,41 @@
 * # billingChart
 */
 angular.module('cloudmanageApp')
-.directive('billingChart', function () {
+.directive('billingChart', ['utils', function (utils) {
+
+	var baseColors = {
+		'dev': '#0000ff',
+		'qa': '#00ff00',
+		'misc': '#ff0000'
+	};
+
+	function getColor(stack, count){
+		var shade = 0,
+		baseColor = baseColors[stack] || baseColors['misc'];
+		if(count & 1 === 1){
+			return utils.shadeColor(baseColor, 0-count);
+		}
+		return utils.shadeColor(baseColor, count);
+
+	}
 
 	function parseData(data){
 		var costCenterData = {};
 		_.each(data, function(billingInfo){
 			var instanceInfo = billingInfo.instanceInfo,
-			instanceName = instanceInfo.name,
-			costCenter = instanceInfo.costCenter,
 			cost = billingInfo.dayTotal;
-			addCostForCostCenter(costCenter, instanceName, costCenterData, cost);
+			addCostForCostCenter(costCenterData, instanceInfo, cost);
 		});
 		return {
 			main : _.values(costCenterData)
 		};
 	}
 
-	function addCostForCostCenter(costCenter, instanceName, costCenterData, cost){
-		costCenter = costCenter || "Misc";
-		var _costDataPoint = costCenterData[costCenter];
+	function addCostForCostCenter(costCenterData, instanceInfo, cost){
+		var instanceName = instanceInfo.name,
+		stack = instanceInfo.stack,
+		costCenter = instanceInfo.costCenter || 'Misc', 
+		_costDataPoint = costCenterData[costCenter];
 		if(_costDataPoint === undefined){
 			_costDataPoint = {
 				name: costCenter,
@@ -40,9 +56,12 @@ angular.module('cloudmanageApp')
 		_costDataPoint.y += cost;
 		var _instanceData = _costDataPoint.drillDownData.data[instanceName];
 		if(_instanceData === undefined){
-			_costDataPoint.drillDownData.data[instanceName] = 0;
+			_costDataPoint.drillDownData.data[instanceName] = {
+				cost: 0,
+				stack: stack
+			};
 		}
-		_costDataPoint.drillDownData.data[instanceName] += cost;
+		_costDataPoint.drillDownData.data[instanceName].cost += cost;
 	}
 
 	function getOptions(data, elementId){
@@ -53,9 +72,25 @@ angular.module('cloudmanageApp')
 	            events: {
 	            	drilldown: function(e){
 	            		var chart = this,
+	            		count = -1,
 	            		drillDownData = {};
 	            		drillDownData.name = e.point.drillDownData.name;
-	            		drillDownData.data = _.pairs(e.point.drillDownData.data);
+	            		var drillDownDataLength = _.keys(e.point.drillDownData.data).length;
+	            		drillDownData.data = _.map(e.point.drillDownData.data, function(obj, instanceName){
+	            			count++;
+	            			return {
+	            				name: instanceName,
+	            				y: obj.cost,
+	            				color: getColor(obj.stack, count),
+	            				stack: obj.stack
+	            			}
+	            		}).sort(function(a, b){
+	            			var aStack = a.stack || 'misc',
+	            			bStack = b.stack || 'misc';
+	            			if(aStack === bStack)
+	            				return 0;
+	            			return (aStack < bStack) ? -1: 1;
+	            		});
 	            		chart.addSeriesAsDrilldown(e.point, drillDownData);
 	            	}
 	            }
@@ -107,11 +142,10 @@ angular.module('cloudmanageApp')
 						chart = new Highcharts.Chart(options);
 					}
 					else{
-						//chart.drillDown.series = parsedData.drillDown;
 						chart.series[0].setData(parsedData.main);
 					}
 				}
 			});
 		}
 	};
-});
+}]);
