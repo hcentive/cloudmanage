@@ -8,19 +8,21 @@
 angular.module('cloudmanageApp')
 .directive('billingChart', ['utils', function (utils) {
 
-	var baseColors = {
-		'dev': '#0000ff',
-		'qa': '#00ff00',
-		'misc': '#ff0000'
-	};
+	var colors = ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', 
+   '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+
+
+	var baseColors = {};
 
 	function getColor(stack, count){
 		var shade = 0,
-		baseColor = baseColors[stack] || baseColors['misc'];
-		if(count & 1 === 1){
-			return utils.shadeColor(baseColor, 0-count);
+		stack = stack || 'misc',
+		color = baseColors[stack];
+		if(! color){
+			color = colors[_.keys(baseColors).length];
+			baseColors[stack] = color;
 		}
-		return utils.shadeColor(baseColor, count);
+		return color;
 
 	}
 
@@ -84,7 +86,7 @@ angular.module('cloudmanageApp')
 	            				color: getColor(obj.stack, count),
 	            				stack: obj.stack
 	            			}
-	            		}).sort(function(a, b){
+		            		}).sort(function(a, b){
 	            			var aStack = a.stack || 'misc',
 	            			bStack = b.stack || 'misc';
 	            			if(aStack === bStack)
