@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -13,12 +15,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
 import com.hcentive.cloudmanage.security.AjaxLogoutSuccessHandler;
 import com.hcentive.cloudmanage.security.CustomAccessDeniedHandler;
 import com.hcentive.cloudmanage.security.CustomAuthenticationEntryPoint;
 import com.hcentive.cloudmanage.security.CustomAuthenticationFailureHandler;
 import com.hcentive.cloudmanage.security.CustomAuthenticationSuccessHandler;
+import com.hcentive.cloudmanage.security.CustomUserDetailsContextMapper;
 import com.hcentive.cloudmanage.security.LDAPGrantedAuthorityMapper;
 
 @Configuration
@@ -53,9 +57,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/login","/error").permitAll()
-				.anyRequest()
-				.fullyAuthenticated().and().formLogin()
+		http.authorizeRequests().antMatchers("/login", "/error").permitAll()
+				.anyRequest().fullyAuthenticated().and().formLogin()
 				.failureHandler(customAuthenticationFailureHandler).and()
 				.logout().logoutSuccessHandler(ajaxLogoutSuccessHandler);
 		http.exceptionHandling()
@@ -78,11 +81,31 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		provider.setConvertSubErrorCodesToExceptions(true);
 		provider.setUseAuthenticationRequestCredentials(true);
 		provider.setAuthoritiesMapper(authoritiesMapper());
+		//provider.setUserDetailsContextMapper(userDetailsContextMapper());
 		return provider;
 	}
 
 	@Bean
 	public GrantedAuthoritiesMapper authoritiesMapper() {
 		return new LDAPGrantedAuthorityMapper();
+	}
+
+	@Bean
+	public UserDetailsContextMapper userDetailsContextMapper() {
+		return new CustomUserDetailsContextMapper();
+	}
+
+	@Bean
+	public LdapContextSource contextSource() {
+		LdapContextSource contextSource = new LdapContextSource();
+		contextSource.setUrl("ldap://hcentive.com:389/dc=hcentive,dc=com");
+		contextSource.setUserDn(AppConfig.adMgrUserDN);
+		contextSource.setPassword(AppConfig.adMgrPswd);
+		return contextSource;
+	}
+
+	@Bean
+	public LdapTemplate ldapTemplate() {
+		return new LdapTemplate(contextSource());
 	}
 }

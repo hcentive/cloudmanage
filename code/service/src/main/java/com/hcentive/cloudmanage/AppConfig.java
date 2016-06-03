@@ -42,6 +42,10 @@ public class AppConfig {
 
 	public static String secret;
 
+	public static String adMgrPswd;
+
+	public static String adMgrUserDN;
+
 	@Value("${jenkins.url}")
 	public void setJenkinsUrl(String jenkinsUrl) {
 		AppConfig.jenkinsUrl = jenkinsUrl;
@@ -107,5 +111,16 @@ public class AppConfig {
 	public void setSecret(String secret) {
 		AppConfig.secret = PasswordCryptoUtils.decryptPassword(secret);
 	}
+
+	@Value("${ad.managerPswd}")
+	public void setAdMgrPswd(String adMgrPswd) {
+		AppConfig.adMgrPswd = PasswordCryptoUtils.decryptPassword(adMgrPswd);
+	}
+
+	@Value("${ad.managerDN}")
+	public void setAdMgrUserDN(String adMgrUserDN) {
+		AppConfig.adMgrUserDN = adMgrUserDN;
+	}
+
 
 }

@@ -16,6 +16,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.hcentive.cloudmanage.audit.AuditContext;
 import com.hcentive.cloudmanage.audit.AuditContextHolder;
 import com.hcentive.cloudmanage.billing.BillingService;
@@ -223,11 +224,15 @@ public class IngestScheduler {
 			ec2List = cloudWatchService.getIneffectiveInstances(ec2List);
 			for (Instance ec2 : ec2List) {
 				String instanceId = ec2.getAwsInstance().getInstanceId();
-				logger.info("Ineffective instances {}", instanceId);
-				AuditContext auditContext = new AuditContext();
-				auditContext.setInitiator(instanceId + "_stopUnutlized-ec2");
-				AuditContextHolder.setContext(auditContext);
-				ec2Service.stopInstance(instanceId);
+				StopInstancesResult stoppedResult = ec2Service
+						.stopInstance(instanceId);
+				if (stoppedResult != null) {
+					logger.info("Ineffective instances {}", instanceId);
+					AuditContext auditContext = new AuditContext();
+					auditContext
+							.setInitiator(instanceId + "_stopUnutlized-ec2");
+					AuditContextHolder.setContext(auditContext);
+				}
 			}
 			logger.info("Ensured Cost effectiveness for ec2 complete");
 		} catch (Exception e) {

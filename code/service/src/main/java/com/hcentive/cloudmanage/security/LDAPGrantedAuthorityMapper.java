@@ -25,6 +25,7 @@ public class LDAPGrantedAuthorityMapper implements GrantedAuthoritiesMapper {
 	@Override
 	public Collection<? extends GrantedAuthority> mapAuthorities(
 			Collection<? extends GrantedAuthority> authorities) {
+		logger.info("AD Granted authorities {}", authorities);
 		List<AppAuthority> appAuthorities = new ArrayList<>();
 		// Loop and set.
 		for (GrantedAuthority authority : authorities) {
@@ -32,6 +33,7 @@ public class LDAPGrantedAuthorityMapper implements GrantedAuthoritiesMapper {
 			List<LDAPAuthority> ldapRoleRef = new ArrayList<>();
 			LDAPAuthority findResult = roleMapperRepository
 					.findByLdapAuthName(ldapName);
+			logger.info("DB authorities {} for {}", findResult, ldapName);
 			if (findResult != null) {
 				ldapRoleRef.add(findResult);
 				for (LDAPAuthority ldapRole : ldapRoleRef) {
@@ -39,12 +41,13 @@ public class LDAPGrantedAuthorityMapper implements GrantedAuthoritiesMapper {
 				}
 			}
 		}
-		if(appAuthorities.size() == 0){
-			throw new RuntimeException("User is not setup with AD group - please contact IT");
+		if (appAuthorities.size() == 0) {
+			throw new RuntimeException(
+					"User is not setup with cloudmanage - please contact techops");
 		}
+		// Retain the original authority as well.
 		int nextId = appAuthorities.get(appAuthorities.size() - 1)
 				.getAppAuthId() + 1;
-		// Retain the original authority as well.
 		for (GrantedAuthority authority : authorities) {
 			appAuthorities.add(new AppAuthority(nextId++, authority
 					.getAuthority()));

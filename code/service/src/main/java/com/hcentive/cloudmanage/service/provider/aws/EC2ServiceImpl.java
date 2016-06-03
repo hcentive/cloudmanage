@@ -169,12 +169,17 @@ public class EC2ServiceImpl implements EC2Service {
 	 */
 	public List<Instance> getInstanceLists(boolean jobContext) {
 		logger.info("Listing instances");
-		List<Instance> instances = null;
+		List<Instance> instances = new ArrayList<Instance>();
 		DescribeInstancesRequest instanceRequest = new DescribeInstancesRequest()
 				.withFilters(jobContext ? null : getDecisionMapAsFilters());
 		DescribeInstancesResult instancesResult = getEC2Session(false)
 				.describeInstances(instanceRequest);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Received {} instances", instancesResult
+					.getReservations().size());
+		}
 		instances = AWSUtils.extractInstances(instancesResult);
+		logger.info("Returning {} instances", instances.size());
 		return instances;
 	}
 
