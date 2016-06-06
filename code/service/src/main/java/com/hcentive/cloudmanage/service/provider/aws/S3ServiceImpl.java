@@ -8,6 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -206,11 +210,15 @@ public class S3ServiceImpl implements S3Service {
 			logger.info("Unzipped file available as {} ",
 					newFile.getAbsoluteFile());
 			// Move the main file to archive folder.
-			File zipFile = new File(fileLocation + File.separator
-					+ billFileName);
-			zipFile.renameTo(new File(fileLocation + "/archive/" + billFileName));
+			Path movefrom = FileSystems.getDefault().getPath(
+					fileLocation + File.separator + billFileName);
+			Path moveTo = FileSystems.getDefault().getPath(
+					fileLocation + "/archive/" + billFileName);
+
+			Path archivePath = Files.move(movefrom, moveTo,
+					StandardCopyOption.REPLACE_EXISTING);
 			logger.info("Zipped file {} is now moved to archive",
-					zipFile.getAbsoluteFile());
+					archivePath.toAbsolutePath());
 		} finally {
 			zis.closeEntry();
 			zis.close();

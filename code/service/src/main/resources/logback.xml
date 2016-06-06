@@ -2,23 +2,22 @@
 <configuration>
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<Pattern>
-				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} -
-				%msg%n
-			</Pattern>
-		</layout>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
 	</appender>
 
-	<appender name="FILEAPPENDER"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>cloudmanage.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		
+		<file>${catalina.home}/logs/cloudmanage.log</file>
+		
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>${catalina.home}/logs/cloudmanage.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>${catalina.home}/logs/cloudmanage.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 			<!-- keep 30 days' worth of history capped at 3GB total size -->
 			<maxHistory>30</maxHistory>
-			<totalSizeCap>3GB</totalSizeCap>
+			<maxFileSize>10MB</maxFileSize>
+			<totalSizeCap>2GB</totalSizeCap>
 		</rollingPolicy>
 
 		<encoder>
@@ -26,42 +25,59 @@
 		</encoder>
 	</appender>
 
+	<appender name="DETAIL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		
+		<file>${catalina.home}/logs/aws-sdk.log</file>
+		
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${catalina.home}/logs/aws-sdk.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<!-- keep 30 days' worth of history capped at 3GB total size -->
+			<maxHistory>30</maxHistory>
+			<maxFileSize>10MB</maxFileSize>
+			<totalSizeCap>2GB</totalSizeCap>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
 
 	<logger name="com.hcentive" level="INFO" additivity="false">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILEAPPENDER" />
+		<appender-ref ref="FILE" />
 	</logger>
 
 	<logger name="org.springframework" level="ERROR" additivity="false">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILEAPPENDER" />
+		<appender-ref ref="FILE" />
 	</logger>
 
 	<logger name="org.hibernate.SQL" level="ERROR" additivity="false">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILEAPPENDER" />
+		<appender-ref ref="FILE" />
 	</logger>
 
 	<logger name="org.hibernate.type" level="ERROR" additivity="false">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILEAPPENDER" />
+		<appender-ref ref="FILE" />
 	</logger>
 
-	<logger name="log4j.logger.com.amazonaws" level="ERROR"
-		additivity="false">
+	<logger name="log4j.logger.com.amazonaws" level="ERROR" additivity="false">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILEAPPENDER" />
+		<appender-ref ref="FILE" />
+		<appender-ref ref="DETAIL" />
 	</logger>
 
-	<logger name="log4j.logger.org.apache.http.wire" level="ERROR"
-		additivity="false">
+	<logger name="log4j.logger.org.apache.http.wire" level="ERROR" additivity="false">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILEAPPENDER" />
+		<appender-ref ref="DETAIL" />
 	</logger>
 
 	<root level="ERROR">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILEAPPENDER" />
+		<appender-ref ref="FILE" />
+		<appender-ref ref="DETAIL" />
 	</root>
 
 </configuration>
