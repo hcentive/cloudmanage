@@ -19,6 +19,8 @@ public interface EC2Service {
 
 	public Instance getInstance(String instanceId);
 
+	public Instance getInstanceForJob(String instanceId, boolean jobContext);
+
 	public Instance getInstanceByPrivateIP(String privateIP);
 
 	public List<Instance> getInstanceLists(boolean jobContext);
@@ -29,7 +31,7 @@ public interface EC2Service {
 
 	public AWSMetaInfo getAWSMetaInfo(String instanceId);
 
-	public StopInstancesResult stopInstance(String instanceId);
+	public StopInstancesResult stopInstance(String instanceId, boolean jobContext);
 
 	public StartInstancesResult startInstance(String instanceId);
 

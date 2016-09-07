@@ -77,8 +77,10 @@ public class EC2ServiceTest {
 	@Test
 	public void testStopInstance() {
 		try {
-			String instanceId = instanceName; // find a machine to start and stop
-			StopInstancesResult response = ec2Service.stopInstance(instanceId);
+			String instanceId = instanceName; // find a machine to start and
+												// stop
+			StopInstancesResult response = ec2Service.stopInstance(instanceId,
+					true);
 			assertEquals("Not able to stop instance" + instanceId, instanceId,
 					response.getStoppingInstances().get(0).getInstanceId());
 			// System.out.println("Response " + response);
@@ -91,8 +93,10 @@ public class EC2ServiceTest {
 	@Test
 	public void testStartInstance() {
 		try {
-			String instanceId = instanceName; // find a machine to start and stop
-			StartInstancesResult response = ec2Service.startInstance(instanceId);
+			String instanceId = instanceName; // find a machine to start and
+												// stop
+			StartInstancesResult response = ec2Service
+					.startInstance(instanceId);
 			assertEquals("Not able to start instance" + instanceId, instanceId,
 					response.getStartingInstances().get(0).getInstanceId());
 			// System.out.println("Response " + response);

@@ -46,6 +46,24 @@ public class AppConfig {
 
 	public static String adMgrUserDN;
 
+	public static String zeusUrl;
+
+	public static String zeusPassword;
+
+	public static String zeusUsername;
+
+	public static boolean ingestBuildInfoEnabled;
+
+	public static boolean ingestBillFilesEnabled;
+
+	public static boolean ingestBillDataEnabled;
+
+	public static boolean ingestCPUInfoEnabled;
+
+	public static boolean ingestEC2MasterDataEnabled;
+
+	public static boolean costEffectivenessEnabled;
+
 	@Value("${jenkins.url}")
 	public void setJenkinsUrl(String jenkinsUrl) {
 		AppConfig.jenkinsUrl = jenkinsUrl;
@@ -60,6 +78,22 @@ public class AppConfig {
 	@Value("${jenkins.username}")
 	public void setJenkinsUsername(String jenkinsUsername) {
 		AppConfig.jenkinsUsername = jenkinsUsername;
+	}
+
+	@Value("${zeus.url}")
+	public void setZeusUrl(String zeusUrl) {
+		AppConfig.zeusUrl = zeusUrl;
+	}
+
+	@Value("${zeus.password}")
+	public void setZeusPassword(String zeusPassword) {
+		AppConfig.zeusPassword = PasswordCryptoUtils
+				.decryptPassword(zeusPassword);
+	}
+
+	@Value("${zeus.username}")
+	public void setZeusUsername(String zeusUsername) {
+		AppConfig.zeusUsername = zeusUsername;
 	}
 
 	@Value("${jenkins.log.base.dir}")
@@ -122,5 +156,34 @@ public class AppConfig {
 		AppConfig.adMgrUserDN = adMgrUserDN;
 	}
 
+	@Value("${job.enable.ingest.build}")
+	public void setIngestBuildInfoEnabled(boolean ingestBuildInfoEnabled) {
+		AppConfig.ingestBuildInfoEnabled = ingestBuildInfoEnabled;
+	}
+
+	@Value("${job.enable.ingest.billFile}")
+	public void setIngestBillFilesEnabled(boolean ingestBillFilesEnabled) {
+		AppConfig.ingestBillFilesEnabled = ingestBillFilesEnabled;
+	}
+
+	@Value("${job.enable.ingest.billData}")
+	public void setIngestBillDataEnabled(boolean ingestBillDataEnabled) {
+		AppConfig.ingestBillDataEnabled = ingestBillDataEnabled;
+	}
+
+	@Value("${job.enable.ingest.cpu}")
+	public void setIngestCPUInfoEnabled(boolean ingestCPUInfoEnabled) {
+		AppConfig.ingestCPUInfoEnabled = ingestCPUInfoEnabled;
+	}
+
+	@Value("${job.enable.ingest.ec2}")
+	public void setIngestEC2MasterDataEnabled(boolean ingestEC2MasterDataEnabled) {
+		AppConfig.ingestEC2MasterDataEnabled = ingestEC2MasterDataEnabled;
+	}
+
+	@Value("${job.enable.costeffectiveness}")
+	public void setCostEffectivenessEnabled(boolean costEffectivenessEnabled) {
+		AppConfig.costEffectivenessEnabled = costEffectivenessEnabled;
+	}
 
 }

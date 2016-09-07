@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.policy.Condition;
@@ -24,6 +23,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.regions.ServiceAbbreviations;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.route53.AmazonRoute53Client;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
@@ -40,7 +40,6 @@ public class AWSClientProxy {
 	private ClientConfiguration getClientConfiguration() {
 		ClientConfiguration clientConfiguration = new ClientConfiguration();
 		clientConfiguration.setMaxConnections(2);
-		clientConfiguration.setProtocol(Protocol.HTTP);
 		return clientConfiguration;
 	}
 
@@ -51,8 +50,11 @@ public class AWSClientProxy {
 	 *            - ServiceAbbreviations
 	 * @return
 	 */
+	Credentials session_creds;
+
 	private AWSCredentials getSecurityToken(Regions regions, String awsService,
-			boolean applyPolicy, Map<String, String> accessCondition) {
+			boolean applyPolicy, Map<String, String> accessCondition,
+			String roleSessionName) {
 		// This client to STS will use default credentials.
 		AWSSecurityTokenServiceClient sts_client = new AWSSecurityTokenServiceClient();
 		// Setting the region - good practice. Optionally check if that is valid
@@ -65,10 +67,11 @@ public class AWSClientProxy {
 		logger.info("Assume Role with a policy and get STS token");
 		// Ensure the Role ARN(must) implying max access; sets the calling
 		// entity as trusted.
-		AssumeRoleRequest request = createRequest(applyPolicy, accessCondition);
+		AssumeRoleRequest request = createRequest(applyPolicy, accessCondition,
+				roleSessionName);
 		// Assume-Role-Response
 		AssumeRoleResult assume_role_result = sts_client.assumeRole(request);
-		Credentials session_creds = assume_role_result.getCredentials();
+		session_creds = assume_role_result.getCredentials();
 
 		// Handle response
 		logger.debug("Credentials created " + session_creds);
@@ -94,13 +97,13 @@ public class AWSClientProxy {
 	 * @return
 	 */
 	private AssumeRoleRequest createRequest(boolean applyPolicy,
-			Map<String, String> accessCondition) {
+			Map<String, String> accessCondition, String roleSessionName) {
 		AssumeRoleRequest request = new AssumeRoleRequest()
 				.withRoleArn("arn:aws:iam::504357334963:role/cloudmanagerole")
-				// (optional) default 12 hours.
+				// (optional) default 1 hour.
 				.withDurationSeconds(3600)
 				// Easier to manage using this identifier
-				.withRoleSessionName("cloudmanage");
+				.withRoleSessionName(roleSessionName);
 
 		if (applyPolicy) {
 			List<Condition> conditions = new ArrayList<>();
@@ -135,25 +138,34 @@ public class AWSClientProxy {
 	public AmazonEC2Client getEC2Client(boolean applyPolicy,
 			Map<String, String> accessCondition) {
 		return new AmazonEC2Client(getSecurityToken(Regions.US_EAST_1,
-				ServiceAbbreviations.EC2, applyPolicy, accessCondition),
-				getClientConfiguration());
+				ServiceAbbreviations.EC2, applyPolicy, accessCondition,
+				"ec2Role"), getClientConfiguration());
 	}
 
 	public AmazonS3Client getS3Client() {
 		return new AmazonS3Client(getSecurityToken(Regions.US_EAST_1,
-				ServiceAbbreviations.S3, false, null), getClientConfiguration());
+				ServiceAbbreviations.S3, false, null, "s3Role"),
+				getClientConfiguration());
 	}
 
 	public AmazonSimpleEmailServiceClient getSESClient(boolean applyPolicy,
 			Map<String, String> accessCondition) {
 		return new AmazonSimpleEmailServiceClient(getSecurityToken(
 				Regions.US_EAST_1, ServiceAbbreviations.Email, applyPolicy,
-				accessCondition), getClientConfiguration());
+				accessCondition, "SESRole"), getClientConfiguration());
 	}
 
 	public AmazonCloudWatchClient getCloudWatchClient(boolean applyPolicy) {
 		return new AmazonCloudWatchClient(getSecurityToken(Regions.US_EAST_1,
-				ServiceAbbreviations.CloudWatch, applyPolicy, null),
+				ServiceAbbreviations.CloudWatch, applyPolicy, null,
+				"cldWatchRole"), getClientConfiguration());
+	}
+
+	public AmazonRoute53Client getRoute53Client() {
+		AmazonRoute53Client dnsClient = new AmazonRoute53Client(
+				getSecurityToken(Regions.US_EAST_1,
+						ServiceAbbreviations.Route53, false, null, "rt53Role"),
 				getClientConfiguration());
+		return dnsClient;
 	}
 }

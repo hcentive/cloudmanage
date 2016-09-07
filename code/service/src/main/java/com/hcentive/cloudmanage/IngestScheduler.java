@@ -61,6 +61,10 @@ public class IngestScheduler {
 	// Intended hourly
 	@Scheduled(cron = "${jenkins.build.refresh.cron}")
 	public void ingestHostNames() {
+		if (!AppConfig.ingestBuildInfoEnabled) {
+			logger.info("Ingest host data for jenkins jobs skipped");
+			return;
+		}
 		try {
 			BuildJobResponse builds = jenkinsService.getBuilds();
 			for (JobMetaInfo job : builds.getJobs()) {
@@ -83,12 +87,16 @@ public class IngestScheduler {
 			logger.error(
 					"Failed to ingest Host Names for this run with error {}", e);
 		}
-		logger.info("Ingested host data for all jobs");
+		logger.info("Ingested host data for jenkins jobs");
 	}
 
 	// Intended Monthly
 	@Scheduled(cron = "${s3.bill.sync.cron}")
 	public void syncBillingData() {
+		if (!AppConfig.ingestBillFilesEnabled) {
+			logger.info("Ingest bill files for bill job skipped");
+			return;
+		}
 		try {
 			logger.debug("Sync bill info for account {}", AppConfig.accountId);
 			// Get list of files ingested from database.
@@ -121,6 +129,10 @@ public class IngestScheduler {
 	// Can be scheduled on need basis.
 	@Scheduled(cron = "${s3.bill.ingest.cron}")
 	public void ingestBillingData() {
+		if (!AppConfig.ingestBillDataEnabled) {
+			logger.info("Ingest bill data for bill job skipped");
+			return;
+		}
 		String billsLocation = AppConfig.billBaseDir + "/ingest";
 		logger.info("Ingest bill info from {}", billsLocation);
 
@@ -153,6 +165,10 @@ public class IngestScheduler {
 	// Intended daily
 	@Scheduled(cron = "${ec2.profile.refresh.cron}")
 	public void ingestCPUUtilizationInfo() {
+		if (!AppConfig.ingestCPUInfoEnabled) {
+			logger.info("Ingest ec2 cpu job skipped");
+			return;
+		}
 		try {
 			logger.debug("Ingesting ec2 cpu data");
 			List<Instance> ec2List = ec2Service.getInstanceLists(jobContext);
@@ -167,11 +183,15 @@ public class IngestScheduler {
 			Calendar dailyWindow = Calendar.getInstance();
 			dailyWindow.set(year, month, yesterday, 23, 59, 59);
 			// Loop for all instances.
+			int counter = 0;
+			int totalCount = ec2List.size();
 			for (Instance ec2 : ec2List) {
 				try {
 					cloudWatchService.updateMetrics(ec2.getAwsInstance()
 							.getInstanceId(), calendar.getTime(), dailyWindow
 							.getTime());
+					logger.info("Profile Info Ingested {} out of {}",
+							counter++, totalCount);
 				} catch (Exception e) {
 					logger.error(
 							"Skipping: Failed to ingest cpu data for {}:{} ",
@@ -187,6 +207,10 @@ public class IngestScheduler {
 	// Intended hourly
 	@Scheduled(cron = "${ec2.meta.refresh.cron}")
 	public void ingestEC2MasterInfo() {
+		if (!AppConfig.ingestEC2MasterDataEnabled) {
+			logger.info("Ingest ec2-master data job skipped");
+			return;
+		}
 		try {
 			logger.info("Ingesting aws data for ec2");
 			ec2Service.updateInstanceMetaInfo(jobContext);
@@ -199,6 +223,10 @@ public class IngestScheduler {
 	// Intended hourly
 	@Scheduled(cron = "${ec2.cost.effectiveness.cron}")
 	public void costEffectivenessEC2() {
+		if (!AppConfig.costEffectivenessEnabled) {
+			logger.info("Ensuring cost effectiveness job skipped");
+			return;
+		}
 		try {
 			logger.info("Ensuring Cost effectiveness for ec2");
 			List<Instance> ec2List = ec2Service.getRunningInstances(jobContext);
@@ -224,17 +252,23 @@ public class IngestScheduler {
 			ec2List = cloudWatchService.getIneffectiveInstances(ec2List);
 			for (Instance ec2 : ec2List) {
 				String instanceId = ec2.getAwsInstance().getInstanceId();
-				StopInstancesResult stoppedResult = ec2Service
-						.stopInstance(instanceId);
+				logger.info("Ineffective instances {}", instanceId);
+				StopInstancesResult stoppedResult = ec2Service.stopInstance(
+						instanceId, false);
 				if (stoppedResult != null) {
-					logger.info("Ineffective instances {}", instanceId);
 					AuditContext auditContext = new AuditContext();
-					auditContext
-							.setInitiator(instanceId + "_stopUnutlized-ec2");
+					auditContext.setInitiator(instanceId
+							+ "_AttemptStopUnutlized-ec2");
 					AuditContextHolder.setContext(auditContext);
+					logger.info("Saved by stopping the instance {} : {}",
+							instanceId, stoppedResult);
+				} else {
+					logger.info("Skipped stopping the instance {} : {}",
+							instanceId, stoppedResult);
 				}
 			}
-			logger.info("Ensured Cost effectiveness for ec2 complete");
+			logger.info("Ensured Cost effectiveness for ec2 {} complete",
+					ec2List.size());
 		} catch (Exception e) {
 			logger.error("Failed to ensure ec2 cost effectiveness with error "
 					+ e);

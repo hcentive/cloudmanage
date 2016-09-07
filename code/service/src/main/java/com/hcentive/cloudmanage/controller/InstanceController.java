@@ -74,8 +74,8 @@ public class InstanceController {
 	@RequestMapping(value = "/{instanceID}", method = RequestMethod.PUT, params = { "action=stop" })
 	public InstanceState stopInstance(
 			@PathVariable(value = "instanceID") String instanceID) {
-		StopInstancesResult stoppedInstance = ec2Service
-				.stopInstance(instanceID);
+		StopInstancesResult stoppedInstance = ec2Service.stopInstance(
+				instanceID, false);
 		InstanceState currentStatus = getCurrentState(stoppedInstance
 				.getStoppingInstances());
 		InstanceState finalStatus = pollInstance(currentStatus, instanceID);

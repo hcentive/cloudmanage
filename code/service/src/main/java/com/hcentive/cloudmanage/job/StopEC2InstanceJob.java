@@ -20,7 +20,7 @@ import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
 @DisallowConcurrentExecution
 @Service
 public class StopEC2InstanceJob implements Job {
-	
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(StopEC2InstanceJob.class.getName());
 
@@ -40,7 +40,8 @@ public class StopEC2InstanceJob implements Job {
 		auditContext.setInitiator(jobDetail.getKey().getName());
 		AuditContextHolder.setContext(auditContext);
 		// Call the stop.
-		StopInstancesResult stopInstance = ec2Service.stopInstance(jobDetail.getJobDataMap().getString(AWSUtils.INSTANCE_ID));
+		StopInstancesResult stopInstance = ec2Service.stopInstance(jobDetail
+				.getJobDataMap().getString(AWSUtils.INSTANCE_ID), true);
 		logger.info(stopInstance.toString());
 	}
 

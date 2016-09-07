@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.Request;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -27,6 +26,7 @@ import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
+import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.hcentive.cloudmanage.audit.Auditable;
@@ -54,6 +54,9 @@ public class EC2ServiceImpl implements EC2Service {
 
 	@Autowired
 	private AWSMetaRepository awsMetaRepository;
+
+	@Autowired
+	private DNSService dNSService;
 
 	/**
 	 * A session must be requested for each call because it has a role
@@ -151,13 +154,21 @@ public class EC2ServiceImpl implements EC2Service {
 	}
 
 	/**
-	 * Lists AWS bucket.
+	 * Lists EC2 Instance.
 	 */
 	public Instance getInstance(String instanceId) {
+		return getInstance(instanceId, false);
+	}
+
+	public Instance getInstanceForJob(String instanceId, boolean jobContext) {
+		return getInstance(instanceId, true);
+	}
+
+	public Instance getInstance(String instanceId, boolean jobContext) {
 		logger.info("Instance info");
 		DescribeInstancesRequest request = new DescribeInstancesRequest()
 				.withInstanceIds(instanceId).withFilters(
-						getDecisionMapAsFilters());
+						jobContext ? null : getDecisionMapAsFilters());
 		DescribeInstancesResult instanceResult = getEC2Session(false)
 				.describeInstances(request);
 		Instance instance = AWSUtils.extractInstance(instanceResult);
@@ -206,24 +217,46 @@ public class EC2ServiceImpl implements EC2Service {
 	 * Stops an EC2 instance.
 	 */
 	@Auditable(AuditingEventType.EC2_STOP)
-	public StopInstancesResult stopInstance(String instanceId) {
+	public StopInstancesResult stopInstance(String instanceId,
+			boolean jobContext) {
 		logger.info("Stopping instance " + instanceId);
 		// Check if the rootDeviceType is 'ebs' or 'instance store'.
 		StopInstancesRequest stopRequest = new StopInstancesRequest()
 				.withInstanceIds(instanceId);
 		StopInstancesResult stoppedInstance = null;
-		if (!System.getProperty("env").equalsIgnoreCase("dev")) {
-			logger.info("Stopping Instance {}", instanceId);
-			/*
-			 * stoppedInstance = getEC2Session(
-			 * SecurityContextHolder.getContext().getAuthentication() != null)
-			 * .stopInstances(stopRequest);
-			 */
+		boolean stoppable = isStoppable(instanceId);
+		String env = System.getProperty("env");
+		if (!env.equalsIgnoreCase("dev") && stoppable && jobContext) {
+			logger.info(
+					"Stopping Instance {} in env {}; stoppable {}; from job {}",
+					instanceId, env, stoppable, jobContext);
+			stoppedInstance = getEC2Session(
+					SecurityContextHolder.getContext().getAuthentication() != null)
+					.stopInstances(stopRequest);
 		} else {
-			logger.info("Request to stop {} skipped in dev", instanceId);
+			logger.info(
+					"Request to stop {} skipped=> env {}; stoppable {}; from job {}",
+					instanceId, env, stoppable, jobContext);
 		}
 		logger.info("Instance stopped " + stoppedInstance);
 		return stoppedInstance;
+	}
+
+	/*
+	 * Makes sure only dev and qa are actually stopped and that too in non-dev
+	 * environment.
+	 */
+	private boolean isStoppable(String instanceId) {
+		boolean stoppable = false;
+		Instance instance = getInstanceForJob(instanceId, true);
+		for (Tag tag : instance.getAwsInstance().getTags()) {
+			if (tag.getKey().equals("Stack")) {
+				if (tag.getValue().equals("dev") || tag.getValue().equals("qa")) {
+					stoppable = true;
+				}
+			}
+		}
+		return stoppable;
 	}
 
 	/**
@@ -253,7 +286,8 @@ public class EC2ServiceImpl implements EC2Service {
 	public void updateInstanceMetaInfo(boolean jobContext) {
 		List<Instance> instances = getInstanceLists(jobContext);
 		if (logger.isInfoEnabled()) {
-			logger.info("updateInstanceMetaInfo triggered for {}", instances);
+			logger.info("updateInstanceMetaInfo triggered for {} instances",
+					instances.size());
 		}
 
 		// Retrieve all existing entities from database.
@@ -263,79 +297,72 @@ public class EC2ServiceImpl implements EC2Service {
 			awsMetaInstanceMap.put(awsMetaInstance.getAwsInstanceId(),
 					awsMetaInstance);
 		}
+
+		// Retrieve DNS entries from Route 53.
+		Map<String, String> dnsMap = dNSService.getDNS();
+
 		// Round up all existing objects.
 		List<AWSMetaInfo> entitiesToSave = new ArrayList<AWSMetaInfo>();
 		for (Instance instance : instances) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Instance being considered for update {}",
-						instance);
+				logger.debug("AWS Instance being considered for update {}",
+						instance.getAwsInstance().getInstanceId());
 			}
-			// New Object.
-			AWSMetaInfo metaInfo = new AWSMetaInfo();
-			// Data elements
+
+			// First check if we have an instance of the same id.
 			com.amazonaws.services.ec2.model.Instance ec2Instance = instance
 					.getAwsInstance();
 			String awsId = ec2Instance.getInstanceId();
-			metaInfo.setAwsInstanceId(awsId);
-			metaInfo.setPrivateIP(ec2Instance.getPrivateIpAddress());
-			metaInfo.setPublicIP(ec2Instance.getPublicIpAddress());
-			metaInfo.setInstanceType(ec2Instance.getInstanceType());
-			metaInfo.setLaunchTime(ec2Instance.getLaunchTime());
+			// Existing Object if available in DB.
+			AWSMetaInfo awsMetaInfo = awsMetaInstanceMap.get(awsId);
+
+			boolean restrictTagUpdate = false;
+			// In case of new instance or new aws-Id: It is to be saved.
+			if (awsMetaInfo == null) {
+				awsMetaInfo = new AWSMetaInfo();
+				awsMetaInfo.setAwsInstanceId(awsId);
+			} else { // Check the old ones for 2 attributes
+				if (!isStackAndCostCenterMatching(awsMetaInfo, ec2Instance)) {
+					// TODO
+					// restrictTagUpdate = true;
+				}
+			}
+			// Update all properties
+			// IP also required to fetch the DNS name.
+			String privateIpAddress = ec2Instance.getPrivateIpAddress();
+			awsMetaInfo.setPrivateIP(privateIpAddress);
+			String publicIpAddress = ec2Instance.getPublicIpAddress();
+			awsMetaInfo.setPublicIP(publicIpAddress);
+			String dnsName = dnsMap.get(privateIpAddress);
+			// fallback to public
+			if (dnsName == null) {
+				dnsMap.get(publicIpAddress);
+			}
+			awsMetaInfo.setDnsName(dnsName);
+			awsMetaInfo.setInstanceType(ec2Instance.getInstanceType());
+			awsMetaInfo.setLaunchTime(ec2Instance.getLaunchTime());
 			for (com.amazonaws.services.ec2.model.Tag tag : ec2Instance
 					.getTags()) {
 				String tagKey = tag.getKey();
-				if (tagKey.equalsIgnoreCase("cost-center")) {
-					metaInfo.setCostCenter(tag.getValue());
-				} else if (tagKey.equalsIgnoreCase("stack")) {
-					metaInfo.setStack(tag.getValue());
-				} else if (tagKey.equalsIgnoreCase("name")) {
-					metaInfo.setName(tag.getValue());
-				} else if (tagKey.equalsIgnoreCase("project")) {
-					metaInfo.setProject(tag.getValue());
-				} else if (tagKey.equalsIgnoreCase("owner")) {
-					metaInfo.setOwner(tag.getValue());
+				if (tagKey.equalsIgnoreCase("Name")) {
+					awsMetaInfo.setName(tag.getValue());
+				} else if (tagKey.equalsIgnoreCase("Product")) {
+					awsMetaInfo.setProduct(tag.getValue());
+				} else if (tagKey.equalsIgnoreCase("Client")) {
+					awsMetaInfo.setClient(tag.getValue());
+				} else if (tagKey.equalsIgnoreCase("Stack")) {
+					awsMetaInfo.setStack(tag.getValue()
+							+ (restrictTagUpdate ? "*" : ""));
+				} else if (tagKey.equalsIgnoreCase("Owner")) {
+					awsMetaInfo.setOwner(tag.getValue());
+				} else if (tagKey.equalsIgnoreCase("Cost-Center")) {
+					awsMetaInfo.setCostCenter(tag.getValue()
+							+ (restrictTagUpdate ? "*" : ""));
 				}
 			}
-			// Existing Object if available.
-			AWSMetaInfo awsMetaInfo = awsMetaInstanceMap.get(awsId);
-			// Ensure that there be no change in either tags
-			// Begin with matching and find if different.
-			boolean match = true;
-			if (awsMetaInfo != null) {
-				// All other attributes can change except cost center and stack
-
-				// For cost center
-				String costCenter1 = awsMetaInfo.getCostCenter();
-				String costCenter2 = metaInfo.getCostCenter();
-				if (costCenter1 != null
-						&& !costCenter1.equalsIgnoreCase(costCenter2)) {
-					match = false;
-				}
-
-				// Same for stack
-				String stack1 = awsMetaInfo.getStack();
-				String stack2 = metaInfo.getStack();
-				if (stack1 != null && !stack1.equals(stack2)) {
-					match = false;
-				}
-
-				if (!match) {
-					logger.warn(
-							"Changes observed in immutable TAG values of stack and cost-center"
-									+ " {},{} as compared to {},{} for EC2 {}. Contact Administrator.",
-							stack2, costCenter2, stack1, costCenter1, awsId);
-					// Skip this instance as it would violate unique constraint.
-					continue;
-				}
-			} else {
-				// Could not find the instance so its not matching
-				match = false;
-			}
-			// Add them to the database only if its not matching.
-			if (!match) {
-				entitiesToSave.add(metaInfo);
-			}
+			entitiesToSave.add(awsMetaInfo);
 		}
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("Updating aws ec2 meta info master with "
 					+ entitiesToSave);
@@ -354,6 +381,44 @@ public class EC2ServiceImpl implements EC2Service {
 			logger.info("Updated aws ec2 meta info master list with "
 					+ entitiesToSave.size() + " items: " + entitiesToSave);
 		}
+	}
+
+	private boolean isStackAndCostCenterMatching(AWSMetaInfo awsMetaInfo,
+			com.amazonaws.services.ec2.model.Instance ec2Instance) {
+		// Ensure that there be no change in either tags
+		// Begin with matching and find if different.
+		boolean match = true;
+
+		String costCenter1 = awsMetaInfo.getCostCenter();
+		String stack1 = awsMetaInfo.getStack();
+
+		String costCenter2 = null;
+		String stack2 = null;
+
+		for (com.amazonaws.services.ec2.model.Tag tag : ec2Instance.getTags()) {
+			String tagKey = tag.getKey();
+			if (tagKey.equalsIgnoreCase("Cost-Center")) {
+				costCenter2 = tag.getValue();
+			} else if (tagKey.equalsIgnoreCase("Stack")) {
+				stack2 = tag.getValue();
+			}
+		}
+
+		if (costCenter1 != null && !costCenter1.equalsIgnoreCase(costCenter2)) {
+			match = false;
+		}
+		if (stack1 != null && !stack1.equals(stack2)) {
+			match = false;
+		}
+
+		if (!match) {
+			logger.warn(
+					"Changes observed in immutable TAG values of Stack and Cost-center"
+							+ " {},{} in DB as compared to {},{} in AWS for {}. Contact Administrator.",
+					stack1, costCenter1, stack2, costCenter2,
+					ec2Instance.getInstanceId());
+		}
+		return match;
 	}
 
 	// ****************** QUARTZ ***********************//

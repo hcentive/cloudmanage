@@ -192,6 +192,8 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 	// Filter list to ineffective ec2s i.e. Max in the last 24 hours <
 	// configured value.
 	public List<Instance> getIneffectiveInstances(List<Instance> ec2List) {
+		int i = 0;
+		int instancesSize = ec2List.size();
 		// 24 hour window
 		Calendar fromTime = Calendar.getInstance();
 		fromTime.add(Calendar.HOUR_OF_DAY, -24);
@@ -199,7 +201,8 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		for (Iterator<Instance> it = ec2List.iterator(); it.hasNext();) {
 			Instance ec2 = it.next();
 			String instanceId = ec2.getAwsInstance().getInstanceId();
-			logger.info("{} effectiveness.", instanceId);
+			logger.info("{} effectiveness ... {} out of {}", instanceId, i++,
+					instancesSize);
 			List<Datapoint> dpList = retrieveMetrics("Maximum", instanceId,
 					fromTime.getTime(), tillTime.getTime(), 3600 * 24);
 			// Get the value to be compared if not skipped.

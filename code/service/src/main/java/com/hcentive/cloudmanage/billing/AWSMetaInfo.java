@@ -28,8 +28,11 @@ public class AWSMetaInfo implements Serializable {
 	@Column(name = "NAME")
 	private String name;
 
-	@Column(name = "PROJECT")
-	private String project;
+	@Column(name = "PRODUCT")
+	private String product;
+
+	@Column(name = "CLIENT")
+	private String client;
 
 	@Column(name = "COST_CENTER")
 	private String costCenter;
@@ -53,15 +56,20 @@ public class AWSMetaInfo implements Serializable {
 	@Column(name = "LAUNCH_TIME")
 	private Date launchTime;
 
+	@Column(name = "DNS_NAME")
+	private String dnsName;
+
 	public AWSMetaInfo() {
 	}
 
-	public AWSMetaInfo(String awsInstanceId, String name, String project,
-			String costCenter, String stack, String owner, String privateIP,
-			String publicIP, String instanceType, Date launchTime) {
+	public AWSMetaInfo(String awsInstanceId, String name, String product,
+			String client, String costCenter, String stack, String owner,
+			String privateIP, String publicIP, String instanceType,
+			Date launchTime, String dnsName) {
 		this.awsInstanceId = awsInstanceId;
 		this.name = name;
-		this.project = project;
+		this.product = product;
+		this.client = client;
 		this.costCenter = costCenter;
 		this.stack = stack;
 		this.owner = owner;
@@ -69,6 +77,7 @@ public class AWSMetaInfo implements Serializable {
 		this.publicIP = publicIP;
 		this.instanceType = instanceType;
 		this.launchTime = launchTime;
+		this.dnsName = dnsName;
 	}
 
 	public Long getId() {
@@ -95,12 +104,20 @@ public class AWSMetaInfo implements Serializable {
 		return name;
 	}
 
-	public String getProject() {
-		return project;
+	public String getProduct() {
+		return product;
 	}
 
-	public void setProject(String project) {
-		this.project = project;
+	public void setProduct(String product) {
+		this.product = product;
+	}
+
+	public String getClient() {
+		return client;
+	}
+
+	public void setClient(String client) {
+		this.client = client;
 	}
 
 	public String getCostCenter() {
@@ -159,14 +176,22 @@ public class AWSMetaInfo implements Serializable {
 		this.launchTime = launchTime;
 	}
 
+	public String getDnsName() {
+		return dnsName;
+	}
+
+	public void setDnsName(String dnsName) {
+		this.dnsName = dnsName;
+	}
+
 	@Override
 	public String toString() {
 		return "AWSMetaInfo [id=" + id + ", awsInstanceId=" + awsInstanceId
-				+ ", name=" + name + ", project=" + project + ", costCenter="
-				+ costCenter + ", stack=" + stack + ", owner=" + owner
-				+ ", privateIP=" + privateIP + ", publicIP=" + publicIP
-				+ ", instanceType=" + instanceType + ", launchTime="
-				+ launchTime + "]";
+				+ ", name=" + name + ", product=" + product + ", client="
+				+ client + ", costCenter=" + costCenter + ", stack=" + stack
+				+ ", owner=" + owner + ", privateIP=" + privateIP
+				+ ", publicIP=" + publicIP + ", instanceType=" + instanceType
+				+ ", launchTime=" + launchTime + ", dnsName=" + dnsName + "]";
 	}
 
 }
