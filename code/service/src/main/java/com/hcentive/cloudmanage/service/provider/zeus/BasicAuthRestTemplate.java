@@ -3,8 +3,8 @@ package com.hcentive.cloudmanage.service.provider.zeus;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -12,10 +12,11 @@ import javax.net.ssl.HttpsURLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.http.client.InterceptingClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 public class BasicAuthRestTemplate extends RestTemplate {
@@ -32,11 +33,11 @@ public class BasicAuthRestTemplate extends RestTemplate {
 		if (username == null) {
 			return;
 		}
-		List<ClientHttpRequestInterceptor> interceptors = Collections
-				.<ClientHttpRequestInterceptor> singletonList(new BasicAuthorizationInterceptor(
-						username, password));
-		setRequestFactory(new InterceptingClientHttpRequestFactory(
-				getRequestFactory(), interceptors));
+		
+		List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>();
+		interceptors.add(new BasicAuthorizationInterceptor(username, password));
+		setInterceptors(interceptors);
+		setRequestFactory(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
 	}
 
 	private static class BasicAuthorizationInterceptor implements
@@ -68,12 +69,12 @@ public class BasicAuthRestTemplate extends RestTemplate {
 
 		private void traceRequest(HttpRequest request, byte[] body)
 				throws IOException {
-			logger.info("===========================request begin================================================");
-			logger.info("URI         : {}", request.getURI());
-			logger.info("Method      : {}", request.getMethod());
-			logger.info("Headers     : {}", request.getHeaders());
-			logger.info("Request body: {}", new String(body, "UTF-8"));
-			logger.info("==========================request end================================================");
+			logger.debug("===========================request begin================================================");
+			logger.debug("URI         : {}", request.getURI());
+			logger.debug("Method      : {}", request.getMethod());
+			logger.debug("Headers     : {}", request.getHeaders());
+			logger.debug("Request body: {}", new String(body, "UTF-8"));
+			logger.debug("==========================request end================================================");
 		}
 
 		private void traceResponse(ClientHttpResponse response)
@@ -87,12 +88,12 @@ public class BasicAuthRestTemplate extends RestTemplate {
 				inputStringBuilder.append('\n');
 				line = bufferedReader.readLine();
 			}
-			logger.info("============================response begin==========================================");
-			logger.info("Status code  : {}", response.getStatusCode());
-			logger.info("Status text  : {}", response.getStatusText());
-			logger.info("Headers      : {}", response.getHeaders());
-			logger.info("Response body: {}", inputStringBuilder.toString());
-			logger.info("=======================response end=================================================");
+			logger.debug("============================response begin==========================================");
+			logger.debug("Status code  : {}", response.getStatusCode());
+			logger.debug("Status text  : {}", response.getStatusText());
+			logger.debug("Headers      : {}", response.getHeaders());
+			logger.debug("Response body: {}", inputStringBuilder.toString());
+			logger.debug("=======================response end=================================================");
 		}
 
 	}

@@ -74,6 +74,12 @@
 		<appender-ref ref="DETAIL" />
 	</logger>
 
+	<logger name="com.hcentive.cloudmanage.service.provider.zeus" level="INFO" additivity="false">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="DETAIL" />
+	</logger>
+
+
 	<root level="ERROR">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
