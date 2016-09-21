@@ -1,5 +1,7 @@
 package com.hcentive.cloudmanage.service.provider.aws;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,7 @@ import com.amazonaws.services.route53.model.ListResourceRecordSetsRequest;
 import com.amazonaws.services.route53.model.ListResourceRecordSetsResult;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
+import com.hcentive.cloudmanage.AppConfig;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
 import com.hcentive.cloudmanage.service.provider.zeus.ZeusLBClient;
 
@@ -36,7 +39,19 @@ public class DNSServiceImpl implements DNSService {
 		logger.info("Get DNS list from Route 53");
 		Map<String, String> rt53Map = getRoute53Records();
 		logger.info("Get mappings from Load Balancer"); // IP:dns
-		Map<String, List<String>> lbMappings = zeusLBClient.getLBMappings();
+		Map<String, List<String>> lbMappings = null;
+
+		try {
+			lbMappings = zeusLBClient.getLBMappings();
+		} catch (Exception e) {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			logger.error(
+					"Failed to get Zeus Load Balancer Mapping from {} with {} & {}: {}",
+					AppConfig.zeusUrl, AppConfig.zeusUsername,
+					AppConfig.zeusPassword, sw.toString());
+		}
 
 		// Lets merge
 		for (String externalIp : rt53Map.keySet()) {
@@ -44,7 +59,7 @@ public class DNSServiceImpl implements DNSService {
 			if (dnsName.endsWith(".")) {
 				dnsName = dnsName.substring(0, dnsName.length() - 1);
 			}
-			if (lbMappings.containsKey(externalIp)) {
+			if (lbMappings != null && lbMappings.containsKey(externalIp)) {
 				for (String internalIp : lbMappings.get(externalIp)) {
 					dnsMap.put(internalIp, dnsName);
 				}

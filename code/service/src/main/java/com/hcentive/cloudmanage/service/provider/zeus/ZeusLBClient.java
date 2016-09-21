@@ -99,6 +99,8 @@ public class ZeusLBClient {
 
 	private Map<String, Set<String>> getConfigForRule(String ruleName) {
 		Map<String, Set<String>> ruleConfig = new HashMap<String, Set<String>>();
+		logger.info("Retrieving rule-config from {}", AppConfig.zeusUrl + "/"
+				+ ruleURI + "/" + ruleName);
 		String ruleText = restTemplate.getForObject(AppConfig.zeusUrl + "/"
 				+ ruleURI + "/" + ruleName, String.class);
 		Set<String> poolNames = new HashSet<String>();
@@ -115,6 +117,8 @@ public class ZeusLBClient {
 
 	private Map<String, List<String>> getConfigForPool(String poolName) {
 		Map<String, List<String>> poolConfig = new HashMap<String, List<String>>();
+		logger.info("Retrieving pool-config from {}", AppConfig.zeusUrl + "/"
+				+ poolURI + "/" + poolName);
 		ObjectNode nodeList = restTemplate.getForObject(AppConfig.zeusUrl + "/"
 				+ poolURI + "/" + poolName, ObjectNode.class);
 		JsonNode nodes = nodeList.get("properties").get("basic")
@@ -134,6 +138,8 @@ public class ZeusLBClient {
 
 	private Map<String, String> getConfigForTrafficGroup(String trafficGroup) {
 		Map<String, String> tgConfig = new HashMap<String, String>();
+		logger.info("Retrieved tg-config from {}", AppConfig.zeusUrl + "/"
+				+ trafficGroupURI + "/" + trafficGroup);
 		ObjectNode trafficGrp = restTemplate.getForObject(AppConfig.zeusUrl
 				+ "/" + trafficGroupURI + "/" + trafficGroup, ObjectNode.class);
 		JsonNode ipArray = trafficGrp.get("properties").get("basic")
@@ -158,6 +164,8 @@ public class ZeusLBClient {
 	 */
 	private Map<String, String> getConfigForVS(String virtualServer) {
 		Map<String, String> vsConfig = new HashMap<String, String>();
+		logger.info("Retrieving vs-config from {}", AppConfig.zeusUrl + "/"
+				+ virtualServerURI + "/" + virtualServer);
 		ObjectNode virtualServerList = restTemplate.getForObject(
 				AppConfig.zeusUrl + "/" + virtualServerURI + "/"
 						+ virtualServer, ObjectNode.class);
@@ -206,6 +214,8 @@ public class ZeusLBClient {
 	 */
 	private List<String> getAllVirtualServers() {
 		List<String> virtualServers = new ArrayList<String>();
+		logger.info("Retrieving Virtual Servers from {}", AppConfig.zeusUrl
+				+ "/" + virtualServerURI);
 		ObjectNode virtualServerList = restTemplate.getForObject(
 				AppConfig.zeusUrl + "/" + virtualServerURI, ObjectNode.class);
 		JsonNode children = virtualServerList.get("children");
@@ -225,6 +235,8 @@ public class ZeusLBClient {
 	 */
 	private List<String> getAllPools() {
 		List<String> pools = new ArrayList<String>();
+		logger.info("Retrieving Pools from {}", AppConfig.zeusUrl + "/"
+				+ poolURI);
 		ObjectNode poolList = restTemplate.getForObject(AppConfig.zeusUrl + "/"
 				+ poolURI, ObjectNode.class);
 		JsonNode children = poolList.get("children");

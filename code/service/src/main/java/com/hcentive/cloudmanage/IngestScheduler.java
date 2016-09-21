@@ -67,15 +67,21 @@ public class IngestScheduler {
 		}
 		try {
 			BuildJobResponse builds = jenkinsService.getBuilds();
+			int buildSize = builds.getJobs().size();
+			int count = 0;
 			for (JobMetaInfo job : builds.getJobs()) {
 				String jobName = job.getName();
+				count++;
 				if (jobName.contains("deploy")) {
 					try {
 						JobInfo jobInfo = jenkinsService.getJobInfo(jobName);
-						logger.debug("Ingesting host data for job {} ", jobName);
+						logger.debug(
+								"Ingesting host data for job {}; {} of {}",
+								jobName, count, buildSize);
 						jenkinsService.updateHostNames(jobName,
 								jobInfo.getBuilds());
-						logger.info("Ingested host data for job {}", jobName);
+						logger.info("Ingested host data for job {}; {} of {}",
+								jobName, count, buildSize);
 					} catch (Exception e) {
 						logger.error(
 								"Skipping: Failed to ingest host data for job {}:{} ",
