@@ -21,7 +21,7 @@ public class AuditEntity implements Serializable {
 	@Id
 	@GeneratedValue
 	@Column(name = "AUDIT_ID")
-	private int auditId;
+	private long auditId;
 
 	@Column(name = "EVENT_TYPE")
 	private String eventType;
@@ -45,11 +45,11 @@ public class AuditEntity implements Serializable {
 		this.userName = userName;
 	}
 
-	public int getAuditId() {
+	public long getAuditId() {
 		return auditId;
 	}
 
-	public void setAuditId(int auditId) {
+	public void setAuditId(long auditId) {
 		this.auditId = auditId;
 	}
 
