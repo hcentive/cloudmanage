@@ -76,9 +76,16 @@ public class InstanceController {
 			@PathVariable(value = "instanceID") String instanceID) {
 		StopInstancesResult stoppedInstance = ec2Service.stopInstance(
 				instanceID, false);
-		InstanceState currentStatus = getCurrentState(stoppedInstance
-				.getStoppingInstances());
-		InstanceState finalStatus = pollInstance(currentStatus, instanceID);
+		InstanceState finalStatus = null;
+		if (stoppedInstance != null) {
+			InstanceState currentStatus = getCurrentState(stoppedInstance
+					.getStoppingInstances());
+			finalStatus = pollInstance(currentStatus, instanceID);
+		} else {
+			// get initial state back
+			finalStatus = ec2Service.getInstance(instanceID).getAwsInstance()
+					.getState();
+		}
 		return finalStatus;
 	}
 

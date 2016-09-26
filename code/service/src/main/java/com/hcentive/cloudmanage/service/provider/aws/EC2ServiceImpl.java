@@ -226,7 +226,7 @@ public class EC2ServiceImpl implements EC2Service {
 		StopInstancesResult stoppedInstance = null;
 		boolean stoppable = isStoppable(instanceId);
 		String env = System.getProperty("env");
-		if (!env.equalsIgnoreCase("dev") && stoppable && jobContext) {
+		if (!env.equalsIgnoreCase("dev") && stoppable) {
 			logger.info(
 					"Stopping Instance {} in env {}; stoppable {}; from job {}",
 					instanceId, env, stoppable, jobContext);
