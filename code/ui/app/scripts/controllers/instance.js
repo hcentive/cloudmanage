@@ -21,23 +21,39 @@ angular.module('cloudmanageApp')
     var that = this;
     that.list = instances;
 
+    function isQaDevInstance(instance){
+        var tagValue = ec2Service.getTagValue(instance,'Stack');
+
+        if(tagValue === 'qa' || tagValue === 'dev'){
+          return true;
+        }    
+        return false;
+    }
+
     this.stopInstance = function(instance){
       if(!(instance.actionTracker && instance.actionTracker.active())){
-        hcModal.confirm('Are you sure you want to stop the instance?').then(function(){
-          instance.actionTracker = promiseTracker();
-          var promise = ec2Service.stopInstance(instance).then(function(response){
-            var data = response.data;
-            instance.awsInstance.state.name = data.name;
-          });
-          instance.actionTracker.addPromise(promise);
-        });
-     
+        if(isQaDevInstance(instance)){
+          // instance is qa or dev
+          hcModal.confirm('Are you sure you want to stop the instance?').then(function(){
+            instance.actionTracker = promiseTracker();
+            var promise = ec2Service.stopInstance(instance).then(function(response){
+              var data = response.data;
+              instance.awsInstance.state.name = data.name;
+            });
+            instance.actionTracker.addPromise(promise);
+           });  
+        }else{
+          // instance is other than qa or dev
+          hcModal.info('You can stop only QA and Dev instance').then(function(){});
+        }
       }
-
     };
 
     this.startInstance = function(instance){
+    
       if(!(instance.actionTracker && instance.actionTracker.active())){
+        if(isQaDevInstance(instance)){
+          // instance is qa or dev
         hcModal.confirm('Are you sure you want to start the instance?').then(function(){
           instance.actionTracker = promiseTracker();
           var promise = ec2Service.startInstance(instance).then(function(response){
@@ -45,7 +61,11 @@ angular.module('cloudmanageApp')
             instance.awsInstance.state.name = data.name;
           });
           instance.actionTracker.addPromise(promise);
-        });
+        });  
+        }else{
+          // instance is other than qa or dev
+          hcModal.info('You can start only QA and Dev instance').then(function(){});
+        }
       }
     };
 
