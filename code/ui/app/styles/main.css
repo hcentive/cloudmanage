@@ -206,3 +206,59 @@ a, a:hover, a:focus {
 
 tr.error > td {background-color: #f2dede; color: #a94442;}
 
+/* billing client filter panel*/
+.billing-client-panel {
+    display: block;
+    text-decoration: none !important;
+}
+
+/* billing chart navigation tabs */
+.panel.billing-nav-tabs.panel-heading{
+    padding: 5px 5px 0 5px;
+}
+.panel.billing-nav-tabs.nav-tabs{
+    border-bottom: none;
+}
+.panel.with-nav-tabs .nav-justified{
+    margin-bottom: -1px;
+}
+
+.billing-nav-tabs.panel-default .nav-tabs > li > a,
+.billing-nav-tabs.panel-default .nav-tabs > li > a:hover,
+.with-nav-tabs.panel-default .nav-tabs > li > a:focus {
+    color: #777;
+}
+.billing-nav-tabs.panel-default .nav-tabs > .open > a,
+.billing-nav-tabs.panel-default .nav-tabs > .open > a:hover,
+.billing-nav-tabs.panel-default .nav-tabs > .open > a:focus,
+.billing-nav-tabs.panel-default .nav-tabs > li > a:hover,
+.billing-nav-tabs.panel-default .nav-tabs > li > a:focus {
+    color: #777;
+    background-color: #ddd;
+    border-color: transparent;
+}
+.billing-nav-tabs.panel-default .nav-tabs > li.active > a,
+.billing-nav-tabs.panel-default .nav-tabs > li.active > a:hover,
+.billing-nav-tabs.panel-default .nav-tabs > li.active > a:focus {
+    color: #555;
+    background-color: #fff;
+    border-color: #ddd;
+    border-bottom-color: transparent;
+}
+.billing-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu {
+    background-color: #f5f5f5;
+    border-color: #ddd;
+}
+.billing-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > li > a {
+    color: #777;   
+}
+.billing-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > li > a:hover,
+.billing-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > li > a:focus {
+    background-color: #ddd;
+}
+.billing-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > .active > a,
+.billing-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > .active > a:hover,
+.billing-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > .active > a:focus {
+    color: #fff;
+    background-color: #555;
+}
