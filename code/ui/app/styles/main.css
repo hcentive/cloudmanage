@@ -262,3 +262,22 @@ tr.error > td {background-color: #f2dede; color: #a94442;}
     color: #fff;
     background-color: #555;
 }
+
+
+
+.border {
+    border: 1px solid black;
+}
+
+.border-radius {
+    border-radius: 2px;
+}
+
+ul.nav-tabs li.active {
+    background-color: white;
+    border-radius: 2px;
+}
+
+ul.nav-tabs > li.active > a {
+    color: black !important;
+}
