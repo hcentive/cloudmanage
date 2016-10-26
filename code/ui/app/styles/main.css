@@ -281,3 +281,20 @@ ul.nav-tabs li.active {
 ul.nav-tabs > li.active > a {
     color: black !important;
 }
+
+.show-hide-nav-menu {
+    background-color: #bdbdbd;
+    position: fixed;
+    top: 50%;
+    margin-left: -35px;
+    padding-top: 10px;
+    width: 20px;
+    height: 100px;
+    z-index: 9999;
+}
+
+.align-center {
+    position: relative;
+    top: 40%;
+    left: 20%;
+}

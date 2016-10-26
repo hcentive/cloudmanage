@@ -208,6 +208,12 @@ angular.module('cloudmanageApp')
 					chart = new Highcharts.Chart(config);
 				}
 			});
+
+			scope.$on("navigation-menu:resize",function(event,data){
+				if(chart){
+					chart = new Highcharts.Chart(config);
+				}
+			});
 		}
 	};
 }]);
