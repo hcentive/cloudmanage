@@ -3,7 +3,7 @@
 </div>
 <div class="row">
 	<div class="col-lg-12">
-		<input ng-model="instanceCtrl.search" class="form-control" placeholder="Search" type="text"/>
+		<input ng-model="instanceCtrl.search" ng-model-options="{ debounce: 500 }" class="form-control" placeholder="Search" type="text"/>
 	</div>
 </div>
 <div class="row">
@@ -12,7 +12,6 @@
 			<tr>
 				<th st-sort="instanceCtrl.getInstanceName" st-sort-default="true">Name</th>
 				<th st-sort="awsInstance.instanceType">Type</th>
-				<th st-sort="awsInstance.state.name">Status</th>
 				<th st-sort="awsInstance.privateIpAddress">IP</th>
 				<th>Action</th>
 			</tr>
@@ -21,8 +20,10 @@
 			<tr ng-repeat="instance in instanceCtrl.list">
 				<td>{{instanceCtrl.getInstanceName(instance)}}</td>
 				<td>{{instance.awsInstance.instanceType}}</td>
-				<td>{{instance.awsInstance.state.name}}</td>
-				<td>{{instance.awsInstance.privateIpAddress}}</td>
+				<td>
+					<div>{{instance.awsInstance.privateIpAddress}}</div>
+					<div>{{instance.dnsName}}</div>
+				</td>
 				<td>
 					<div class="btn-group" ng-switch on="instance.awsInstance.state.name">
 						<button type="button" class="btn btn-default" ng-switch-when="running" ng-click="instanceCtrl.stopInstance(instance)" uib-tooltip="Stop" ng-switch on="instance.actionTracker.active()">
