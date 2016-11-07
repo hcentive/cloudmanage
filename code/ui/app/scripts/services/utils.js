@@ -94,6 +94,5 @@ angular.module('cloudmanageApp')
         convertSecondToHr : function(seconds){
             return (seconds / (3600));
         }
-
     };
   });
