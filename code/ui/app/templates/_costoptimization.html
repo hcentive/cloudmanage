@@ -1,0 +1,86 @@
+<div class="modal-header">
+  <button aria-hidden="true" ng-click="costOptimizationCtrl.cancel()" class="close" type="button">×</button>
+  <h3 class="modal-title">Cost Optimization</h3>
+  <div class="underline-bottom"></div>
+</div>
+
+<div class="modal-body">
+  <div ng-if="costOptimizationCtrl.response.status">
+    <div class="alert alert-{{costOptimizationCtrl.response.status}}" role="alert">
+      {{costOptimizationCtrl.response.message}}
+    </div>
+  </div>
+  <div class="alert alert-info" role="alert" ng-if="costOptimizationCtrl.jobDetails">
+    <p>
+      Instance will 
+      <span ng-switch="costOptimizationCtrl.instance.awsInstance.state.name">
+        <span ng-switch-when="running">
+          <strong>stop</strong> at {{costOptimizationCtrl.jobDetails.stop.nextFireTime | date : 'medium'}}
+        </span>
+        <span ng-switch-when="stopped">
+          <strong>start</strong> at {{costOptimizationCtrl.jobDetails.start.nextFireTime | date : 'medium'}}
+        </span>
+      </span>
+    </p>
+  </div>
+  <!-- <div class="row">
+    <div class="col-md-12 form-group">
+      <label for="billingCost">Billing</label>
+      <div style="margin-left: 15px;">
+        <div class="row">
+          <div class="col-md-4"> Cost ( last month ) : </div>
+          <div class="col-md-1">{{costOptimizationCtrl.lastMonthCost | currency}}</div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+  <div class="row">
+    <div class="col-md-12 form-group">
+      <label for="cloudWatchAlert"> Cloud Watch</label>
+      <div style="margin-left: 15px;">
+        <div class="row">
+          <div class="col-md-4">Alarm</div>
+          <div class="col-md-4">{{costOptimizationCtrl.cloudWatch.alarm == true ? 'Enable' : 'Disable'}}</div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">Threshold Value</div>
+          <div class="col-md-4">{{costOptimizationCtrl.cloudWatch.threshold}}%</div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">Frequency</div>
+          <div class="col-md-4">{{costOptimizationCtrl.cloudWatch.frequency}} hr</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 form-group">
+      <label for="scheduleInstanceCron">Schedule Instance </label>
+      <div style="margin-left: 15px;">
+        <div class="row">
+          <div class="col-md-2">Start</div>
+          <div class="col-md-10" hc-cron ng-model="costOptimizationCtrl.cron.start"></div>
+        </div>
+        <div class="row">
+          <div class="col-md-2">Stop</div>
+          <div class="col-md-10" hc-cron ng-model="costOptimizationCtrl.cron.stop"></div>
+        </div>
+      </div>
+    </div>
+<!-- 
+      <div class="form-group">
+      <label for="startInstanceCron">Start Instance Cron</label>
+      <div hc-cron ng-model="costOptimizationCtrl.cron.start"></div>
+    </div>
+    <div class="form-group">
+      <label for="stopInstanceCron">Stop Instance Cron</label>
+      <div hc-cron ng-model="costOptimizationCtrl.cron.stop"></div>
+    </div> -->
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary btn-raised" type="button" ng-click="costOptimizationCtrl.submit()">
+    {{(costOptimizationCtrl.update) ? 'Update' : 'Save'}}</button>
+    <button class="btn btn-default" type="button" ng-click="costOptimizationCtrl.cancel()">Cancel</button>
+    <button class="btn btn-default" type="button" ng-click="costOptimizationCtrl.delete()" ng-if="costOptimizationCtrl.update">Delete</button>
+  </div>

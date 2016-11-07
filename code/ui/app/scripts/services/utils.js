@@ -90,6 +90,9 @@ angular.module('cloudmanageApp')
             var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
 
             return "#"+RR+GG+BB;
+        },
+        convertSecondToHr(seconds){
+            return (seconds / (3600));
         }
 
     };
