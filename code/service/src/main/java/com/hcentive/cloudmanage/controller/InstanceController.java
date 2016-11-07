@@ -27,6 +27,7 @@ import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.hcentive.cloudmanage.billing.AWSMetaInfo;
+import com.hcentive.cloudmanage.domain.Alarm;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.domain.JobTriggerInfoDTO;
@@ -215,5 +216,11 @@ public class InstanceController {
 			@ModelAttribute("cpuThresholdInfo") CPUThresholdInfo cpuThresholdInfo) {
 		logger.debug("Perisiting {}", cpuThresholdInfo);
 		cloudWatchService.setCPUThreshold(cpuThresholdInfo);
+	}
+	
+	@RequestMapping(value="/{instanceID}/cloudwatch/alarms",method=RequestMethod.GET)
+	public Alarm getCloudWatchAlerts(
+			@PathVariable(value = "instanceID") String instanceId){
+		return cloudWatchService.getAlarm(instanceId);
 	}
 }

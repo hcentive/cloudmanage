@@ -15,14 +15,19 @@ import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmHistoryResult;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsForMetricRequest;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsForMetricResult;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
+import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcentive.cloudmanage.billing.AWSMetaInfo;
 import com.hcentive.cloudmanage.billing.AWSMetaRepository;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
+import com.hcentive.cloudmanage.domain.Alarm;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.profiling.CPUThresholdInfo;
 import com.hcentive.cloudmanage.profiling.CPUThresholdInfoRepository;
@@ -262,5 +267,32 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 					skipMeFlag, instanceInfo);
 		}
 		return cpuThreshold;
+	}
+	
+	@Override
+	public Alarm getAlarm(String instanceId){
+		AmazonCloudWatchClient cloudWatchClient = getCloudWatchSession(false);
+		Dimension dimension = new Dimension();
+		List<Dimension> dimensions = new ArrayList<Dimension>();
+		DescribeAlarmsForMetricRequest metricRequest = new DescribeAlarmsForMetricRequest();
+		DescribeAlarmsForMetricResult result;
+		Alarm alarm = new Alarm();
+		alarm.setEnable(false); // default set to false
+		
+		dimension.setName("InstanceId");
+		dimension.setValue(instanceId); // instanceId for testing - i-072aabf3537e08c62
+		dimensions.add(dimension);
+		metricRequest.setDimensions(dimensions);
+		metricRequest.setMetricName("CPUUtilization");
+		metricRequest.setNamespace("AWS/EC2");
+		result = cloudWatchClient.describeAlarmsForMetric(metricRequest);
+		for(MetricAlarm metricAlarm : result.getMetricAlarms()){
+			alarm.setName(metricAlarm.getAlarmName());
+			alarm.setThreshold(metricAlarm.getThreshold());
+			alarm.setFrequency(metricAlarm.getPeriod());
+			alarm.setInstanceId(instanceId);
+			alarm.setEnable(metricAlarm.getActionsEnabled());
+		}
+		return alarm;
 	}
 }

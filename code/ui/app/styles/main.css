@@ -298,3 +298,7 @@ ul.nav-tabs > li.active > a {
     top: 40%;
     left: 20%;
 }
+
+.underline-bottom {
+    border-bottom: 2px solid #eee;
+}

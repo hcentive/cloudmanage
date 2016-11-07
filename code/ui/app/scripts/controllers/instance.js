@@ -17,7 +17,8 @@ angular.module('cloudmanageApp')
   '$uibModal',
   'promiseTracker',
   'hcModal',
-  function ($scope, ec2Service,instances, $log, pollingService, auditService, $modal,promiseTracker, hcModal) {
+  'cloudwatchService',
+  function ($scope, ec2Service,instances, $log, pollingService, auditService, $modal,promiseTracker, hcModal,cloudwatchService) {
     var that = this;
     that.list = instances;
 
@@ -94,22 +95,41 @@ angular.module('cloudmanageApp')
       });
     };
 
-    this.schedule = function(instance){
+    // this.schedule = function(instance){
+    //   $modal.open({
+    //     templateUrl: 'templates/_scheduleInstance.html',
+    //     controller: 'ScheduleCtrl',
+    //     controllerAs: 'scheduleCtrl',
+    //     resolve: {
+    //       instance: function () {
+    //         return instance;
+    //       },
+    //       jobDetails: function(){
+    //         return ec2Service.getJobDetails(instance);
+    //       }
+    //     }
+    //   });
+    // };
+
+
+    this.costOptimization = function(instance){
       $modal.open({
-        templateUrl: 'templates/_scheduleInstance.html',
-        controller: 'ScheduleCtrl',
-        controllerAs: 'scheduleCtrl',
+        templateUrl: 'templates/_costoptimization.html',
+        controller: 'CostOptimizationCtrl',
+        controllerAs: 'costOptimizationCtrl',
         resolve: {
           instance: function () {
             return instance;
           },
           jobDetails: function(){
             return ec2Service.getJobDetails(instance);
+          },
+          alarm : function(){
+            return cloudwatchService.getAlarm(instance.awsInstance.instanceId);
           }
         }
       });
     };
-
     this.cpuUtilization = function(instance){
       $modal.open({
         templateUrl: 'templates/_cpuUtilization.html',
