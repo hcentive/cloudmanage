@@ -34,21 +34,52 @@
       </div>
     </div>
   </div> -->
+
   <div class="row">
     <div class="col-md-12 form-group">
       <label for="cloudWatchAlert"> Cloud Watch</label>
-      <div style="margin-left: 15px;">
-        <div class="row">
+      <div ng-hide="costOptimizationCtrl.alarm.isAlarmConfigured">
+          The Cloudwatch alarm is not configured for this instance.
+      </div>
+      <div style="margin-left: 15px;" ng-show="costOptimizationCtrl.alarm.isAlarmConfigured">
+        <div class="row" style="padding-bottom: 3px;">
           <div class="col-md-4">Alarm</div>
-          <div class="col-md-4">{{costOptimizationCtrl.cloudWatch.alarm == true ? 'Enable' : 'Disable'}}</div>
+          <div class="col-md-4">
+            <div ng-show="costOptimizationCtrl.isAlarmEditable"> 
+              <label>
+              <input type="radio" ng-model="costOptimizationCtrl.alarm.enable" ng-value="true"> Enable  
+            </label>
+            <label>
+              <input type="radio" ng-model="costOptimizationCtrl.alarm.enable" ng-value="false"> Disable
+            </label>  
+            </div>
+            <div ng-hide="costOptimizationCtrl.isAlarmEditable">
+              {{costOptimizationCtrl.alarm.enable ? 'Enable' : 'Disable'}}
+            </div>
+          </div>
         </div>
-        <div class="row">
-          <div class="col-md-4">Threshold Value</div>
-          <div class="col-md-4">{{costOptimizationCtrl.cloudWatch.threshold}}%</div>
-        </div>
-        <div class="row">
+        <div class="row" style="padding-bottom: 3px;">
           <div class="col-md-4">Frequency</div>
-          <div class="col-md-4">{{costOptimizationCtrl.cloudWatch.frequency}} hr</div>
+          <div class="col-md-4">
+            <div ng-hide="costOptimizationCtrl.isAlarmEditable">
+                {{costOptimizationCtrl.alarm.frequency}} Hr 
+            </div>
+            <div ng-show="costOptimizationCtrl.isAlarmEditable">
+              <label>
+              <input type="radio" ng-model="costOptimizationCtrl.alarm.frequency" value="12"> 12 Hr  
+            </label>
+            <label>
+              <input type="radio" ng-model="costOptimizationCtrl.alarm.frequency" value="24"> 24 Hr
+            </label>  
+            </div>
+            
+          </div>
+        </div>
+        <div class="row" style="padding-bottom: 3px;">
+          <div class="col-md-4">Threshold Value</div>
+          <div class="col-md-4">
+            {{costOptimizationCtrl.alarm.threshold}} % 
+          </div>
         </div>
       </div>
     </div>
@@ -67,15 +98,6 @@
         </div>
       </div>
     </div>
-<!-- 
-      <div class="form-group">
-      <label for="startInstanceCron">Start Instance Cron</label>
-      <div hc-cron ng-model="costOptimizationCtrl.cron.start"></div>
-    </div>
-    <div class="form-group">
-      <label for="stopInstanceCron">Stop Instance Cron</label>
-      <div hc-cron ng-model="costOptimizationCtrl.cron.stop"></div>
-    </div> -->
   </div>
 </div>
 <div class="modal-footer">

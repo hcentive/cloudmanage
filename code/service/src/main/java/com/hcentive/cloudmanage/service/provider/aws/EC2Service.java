@@ -39,6 +39,8 @@ public interface EC2Service {
 
 	public void updateInstanceMetaInfo(boolean jobContext);
 
+	public List<Instance> filterByTag(List<Instance> instances,Set<String> stackSet);
+	
 	// QUARTZ SECTION *******************
 
 	public InstanceJobDetails getInstanceJobDetails(String instanceId)

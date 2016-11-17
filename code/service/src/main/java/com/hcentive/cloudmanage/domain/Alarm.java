@@ -1,7 +1,5 @@
 package com.hcentive.cloudmanage.domain;
 
-import com.amazonaws.services.cloudwatch.model.DescribeAlarmsForMetricResult;
-
 public class Alarm {
 	
 	private String name;
@@ -9,6 +7,7 @@ public class Alarm {
 	private Double threshold;
 	private Integer frequency;
 	private boolean isEnable;
+	private boolean isAlarmConfigured;
 	
 	public String getName() {
 		return name;
@@ -42,9 +41,16 @@ public class Alarm {
 		this.isEnable = isEnable;
 	}
 	
+	public boolean isAlarmConfigured() {
+		return isAlarmConfigured;
+	}
+	public void setAlarmConfigured(boolean isAlarmConfigured) {
+		this.isAlarmConfigured = isAlarmConfigured;
+	}
+	
 	@Override
 	public String toString() {
 		return "Alarm [name=" + name + ", instanceId=" + instanceId + ", threshold=" + threshold + ", frequency="
-				+ frequency + ", isEnable=" + isEnable + "]";
+				+ frequency + ", isEnable=" + isEnable + ", isAlarmConfigured=" + isAlarmConfigured + "]";
 	}
 }

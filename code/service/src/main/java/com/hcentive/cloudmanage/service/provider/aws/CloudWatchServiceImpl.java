@@ -11,19 +11,26 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.model.ComparisonOperator;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
-import com.amazonaws.services.cloudwatch.model.DescribeAlarmHistoryResult;
 import com.amazonaws.services.cloudwatch.model.DescribeAlarmsForMetricRequest;
 import com.amazonaws.services.cloudwatch.model.DescribeAlarmsForMetricResult;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
 import com.amazonaws.services.cloudwatch.model.MetricAlarm;
+import com.amazonaws.services.cloudwatch.model.PutMetricAlarmRequest;
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
+import com.amazonaws.services.cloudwatch.model.Statistic;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hcentive.cloudmanage.audit.AuditEntity;
+import com.hcentive.cloudmanage.audit.AuditService;
+import com.hcentive.cloudmanage.audit.Auditable;
 import com.hcentive.cloudmanage.billing.AWSMetaInfo;
 import com.hcentive.cloudmanage.billing.AWSMetaRepository;
 import com.hcentive.cloudmanage.domain.AWSClientProxy;
@@ -43,7 +50,18 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 	// Minimum value made available.
 	private static final int period = 60;
 	private static final int DefaultDailyCPUThreshold = 5;
-
+	
+	// Cloud watch alarm
+	private static final String ALARM_NAME = "CPUUtilization_Threshold_Alarm";
+	private static final Integer ALARM_EVALUATION_PERIODS = 4;
+	private static final String ALARM_METRIC_NAME = "CPUUtilization";
+	private static final String ALARM_NAMESPACE = "AWS/EC2";
+	private static final Double ALARM_THRESHOLD = 1.0;
+	private static final String ALARM_ACTION = "arn:aws:automate:us-east-1:ec2:stop";
+	private static final Integer ALARM_PERIOD = 3600; // 1 hour - 60 * 60
+	private static final String ALARM_DESCRIPTION = "Alarm when CPU utilization below " + ALARM_THRESHOLD + "%";
+	 
+	
 	@Autowired
 	private AWSClientProxy awsClientProxy;
 
@@ -58,6 +76,9 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 
 	@Autowired
 	private CPUThresholdInfoRepository cpuThresholdInfoRepository;
+	
+	@Autowired
+	private AuditService auditService;
 
 	/**
 	 * A session must be requested for each call because it has a role
@@ -277,22 +298,71 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		DescribeAlarmsForMetricRequest metricRequest = new DescribeAlarmsForMetricRequest();
 		DescribeAlarmsForMetricResult result;
 		Alarm alarm = new Alarm();
-		alarm.setEnable(false); // default set to false
+		String alarmName = ALARM_NAME + "_" + instanceId;
+		Integer frequency;
 		
+		alarm.setAlarmConfigured(false); // default set to false
+		alarm.setEnable(false); // default set to false
 		dimension.setName("InstanceId");
 		dimension.setValue(instanceId); // instanceId for testing - i-072aabf3537e08c62
 		dimensions.add(dimension);
 		metricRequest.setDimensions(dimensions);
-		metricRequest.setMetricName("CPUUtilization");
-		metricRequest.setNamespace("AWS/EC2");
+		metricRequest.setMetricName(ALARM_METRIC_NAME);
+		metricRequest.setNamespace(ALARM_NAMESPACE);
 		result = cloudWatchClient.describeAlarmsForMetric(metricRequest);
 		for(MetricAlarm metricAlarm : result.getMetricAlarms()){
-			alarm.setName(metricAlarm.getAlarmName());
-			alarm.setThreshold(metricAlarm.getThreshold());
-			alarm.setFrequency(metricAlarm.getPeriod());
-			alarm.setInstanceId(instanceId);
-			alarm.setEnable(metricAlarm.getActionsEnabled());
+			if(metricAlarm.getAlarmName().equals(alarmName)){
+				frequency = ((metricAlarm.getPeriod() / ALARM_PERIOD) * ALARM_EVALUATION_PERIODS);
+				
+				alarm.setName(metricAlarm.getAlarmName());
+				alarm.setThreshold(metricAlarm.getThreshold());
+				alarm.setFrequency(frequency);
+				alarm.setInstanceId(instanceId);
+				alarm.setEnable(metricAlarm.getActionsEnabled());
+				alarm.setAlarmConfigured(true); // flag to show CPU utilization alarm is configured for this instance
+				break;
+			}
 		}
 		return alarm;
+	}
+	
+	@Override
+	public void createOrUpdateAlarm(Alarm alarm){
+		String alarmName = ALARM_NAME + "_" + alarm.getInstanceId();
+		String eventType = Auditable.AuditingEventType.CW_ALARM_CREATED.toString();
+		String auditUser = "Cron Job"; // This user is used when alarm is created by cron job	
+		Integer frequency;
+		AmazonCloudWatchClient client = getCloudWatchSession(false);
+		List<Dimension> dimensions = new ArrayList<Dimension>();
+		dimensions.add(new Dimension().withName("InstanceId").withValue(alarm.getInstanceId()));
+		
+		// This configuration is for creating CPU utilization alarm - Default
+		PutMetricAlarmRequest request = new PutMetricAlarmRequest()
+				.withAlarmName(alarmName)
+				.withAlarmDescription(ALARM_DESCRIPTION)
+				.withMetricName(ALARM_METRIC_NAME)
+				.withNamespace(ALARM_NAMESPACE)
+				.withStatistic(Statistic.Average)
+				.withPeriod(ALARM_PERIOD * 6) // making 1 day ( ALARM_PERIOD * ALARM_EVALUATION_PERIODS * 6)
+				.withThreshold(ALARM_THRESHOLD)
+				.withComparisonOperator(ComparisonOperator.LessThanOrEqualToThreshold)
+				.withDimensions(dimensions)
+				.withEvaluationPeriods(ALARM_EVALUATION_PERIODS)
+				.withAlarmActions(ALARM_ACTION)
+				.withUnit(StandardUnit.Percent);
+		
+		// This will call when update parameter of alarm
+		if(alarm.isAlarmConfigured()){
+			eventType = Auditable.AuditingEventType.CW_ALARM_UPDATED.toString();
+			if(SecurityContextHolder.getContext().getAuthentication() != null){
+				auditUser = SecurityContextHolder.getContext().getAuthentication().getName();	
+			}
+			frequency = (alarm.getFrequency() / ALARM_EVALUATION_PERIODS) * ALARM_PERIOD;
+			request = request.withThreshold(alarm.getThreshold())
+							 .withPeriod(frequency)
+							 .withActionsEnabled(alarm.isEnable());
+		}
+		client.putMetricAlarm(request);
+		auditService.audit(new AuditEntity(eventType,alarm.getInstanceId(),auditUser));
 	}
 }

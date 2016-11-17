@@ -223,4 +223,9 @@ public class InstanceController {
 			@PathVariable(value = "instanceID") String instanceId){
 		return cloudWatchService.getAlarm(instanceId);
 	}
+	
+	@RequestMapping(value="/{instanceID}/cloudwatch/alarms",method=RequestMethod.POST)
+	public void updateCloudWatchAlarm(Alarm alarm){
+		cloudWatchService.createOrUpdateAlarm(alarm);
+	}
 }

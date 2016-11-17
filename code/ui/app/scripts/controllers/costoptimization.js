@@ -8,28 +8,59 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-    .controller('CostOptimizationCtrl', ['instance', 'jobDetails', 'alarm','ec2Service', '$uibModalInstance', '$timeout','utils',
-        function(instance, jobDetails, instanceAlarm,ec2Service, $modalInstance, $timeout,utils) {
-            this.jobDetails = jobDetails;
-            this.instance = instance;
-            this.update = (jobDetails) ? true : false;
-            this.cron = {
-                start: (jobDetails ? jobDetails.start.cron : null),
-                stop: (jobDetails ? jobDetails.stop.cron : null)
-            };
-            this.cloudWatch = {
-              alarm : instanceAlarm.isEnable,
-              threshold : instanceAlarm.threshold,
-              frequency : utils.convertSecondToHr(instanceAlarm.frequency)
-            };
-            this.lastMonthCost = 400;
-            var response = {};
-            this.response = response;
-            this.submit = function() {
-                var startCron = this.cron.start,
-                    stopCron = this.cron.stop,
+    .controller('CostOptimizationCtrl', ['instance', 'jobDetails', 'alarm', 'ec2Service', '$uibModalInstance', '$timeout', 'utils', 'cloudwatchService',
+        function(instance, jobDetails, instanceAlarm, ec2Service, $modalInstance, $timeout, utils, cloudwatchService) {
+
+            var self = this,
+                response = {};
+
+            function isAlarmFieldEditable(instance) {
+                var isEditable = false,
+                    tags = instance.awsInstance.tags;
+
+                _.each(tags, function(tag) {
+                    if (tag["key"] === "Stack") {
+                        if (tag["value"].toLowerCase() === "qa" || tag["value"].toLowerCase() === "dev") {
+                            isEditable = true;
+                        }
+                    }
+                });
+                return isEditable;
+            }
+
+            function init() {
+                self.jobDetails = jobDetails;
+                self.instance = instance;
+                self.update = (jobDetails) ? true : false;
+                self.cron = {
+                    start: (jobDetails ? jobDetails.start.cron : null),
+                    stop: (jobDetails ? jobDetails.stop.cron : null)
+                };
+                self.cronClone = angular.copy(self.cron);
+                self.alarm = instanceAlarm;
+                self.instanceAlarmClone = angular.copy(instanceAlarm);
+                self.response = response;
+                self.isAlarmEditable = isAlarmFieldEditable(instance);
+            }
+
+
+            self.submit = function() {
+
+                var alarmPromise = null,
+                    startCron = self.cron.start,
+                    stopCron = self.cron.stop,
                     promise = null;
-                if (this.update) {
+
+                if (!utils.isEqual(self.instanceAlarmClone, self.alarm)) {
+                    // alarm parameter are changed so call backend api for update
+
+                    alarmPromise = cloudwatchService.updateAlarm(self.alarm);
+                    alarmPromise.then(function(data) {}, function(data) {
+                        setResponse('danger', 'Cloudwatch Alarm not scheduled successfully. Please refer to console');
+                    });
+                }
+
+                if (self.update) {
                     promise = ec2Service.updateSchedule(instance, startCron, stopCron);
                 } else {
                     promise = ec2Service.createSchedule(instance, startCron, stopCron);
@@ -41,7 +72,7 @@ angular.module('cloudmanageApp')
                     setResponse('danger', 'Instance not scheduled successfully. Please refer to console.');
                 });
             };
-            this.delete = function() {
+            self.delete = function() {
                 ec2Service.deleteSchedule(instance).then(function(response) {
                     setResponse('success', 'Schedule deleted successfully!');
                     closeModal(response);
@@ -49,7 +80,7 @@ angular.module('cloudmanageApp')
                     setResponse('danger', 'Cowardly refuses to delete schedule. Please refer to console.');
                 });
             };
-            this.cancel = function() {
+            self.cancel = function() {
                 $modalInstance.dismiss('cancel');
             };
 
@@ -63,5 +94,7 @@ angular.module('cloudmanageApp')
                 response.status = status;
                 response.message = message;
             };
+
+            init();
         }
     ]);

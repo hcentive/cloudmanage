@@ -95,23 +95,6 @@ angular.module('cloudmanageApp')
       });
     };
 
-    // this.schedule = function(instance){
-    //   $modal.open({
-    //     templateUrl: 'templates/_scheduleInstance.html',
-    //     controller: 'ScheduleCtrl',
-    //     controllerAs: 'scheduleCtrl',
-    //     resolve: {
-    //       instance: function () {
-    //         return instance;
-    //       },
-    //       jobDetails: function(){
-    //         return ec2Service.getJobDetails(instance);
-    //       }
-    //     }
-    //   });
-    // };
-
-
     this.costOptimization = function(instance){
       $modal.open({
         templateUrl: 'templates/_costoptimization.html',
@@ -130,6 +113,7 @@ angular.module('cloudmanageApp')
         }
       });
     };
+    
     this.cpuUtilization = function(instance){
       $modal.open({
         templateUrl: 'templates/_cpuUtilization.html',

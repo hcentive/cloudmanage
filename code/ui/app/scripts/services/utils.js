@@ -9,7 +9,7 @@
  */
 angular.module('cloudmanageApp')
   .factory('utils', function () {
-   
+
     return {
        //inspired from http://stackoverflow.com/questions/5900840/post-nested-object-to-spring-mvc-controller-using-json
         serializeJSON : (function() {
@@ -72,7 +72,7 @@ angular.module('cloudmanageApp')
             return sum/size;
         },
         shadeColor: function(color, percent) {
-            
+
             var R = parseInt(color.substring(1,3),16);
             var G = parseInt(color.substring(3,5),16);
             var B = parseInt(color.substring(5,7),16);
@@ -81,18 +81,33 @@ angular.module('cloudmanageApp')
             G = parseInt(G * (100 + percent) / 100);
             B = parseInt(B * (100 + percent) / 100);
 
-            R = (R<255)?R:255;  
-            G = (G<255)?G:255;  
-            B = (B<255)?B:255;  
+            R = (R<255)?R:255;
+            G = (G<255)?G:255;
+            B = (B<255)?B:255;
 
             var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
             var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
             var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
 
             return "#"+RR+GG+BB;
-        },
-        convertSecondToHr : function(seconds){
-            return (seconds / (3600));
+         },
+        isEqual: function(first,second){
+            var isEqual = true;
+            console.log("ddsfdf");
+            if(typeof(first) === typeof(second) && typeof(first) === "object"){
+                // first and second are json object
+                for(var key in first){
+                    if(first.hasOwnProperty(key)){
+                        if(first[key] !== second[key]){
+                            isEqual = false;
+                            break;
+                        }
+                    }
+                }
+                return isEqual;
+            }else{
+                return false // first and second are different
+            }
         }
     };
   });

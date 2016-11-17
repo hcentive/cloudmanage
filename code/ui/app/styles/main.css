@@ -302,3 +302,11 @@ ul.nav-tabs > li.active > a {
 .underline-bottom {
     border-bottom: 2px solid #eee;
 }
+
+padding-bottom {
+    padding-bottom: 5px !important;
+}
+
+parent-width {
+    width: 100% !important;
+}

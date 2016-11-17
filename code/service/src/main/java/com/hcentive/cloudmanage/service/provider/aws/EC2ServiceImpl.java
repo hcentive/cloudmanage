@@ -2,6 +2,7 @@ package com.hcentive.cloudmanage.service.provider.aws;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,8 @@ public class EC2ServiceImpl implements EC2Service {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(EC2ServiceImpl.class.getName());
+	
+	private static final String STACK = "Stack";
 
 	@Autowired
 	private AWSClientProxy awsClientProxy;
@@ -517,5 +520,37 @@ public class EC2ServiceImpl implements EC2Service {
 		AWSMetaInfo awsMetaInfo = awsMetaRepository
 				.findByAwsInstanceId(instanceId);
 		return awsMetaInfo;
+	}
+	
+	private boolean filterByStack(Instance instance,Set<String> stackSet) {
+		List<Tag> tags = instance.getAwsInstance().getTags();
+		Iterator<Tag> tagIterator = tags.iterator();
+		boolean status = false;
+		while(tagIterator.hasNext()){
+			Tag tag = tagIterator.next();
+			if(tag.getKey().equals(STACK)){
+				if(stackSet.contains(tag.getValue().toLowerCase())){
+					status = true;
+				}else{
+					status = false;
+				}
+				break;
+			}
+		}
+		return status;
+	}
+	
+	@Override
+	public List<Instance> filterByTag(List<Instance> instances,Set<String> stackSet){
+		List<Instance> filterInstances = new ArrayList<>();
+		Iterator<Instance> iterator = instances.iterator();
+		
+		while (iterator.hasNext()) {
+			Instance instance = iterator.next();
+			if(filterByStack(instance, stackSet)){
+				filterInstances.add(instance);
+			}
+		}
+		return filterInstances;
 	}
 }

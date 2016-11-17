@@ -27,4 +27,7 @@ public interface CloudWatchService {
 	public CPUThresholdInfo getCPUThreshold(String instanceId);
 	
 	public Alarm getAlarm(String instanceId);
+	
+	public void createOrUpdateAlarm(Alarm alarm);
+
 }

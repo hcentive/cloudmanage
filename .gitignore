@@ -5,3 +5,5 @@ target
 STSActiveDirectoryFederation/
 code/service/.settings/
 cloudmanage.git
+code/service/.idea
+code/service/*.iml
