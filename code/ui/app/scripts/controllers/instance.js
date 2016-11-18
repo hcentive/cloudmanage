@@ -27,7 +27,7 @@ angular.module('cloudmanageApp')
 
         if(tagValue === 'qa' || tagValue === 'dev'){
           return true;
-        }    
+        }
         return false;
     }
 
@@ -42,7 +42,7 @@ angular.module('cloudmanageApp')
               instance.awsInstance.state.name = data.name;
             });
             instance.actionTracker.addPromise(promise);
-           });  
+           });
         }else{
           // instance is other than qa or dev
           hcModal.info('You can stop only QA and Dev instance').then(function(){});
@@ -51,7 +51,7 @@ angular.module('cloudmanageApp')
     };
 
     this.startInstance = function(instance){
-    
+
       if(!(instance.actionTracker && instance.actionTracker.active())){
         if(isQaDevInstance(instance)){
           // instance is qa or dev
@@ -62,7 +62,7 @@ angular.module('cloudmanageApp')
             instance.awsInstance.state.name = data.name;
           });
           instance.actionTracker.addPromise(promise);
-        });  
+        });
         }else{
           // instance is other than qa or dev
           hcModal.info('You can start only QA and Dev instance').then(function(){});
@@ -109,11 +109,19 @@ angular.module('cloudmanageApp')
           },
           alarm : function(){
             return cloudwatchService.getAlarm(instance.awsInstance.instanceId);
+          },
+          instanceBillingCost : function(){
+            // last 30 days billing cost of instance
+            var dateFilter = {
+              fromDate: moment().subtract(1, 'months').toDate(),
+          		toDate: new Date()
+            };
+            return ec2Service.getInstanceBillingCost(dateFilter,instance);
           }
         }
       });
     };
-    
+
     this.cpuUtilization = function(instance){
       $modal.open({
         templateUrl: 'templates/_cpuUtilization.html',

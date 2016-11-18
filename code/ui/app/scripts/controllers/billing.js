@@ -44,7 +44,7 @@ angular.module('cloudmanageApp')
   		ec2Service.getBillingInfo(this.filter).then(function(data){
           stackedDataByClient = billingFactory.parseBillingData(data);
           if($scope.clients === undefined || $scope.clients === null || $scope.clients.length === 0){
-            $scope.clients = billingFactory.defaultClientSelection(stackedDataByClient);  
+            $scope.clients = billingFactory.defaultClientSelection(stackedDataByClient);
           }
           that.dataPoints = billingFactory.filterSelectedClient($scope.clients);
           displaySelectedClientString(Object.keys(that.dataPoints));
@@ -67,7 +67,7 @@ angular.module('cloudmanageApp')
         this.filterBillingTrendData();
       }else{
         this.dataPoints = billingFactory.filterSelectedClient($scope.clients);
-        displaySelectedClientString(Object.keys(this.dataPoints));  
+        displaySelectedClientString(Object.keys(this.dataPoints));
       }
     };
     this.filterByMonth = function(duration){
@@ -78,9 +78,9 @@ angular.module('cloudmanageApp')
       if(this.selectedTab === 'trend'){
         this.filterBillingTrendData();
       }else{
-        this.filterBillingCostData();  
+        this.filterBillingCostData();
       }
-      
+
     };
     this.tabPanel = function(tab){
       if(tab === 'cost'){
@@ -107,5 +107,6 @@ angular.module('cloudmanageApp')
         that.timeLineData = billingFactory.filterSelectedClient($scope.clients,timePeriodDataByClient);
       });
     };
-    this.filterBillingCostData();    
+    
+    this.filterBillingCostData();
 }]);

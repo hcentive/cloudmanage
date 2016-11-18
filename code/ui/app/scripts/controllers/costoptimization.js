@@ -8,8 +8,9 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-    .controller('CostOptimizationCtrl', ['instance', 'jobDetails', 'alarm', 'ec2Service', '$uibModalInstance', '$timeout', 'utils', 'cloudwatchService',
-        function(instance, jobDetails, instanceAlarm, ec2Service, $modalInstance, $timeout, utils, cloudwatchService) {
+    .controller('CostOptimizationCtrl', ['instance', 'jobDetails', 'alarm','instanceBillingCost',
+    'ec2Service', '$uibModalInstance', '$timeout', 'utils', 'cloudwatchService',
+        function(instance, jobDetails, instanceAlarm, instanceCost,ec2Service, $modalInstance, $timeout, utils, cloudwatchService) {
 
             var self = this,
                 response = {};
@@ -41,6 +42,7 @@ angular.module('cloudmanageApp')
                 self.instanceAlarmClone = angular.copy(instanceAlarm);
                 self.response = response;
                 self.isAlarmEditable = isAlarmFieldEditable(instance);
+                self.instanceCost = instanceCost;
             }
 
 

@@ -80,7 +80,7 @@ angular.module('cloudmanageApp')
     };
 
     this.getCostCenter = function(instance){
-        return this.getTagValue(instance, 'cost-center');            
+        return this.getTagValue(instance, 'cost-center');
     };
 
     this.getInstanceId = function(instance){
@@ -170,6 +170,18 @@ angular.module('cloudmanageApp')
         .then(function(response){
             return response.data;
         });
+    };
+
+    this.getInstanceBillingCost = function(dateFilter,instance){
+      var fromDate = moment(dateFilter.fromDate).format('MM/DD/YYYY'),
+          toDate = moment(dateFilter.toDate).format('MM/DD/YYYY'),
+          url = '/billing/cost?' + 'from='+fromDate+'&to='+toDate+'&instanceId='+instance.awsInstance.instanceId;
+
+          return $http.get(url).then(function(response){
+            return response.data;
+          },function(response){
+            return 0; // no data found
+          })
     };
 
 }]);

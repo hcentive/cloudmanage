@@ -185,4 +185,13 @@ public class BillingServiceImpl implements BillingService {
 		BillFileInfo billFileInfo = new BillFileInfo(billFile);
 		billingFileInfoRepository.save(billFileInfo);
 	}
+
+	@Override
+	public BigDecimal getBillingCost(String instanceId, Date fromDate, Date toDate) {
+		List<BillingInfo> billingInfoList = getBilling(instanceId,fromDate,toDate);
+		return billingInfoList.stream()
+					.filter(billingInfo -> billingInfo.getDayTotal() != null)
+					.map(BillingInfo::getDayTotal)
+					.reduce(BigDecimal.ZERO,BigDecimal::add);
+	}
 }
