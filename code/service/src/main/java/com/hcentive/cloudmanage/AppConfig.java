@@ -63,6 +63,8 @@ public class AppConfig {
 	public static boolean ingestEC2MasterDataEnabled;
 
 	public static boolean costEffectivenessEnabled;
+	
+	public static boolean cloudWatchAlarmEnabled;
 
 	@Value("${jenkins.url}")
 	public void setJenkinsUrl(String jenkinsUrl) {
@@ -186,4 +188,8 @@ public class AppConfig {
 		AppConfig.costEffectivenessEnabled = costEffectivenessEnabled;
 	}
 
+	@Value("${job.enable.ingest.cloudwatch.alarm}")
+	public void setCloudWatchAlarmEnabled(boolean cloudWatchAlarmEnabled) {
+		AppConfig.cloudWatchAlarmEnabled = cloudWatchAlarmEnabled;
+	}
 }
