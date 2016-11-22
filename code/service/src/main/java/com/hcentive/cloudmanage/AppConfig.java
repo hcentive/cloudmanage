@@ -188,8 +188,12 @@ public class AppConfig {
 		AppConfig.costEffectivenessEnabled = costEffectivenessEnabled;
 	}
 
-	@Value("${job.enable.ingest.cloudwatch.alarm}")
-	public void setCloudWatchAlarmEnabled(boolean cloudWatchAlarmEnabled) {
-		AppConfig.cloudWatchAlarmEnabled = cloudWatchAlarmEnabled;
-	}
+	/*
+	* This is commenting becuase of jenkins deployment scripts bug
+	 *  For more info. jira - https://jira.hcentive.com/browse/CLOUD-26
+	 */
+//	@Value("${job.enable.ingest.cloudwatch.alarm}")
+//	public void setCloudWatchAlarmEnabled(boolean cloudWatchAlarmEnabled) {
+//		AppConfig.cloudWatchAlarmEnabled = cloudWatchAlarmEnabled;
+//	}
 }
