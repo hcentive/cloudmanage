@@ -1,28 +1,9 @@
 package com.hcentive.cloudmanage;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.hcentive.cloudmanage.audit.AuditContext;
 import com.hcentive.cloudmanage.audit.AuditContextHolder;
 import com.hcentive.cloudmanage.billing.BillingService;
-import com.hcentive.cloudmanage.domain.Alarm;
 import com.hcentive.cloudmanage.domain.BuildJobResponse;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobInfo;
@@ -31,6 +12,17 @@ import com.hcentive.cloudmanage.jenkins.BuildInfoService;
 import com.hcentive.cloudmanage.service.provider.aws.CloudWatchService;
 import com.hcentive.cloudmanage.service.provider.aws.EC2Service;
 import com.hcentive.cloudmanage.service.provider.aws.S3Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import java.io.File;
+import java.util.*;
+import java.util.regex.Pattern;
 
 // <Seconds> <Minutes> <Hours> <Day-of-Month> <Month> <Day-of-Week> [Year]
 // <start from>/<every x units> for the above
@@ -283,39 +275,4 @@ public class IngestScheduler {
 			e.printStackTrace();
 		}
 	}
-	
-//	// Intended daily
-//	@Scheduled(cron = "${cloudwatch.alarm.ec2.cron}")
-//	public void cloudWatchAlarm(){
-//		if(!AppConfig.cloudWatchAlarmEnabled){
-//			logger.info("Ingest cloudwatch alarm job skipped");
-//			return;
-//		}
-//		Set<String> stackSet = new HashSet<String>();
-//		List<Instance> instances;
-//		Instance instance;
-//		Iterator<Instance> iterator;
-//		Alarm alarm;
-//		
-//		try {
-//			logger.info("Ingest cloudwatch alarm job start..");	
-//			stackSet.add("qa");
-//			stackSet.add("dev");
-//			instances = ec2Service.filterByTag(ec2Service.getInstanceLists(jobContext), stackSet);
-//			iterator = instances.iterator();
-//			while(iterator.hasNext()){
-//				instance = iterator.next();
-//				alarm = cloudWatchService.getAlarm(instance.getAwsInstance().getInstanceId());
-////				alarm = cloudWatchService.getAlarm("i-072aabf3537e08c62"); // For testing only
-//				if(!alarm.isAlarmConfigured()){
-//					cloudWatchService.createOrUpdateAlarm(alarm);
-//					logger.info("Ingest cloudwatch alarm job created an alarm for instance id : " + 
-//							instance.getAwsInstance().getInstanceId());
-//				}
-//			}
-//			logger.info("Ingest cloudwatch alarm job completed..");
-//		}catch (Exception e) {
-//			logger.error("Exception in ingest cloudwatch alarm job : " + e);
-//		}
-//	}
 }
