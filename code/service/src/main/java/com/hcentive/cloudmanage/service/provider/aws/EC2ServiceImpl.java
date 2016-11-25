@@ -1,35 +1,7 @@
 package com.hcentive.cloudmanage.service.provider.aws;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.quartz.CronScheduleBuilder;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
-import com.amazonaws.services.ec2.model.DescribeInstancesResult;
-import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.StartInstancesRequest;
-import com.amazonaws.services.ec2.model.StartInstancesResult;
-import com.amazonaws.services.ec2.model.StopInstancesRequest;
-import com.amazonaws.services.ec2.model.StopInstancesResult;
-import com.amazonaws.services.ec2.model.Tag;
-import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
-import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+import com.amazonaws.services.ec2.model.*;
 import com.hcentive.cloudmanage.audit.Auditable;
 import com.hcentive.cloudmanage.audit.Auditable.AuditingEventType;
 import com.hcentive.cloudmanage.billing.AWSMetaInfo;
@@ -40,6 +12,14 @@ import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.job.DynamicJobScheduler;
 import com.hcentive.cloudmanage.job.InstanceJobDetails;
 import com.hcentive.cloudmanage.security.DecisionMapper;
+import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service("ec2Service")
 public class EC2ServiceImpl implements EC2Service {
@@ -521,36 +501,29 @@ public class EC2ServiceImpl implements EC2Service {
 				.findByAwsInstanceId(instanceId);
 		return awsMetaInfo;
 	}
-	
-	private boolean filterByStack(Instance instance,Set<String> stackSet) {
-		List<Tag> tags = instance.getAwsInstance().getTags();
-		Iterator<Tag> tagIterator = tags.iterator();
-		boolean status = false;
-		while(tagIterator.hasNext()){
-			Tag tag = tagIterator.next();
-			if(tag.getKey().equals(STACK)){
-				if(stackSet.contains(tag.getValue().toLowerCase())){
-					status = true;
-				}else{
-					status = false;
-				}
-				break;
-			}
-		}
-		return status;
-	}
-	
+
 	@Override
-	public List<Instance> filterByTag(List<Instance> instances,Set<String> stackSet){
-		List<Instance> filterInstances = new ArrayList<>();
-		Iterator<Instance> iterator = instances.iterator();
-		
-		while (iterator.hasNext()) {
-			Instance instance = iterator.next();
-			if(filterByStack(instance, stackSet)){
-				filterInstances.add(instance);
-			}
-		}
-		return filterInstances;
+	public boolean isTagPresent(Instance instance,String tagKey,Set<String> tagSet) {
+		Optional<Tag> optionalTag = instance.getAwsInstance()
+				.getTags().stream().filter(tag -> tag.getKey().equals(tagKey)).findFirst();
+
+		return optionalTag.isPresent() && tagSet.contains(optionalTag.get().getValue().toLowerCase());
+	}
+
+	@Override
+	public boolean isTagPresent(Instance instance,String tagKey){
+		Optional<Tag> optionalTag = instance.getAwsInstance()
+				.getTags().stream().filter(tag -> tag.getKey().equals(tagKey)).findAny();
+
+		return optionalTag.isPresent();
+	}
+
+	@Override
+	public void createTag(String tagKey,String tagValue,String resource){
+		AmazonEC2Client ec2Client = getEC2Session(false);
+		CreateTagsRequest request = new CreateTagsRequest()
+				.withResources(resource)
+				.withTags(new Tag().withKey(tagKey).withValue(tagValue));
+		ec2Client.createTags(request);
 	}
 }

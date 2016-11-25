@@ -1,12 +1,5 @@
 package com.hcentive.cloudmanage.service.provider.aws;
 
-import java.util.List;
-import java.util.Set;
-
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.TriggerKey;
-
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
@@ -14,6 +7,12 @@ import com.hcentive.cloudmanage.billing.AWSMetaInfo;
 import com.hcentive.cloudmanage.domain.Instance;
 import com.hcentive.cloudmanage.domain.JobTriggerInfo;
 import com.hcentive.cloudmanage.job.InstanceJobDetails;
+import org.quartz.JobKey;
+import org.quartz.SchedulerException;
+import org.quartz.TriggerKey;
+
+import java.util.List;
+import java.util.Set;
 
 public interface EC2Service {
 
@@ -39,8 +38,11 @@ public interface EC2Service {
 
 	public void updateInstanceMetaInfo(boolean jobContext);
 
-	public List<Instance> filterByTag(List<Instance> instances,Set<String> stackSet);
-	
+	boolean isTagPresent(Instance instance,String key,Set<String> tagSet);
+
+	boolean isTagPresent(Instance instance,String tag);
+
+	void createTag(String tagKey,String tagValue,String resource);
 	// QUARTZ SECTION *******************
 
 	public InstanceJobDetails getInstanceJobDetails(String instanceId)

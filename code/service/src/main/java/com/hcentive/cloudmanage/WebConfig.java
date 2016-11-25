@@ -1,10 +1,10 @@
 package com.hcentive.cloudmanage;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hcentive.cloudmanage.audit.AuditContext;
+import com.hcentive.cloudmanage.audit.AuditContextHolder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -19,11 +19,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hcentive.cloudmanage.audit.AuditContext;
-import com.hcentive.cloudmanage.audit.AuditContextHolder;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 //Marks this class as configuration SEPARATE
 @Configuration
@@ -56,7 +54,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 			}
 		}
 	}
-	
+
 	@Override
 	  public void addInterceptors(InterceptorRegistry registry) {
 	   

@@ -1,13 +1,28 @@
 package com.hcentive.cloudmanage.domain;
 
+import io.swagger.annotations.ApiModelProperty;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class Alarm {
-	
+
 	private String name;
+
+	@NotNull @Size(min = 1)
 	private String instanceId;
+
+	@NotNull
 	private Double threshold;
+
+	@NotNull
 	private Integer frequency;
+
+	@ApiModelProperty(hidden = true)
 	private boolean isEnable;
-	private boolean isAlarmConfigured;
+
+	@ApiModelProperty(hidden = true)
+    private boolean isAlarmConfigured;
 	
 	public String getName() {
 		return name;
@@ -40,7 +55,7 @@ public class Alarm {
 	public void setEnable(boolean isEnable) {
 		this.isEnable = isEnable;
 	}
-	
+
 	public boolean isAlarmConfigured() {
 		return isAlarmConfigured;
 	}

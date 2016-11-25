@@ -32,6 +32,8 @@
 		<logback.version>1.1.7</logback.version>
 		<joda.time.version>2.9.4</joda.time.version>
 		<env>dev</env>
+		<springfox.swagger2.version>2.4.0</springfox.swagger2.version>
+		<springfox.swagger.ui.version>2.4.0</springfox.swagger.ui.version>
 	</properties>
 
 	<dependencies>
@@ -174,6 +176,19 @@
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 			<version>${joda.time.version}</version>
+		</dependency>
+
+		<!-- Swagger rest api documentation -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${springfox.swagger2.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${springfox.swagger.ui.version}</version>
 		</dependency>
 
 	</dependencies>
