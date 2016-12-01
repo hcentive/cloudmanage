@@ -27,6 +27,10 @@ import org.springframework.validation.BindingResult;
 
 import java.util.*;
 
+/**
+ * The CloudWatchServiceImpl class is a implementation of  CloudWatchService interface.
+ * This class contains method for interact with aws cloud watch api.
+ */
 @Service("cloudWatchService")
 public class CloudWatchServiceImpl implements CloudWatchService {
 
@@ -278,42 +282,6 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		}
 		return cpuThreshold;
 	}
-	
-	@Override
-	public Alarm getAlarm(String instanceId){
-		AmazonCloudWatchClient cloudWatchClient = getCloudWatchSession(false);
-		Dimension dimension = new Dimension();
-		List<Dimension> dimensions = new ArrayList<Dimension>();
-		DescribeAlarmsForMetricRequest metricRequest = new DescribeAlarmsForMetricRequest();
-		DescribeAlarmsForMetricResult result;
-		Alarm alarm = new Alarm();
-		String alarmName = ALARM_NAME + "_" + instanceId;
-		Integer frequency;
-
-		alarm.setAlarmConfigured(false); // default set to false
-		alarm.setEnable(false); // default set to false
-		dimension.setName("InstanceId");
-		dimension.setValue(instanceId); // instanceId for testing - i-072aabf3537e08c62
-		dimensions.add(dimension);
-		metricRequest.setDimensions(dimensions);
-		metricRequest.setMetricName(ALARM_METRIC_NAME);
-		metricRequest.setNamespace(ALARM_NAMESPACE);
-		result = cloudWatchClient.describeAlarmsForMetric(metricRequest);
-		for(MetricAlarm metricAlarm : result.getMetricAlarms()){
-			if(metricAlarm.getAlarmName().equals(alarmName)){
-				frequency = ((metricAlarm.getPeriod() / ALARM_PERIOD) * ALARM_EVALUATION_PERIODS);
-
-				alarm.setName(metricAlarm.getAlarmName());
-				alarm.setThreshold(metricAlarm.getThreshold());
-				alarm.setFrequency(frequency);
-				alarm.setInstanceId(instanceId);
-				alarm.setEnable(metricAlarm.getActionsEnabled());
-				alarm.setAlarmConfigured(true); // flag to show CPU utilization alarm is configured for this instance
-				break;
-			}
-		}
-		return alarm;
-	}
 
 	private Alarm alarmFromMetricAlarm(List<MetricAlarm> metricAlarms){
 		Alarm alarm = new Alarm();
@@ -333,6 +301,14 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		return alarm;
 	}
 
+	/**
+	 * Returns alarm details from aws cloudwatch api based on alarm name.
+	 *
+	 * @param alarmName Name of alarm
+	 * @return the alarm details of specified alarm name
+	 * @throws IllegalArgumentException exception is thrown when alarm name is null
+	 * @see Alarm
+	 */
 	@Override
 	public Alarm getAlarmByName(String alarmName){
 		AmazonCloudWatchClient cloudWatchClient = getCloudWatchSession(false);
@@ -347,6 +323,14 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		return alarmFromMetricAlarm(describeAlarmsResult.getMetricAlarms());
 	}
 
+	/**
+	 * Returns alarm details from aws cloudwatch api based on instance id.
+	 *
+	 * @param instanceId ec2 instance id
+	 * @return the alarm details of specified instance id
+	 * @throws IllegalArgumentException exception is thrown when instance id is null
+	 * @see Alarm
+	 */
 	@Override
 	public Alarm getAlarmByInstance(String instanceId){
 		if(instanceId == null){
@@ -355,6 +339,13 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 		return getAlarmByName(ALARM_NAME + instanceId);
 	}
 
+	/**
+	 * Create or Update an alarm on ec2 instance
+	 *
+	 * @param alarm alarm object
+	 * throws IllegalArgumentException exception is thrown when alarm object fail validation check.
+	 *
+	 */
 	@Override
     public void createOrUpdateAlarm(Alarm alarm) {
 		AmazonCloudWatchClient cloudWatchClient = getCloudWatchSession(false);

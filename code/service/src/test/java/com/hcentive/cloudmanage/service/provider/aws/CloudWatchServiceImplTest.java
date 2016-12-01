@@ -1,77 +1,186 @@
 package com.hcentive.cloudmanage.service.provider.aws;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsRequest;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsResult;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.MetricAlarm;
+import com.amazonaws.services.ec2.model.Tag;
+import com.hcentive.cloudmanage.ApplicationTests;
+import com.hcentive.cloudmanage.audit.AuditContext;
+import com.hcentive.cloudmanage.audit.AuditContextHolder;
+import com.hcentive.cloudmanage.audit.AuditService;
+import com.hcentive.cloudmanage.domain.AWSClientProxy;
+import com.hcentive.cloudmanage.domain.Alarm;
+import com.hcentive.cloudmanage.domain.Instance;
+import com.hcentive.cloudmanage.validation.AlarmValidator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.*;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+public class CloudWatchServiceImplTest extends ApplicationTests{
 
-import com.hcentive.cloudmanage.Application;
-import com.hcentive.cloudmanage.profiling.ProfileInfo;
+    @InjectMocks private CloudWatchService cloudWatchService = new CloudWatchServiceImpl();
+    @Mock private AmazonCloudWatchClient cloudWatchClient;
+    @Mock private AWSClientProxy awsClientProxy;
+    @Spy private AlarmValidator alarmValidator;
+    @Mock private EC2Service ec2Service;
+    @Mock private AuditService auditService;
+    @Mock private com.amazonaws.services.ec2.model.Instance awsInstance;
+    @Mock private Instance instance;
+    @Mock private DescribeAlarmsResult describeAlarmsResult;
+    @Mock private Dimension dimension;
+    @Mock private MetricAlarm metricAlarm;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = Application.class)
-@WebAppConfiguration
-@TestPropertySource("classpath:config/application-test.properties")
-public class CloudWatchServiceImplTest {
+    @Before
+    public void setUp(){
+        MockitoAnnotations.initMocks(this);
+        Mockito.when(awsClientProxy.getCloudWatchClient(Mockito.anyBoolean())).thenReturn(cloudWatchClient);
+    }
 
-	@Autowired
-	private CloudWatchService cloudWatchService;
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetAlarmByNameNull(){
+        Alarm alarm = cloudWatchService.getAlarmByName(null);
+    }
 
-	// POC cloud manage instance for testing.
-	private String instanceName = "i-02cfdf29";
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetAlarmByInstanceIdNull(){
+        Alarm alarm = cloudWatchService.getAlarmByInstance(null);
+    }
 
-	@Test
-	public void testGetMetrics() {
-		try {
-			// Todays data
-			Calendar calendar = Calendar.getInstance();
-			int year = calendar.get(Calendar.YEAR);
-			int month = calendar.get(Calendar.MONTH);
-			int day = calendar.get(Calendar.DATE) - 1;
-			calendar.set(year, month, day, 0, 0, 0);
-			Date fromTime = calendar.getTime();
-			calendar.set(year, month, day, 23, 59, 59);
-			Date tillTime = calendar.getTime();
-			List<ProfileInfo> response = cloudWatchService.getMetrics(
-					instanceName, fromTime, tillTime);
-			System.out.println("Response " + response);
-			// Expecting 1 day's response.
-			assertNotNull("Not able to retrieve metrics ", response.get(0));
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Not able to retrieve ec2 info.");
-		}
-	}
+    @Test
+    public void testGetAlarmByNameSuccess(){
+        Mockito.when(cloudWatchClient.describeAlarms(Mockito.any(DescribeAlarmsRequest.class)))
+                .thenReturn(describeAlarmsResult());
+        Alarm alarm = cloudWatchService.getAlarmByName("UnitTestAlarm");
+        Assert.assertNotNull(alarm);
+        Assert.assertEquals(alarm.getName(),"UnitTestAlarm");
+        Assert.assertEquals(alarm.getInstanceId(),"UnitTestInstanceId");
+        Assert.assertEquals(alarm.getFrequency(),Integer.valueOf(12));
+        Assert.assertEquals(alarm.getThreshold(),Double.valueOf(1.0));
+        Assert.assertEquals(alarm.isAlarmConfigured(),Boolean.valueOf(true));
+        Assert.assertEquals(alarm.isEnable(),Boolean.valueOf(true));
+    }
 
-	@Test
-	public void testUpdateMetrics() {
-		try {
-			// Todays data
-			Calendar calendar = Calendar.getInstance();
-			int year = calendar.get(Calendar.YEAR);
-			int month = calendar.get(Calendar.MONTH);
-			int day = calendar.get(Calendar.DATE) - 1;
-			calendar.set(year, month, day-1, 0, 0, 0);
-			Date fromTime = calendar.getTime();
-			calendar.set(year, month, day, 23, 59, 59);
-			Date tillTime = calendar.getTime();
-			System.out.println("Update Metrics for " + fromTime + "--"
-					+ tillTime);
-			cloudWatchService.updateMetrics(instanceName, fromTime, tillTime);
-			System.out.println("Updated Metrics for instance " + instanceName);
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Not able to retrieve ec2 metrics for " + instanceName);
-		}
-	}
+    @Test
+    public void testGetAlarmByInstanceSuccess(){
+        DescribeAlarmsResult result = describeAlarmsResult();
+        result.getMetricAlarms().get(0).setAlarmName("cpu-utilization-check-InstanceId");
+        Mockito.when(cloudWatchClient.describeAlarms(Mockito.any(DescribeAlarmsRequest.class)))
+                .thenReturn(result);
+        Alarm alarm = cloudWatchService.getAlarmByInstance("InstanceId");
+        Assert.assertNotNull(alarm);
+        Assert.assertEquals(alarm.getName(),"cpu-utilization-check-InstanceId");
+        Assert.assertEquals(alarm.getInstanceId(),"UnitTestInstanceId");
+        Assert.assertEquals(alarm.getFrequency(),Integer.valueOf(12));
+        Assert.assertEquals(alarm.getThreshold(),Double.valueOf(1.0));
+        Assert.assertEquals(alarm.isAlarmConfigured(),Boolean.valueOf(true));
+        Assert.assertEquals(alarm.isEnable(),Boolean.valueOf(true));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCreateOrUpdateAlarmAuditNameNull(){
+        Alarm alarm = getAlarm();
+        AuditContextHolder.setContext(null);
+        cloudWatchService.createOrUpdateAlarm(alarm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateOrUpdateAlarmInstanceIdNull(){
+        Alarm alarm = getAlarm();
+        alarm.setInstanceId(null);
+        auditContextHolder();
+        cloudWatchService.createOrUpdateAlarm(alarm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateOrUpdateAlarmFrequencyNull(){
+        Alarm alarm = getAlarm();
+        alarm.setFrequency(null);
+        auditContextHolder();
+        cloudWatchService.createOrUpdateAlarm(alarm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateOrUpdateAlarmFrequencyOutOfRange(){
+        Alarm alarm = getAlarm();
+        alarm.setFrequency(2);
+        auditContextHolder();
+        cloudWatchService.createOrUpdateAlarm(alarm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateOrUpdateAlarmThresholdNull(){
+        Alarm alarm = getAlarm();
+        alarm.setThreshold(null);
+        auditContextHolder();
+        cloudWatchService.createOrUpdateAlarm(alarm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateOrUpdateAlarmThresholdOutOfRange(){
+        Alarm alarm = getAlarm();
+        alarm.setThreshold(10.0);
+        auditContextHolder();
+        cloudWatchService.createOrUpdateAlarm(alarm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateOrUpdateAlarmNotQaDevStack(){
+        Mockito.when(ec2Service.getInstanceForJob(Mockito.any(String.class),Mockito.anyBoolean())).thenReturn(getInstance());
+        Mockito.when(ec2Service.isTagPresent(Mockito.any(Instance.class),Mockito.anyString(),Mockito.anySet())).thenReturn(false);
+        auditContextHolder();
+        cloudWatchService.createOrUpdateAlarm(getAlarm());
+    }
+
+    @Test
+    public void testCreateOrUpdateAlarmSuccess(){
+        Mockito.when(ec2Service.getInstanceForJob(Mockito.any(String.class),Mockito.anyBoolean())).thenReturn(getInstance());
+        Mockito.when(ec2Service.isTagPresent(Mockito.any(Instance.class),Mockito.anyString(),Mockito.anySet())).thenReturn(true);
+        auditContextHolder();
+        cloudWatchService.createOrUpdateAlarm(getAlarm());
+    }
+
+    private DescribeAlarmsResult describeAlarmsResult(){
+        List<MetricAlarm> metricAlarms = new ArrayList<>();
+        List<Dimension> dimensions = new ArrayList<>();
+        metricAlarm = new MetricAlarm();
+        dimension = new Dimension();
+        describeAlarmsResult = new DescribeAlarmsResult();
+
+        dimensions.add(dimension.withName("InstanceId").withValue("UnitTestInstanceId"));
+        metricAlarm.withThreshold(1.0).withPeriod(10840).withActionsEnabled(true)
+                .withAlarmName("UnitTestAlarm").withEvaluationPeriods(4);
+        metricAlarm.withDimensions(dimensions);
+        metricAlarms.add(metricAlarm);
+        describeAlarmsResult.withMetricAlarms(metricAlarms);
+        return describeAlarmsResult;
+    }
+
+    private Alarm getAlarm(){
+        Alarm alarm = new Alarm();
+        alarm.setName("UnitTestAlarm");
+        alarm.setInstanceId("UnitTestInstanceId");
+        alarm.setFrequency(12);
+        alarm.setThreshold(1.0);
+        return alarm;
+    }
+
+    private void auditContextHolder(){
+        AuditContext auditContext = new AuditContext();
+        auditContext.setInitiator("UnitTestInitiator");
+        AuditContextHolder.setContext(auditContext);
+    }
+
+    public Instance getInstance(){
+        List<Tag> tags = new ArrayList<>();
+        tags.add(new Tag("Stack","qa"));
+        awsInstance = new com.amazonaws.services.ec2.model.Instance();
+        awsInstance.setTags(tags);
+        return new Instance(awsInstance);
+    }
 }

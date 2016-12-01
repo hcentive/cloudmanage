@@ -55,6 +55,5 @@ public class AlarmController {
             alarm = SpringUtils.convertToObject(request,Alarm.class);
         }
         cloudWatchService.createOrUpdateAlarm(alarm);
-        System.out.print("dfdfd");
     }
 }

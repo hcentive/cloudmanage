@@ -63,8 +63,6 @@ public class AppConfig {
 	public static boolean ingestEC2MasterDataEnabled;
 
 	public static boolean costEffectivenessEnabled;
-	
-	public static boolean cloudWatchAlarmEnabled;
 
 	@Value("${jenkins.url}")
 	public void setJenkinsUrl(String jenkinsUrl) {
@@ -187,13 +185,4 @@ public class AppConfig {
 	public void setCostEffectivenessEnabled(boolean costEffectivenessEnabled) {
 		AppConfig.costEffectivenessEnabled = costEffectivenessEnabled;
 	}
-
-	/*
-	* This is commenting becuase of jenkins deployment scripts bug
-	 *  For more info. jira - https://jira.hcentive.com/browse/CLOUD-26
-	 */
-//	@Value("${job.enable.ingest.cloudwatch.alarm}")
-//	public void setCloudWatchAlarmEnabled(boolean cloudWatchAlarmEnabled) {
-//		AppConfig.cloudWatchAlarmEnabled = cloudWatchAlarmEnabled;
-//	}
 }
