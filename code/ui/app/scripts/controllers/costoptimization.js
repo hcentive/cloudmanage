@@ -43,8 +43,8 @@ angular.module('cloudmanageApp')
                 self.response = response;
                 self.isAlarmEditable = isAlarmFieldEditable(instance);
                 self.instanceCost = instanceCost;
+                self.createAlarmClicked = false;
             }
-
 
             self.submit = function() {
 
@@ -85,6 +85,14 @@ angular.module('cloudmanageApp')
             self.cancel = function() {
                 $modalInstance.dismiss('cancel');
             };
+
+            self.createAlarm = function(){
+                self.createAlarmClicked = true;
+                self.alarm.instanceId = self.instance.awsInstance.instanceId;
+                self.alarm.frequency = 24;
+                self.alarm.threshold = 1;
+                self.alarm.enable = true;
+            }
 
             function closeModal(data) {
                 $timeout(function() {
