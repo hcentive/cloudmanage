@@ -50,6 +50,7 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 	private static final String ALARM_ACTION = "arn:aws:automate:us-east-1:ec2:stop";
 	private static final Integer ALARM_PERIOD = 3600; // 1 hour - 60 * 60
 	private static final String ALARM_DESCRIPTION = "Alarm when CPU utilization below " + ALARM_THRESHOLD + "%";
+	private static final String ALARM_AUTO_SHUT_DOWN_TAG = "autoShutdownTime";
 	 
 	
 	@Autowired
@@ -377,12 +378,46 @@ public class CloudWatchServiceImpl implements CloudWatchService {
 				.withPeriod((alarm.getFrequency() / ALARM_EVALUATION_PERIODS) * ALARM_PERIOD)
 				.withThreshold(alarm.getThreshold());
 		cloudWatchClient.putMetricAlarm(alarmRequest);
-		eventType = ec2Service.isTagPresent(instance,"autoShutdownTime") ?
+		eventType = ec2Service.isTagPresent(instance,ALARM_AUTO_SHUT_DOWN_TAG) ?
 				Auditable.AuditingEventType.CW_ALARM_UPDATED.toString() :
 				Auditable.AuditingEventType.CW_ALARM_CREATED.toString();
-		ec2Service.createTag("autoShutdownTime",alarm.getFrequency().toString(),instance.getAwsInstance().getInstanceId());
+		ec2Service.createTag(ALARM_AUTO_SHUT_DOWN_TAG,alarm.getFrequency().toString(),instance.getAwsInstance().getInstanceId());
 		auditService.audit(new AuditEntity(eventType,"InstanceId="+alarm.getInstanceId(),loggedInUser));
     }
+
+	/**
+	 * Delete alarm on ec2 instance by name
+	 * @param alarmName Name of alarm
+	 */
+	public void deleteAlarmByName(String alarmName){
+		AmazonCloudWatchClient cloudWatchClient = getCloudWatchSession(false);
+		DeleteAlarmsRequest request = new DeleteAlarmsRequest();
+		String loggedInUser = AuditContextHolder.getContext().getInitiator();
+		String eventType = Auditable.AuditingEventType.CW_ALARM_DELETED.toString();
+		if(alarmName == null || alarmName.isEmpty()){
+			throw new IllegalArgumentException("Alarm name cannot be null or empty");
+		}
+
+		Alarm alarm = getAlarmByName(alarmName);
+		if(!alarm.isAlarmConfigured()){
+			throw new IllegalArgumentException("No alarm exists");
+		}
+		request.withAlarmNames(alarmName);
+		cloudWatchClient.deleteAlarms(request);
+		ec2Service.deleteTag(ALARM_AUTO_SHUT_DOWN_TAG,alarm.getInstanceId());
+		auditService.audit(new AuditEntity(eventType,"AlarmName="+alarmName,loggedInUser));
+	}
+
+	/**
+	 * Delete alarm on ec2 instance by instance id
+	 * @param instanceId
+	 */
+	public void deleteAlarmByInstance(String instanceId){
+		if(instanceId == null || instanceId.isEmpty()){
+			throw new IllegalArgumentException("Instance id cannot be null or empty");
+		}
+		deleteAlarmByName(ALARM_NAME + instanceId);
+	}
 
     private PutMetricAlarmRequest defaultPutMetricAlarmRequest(){
 		return new PutMetricAlarmRequest()

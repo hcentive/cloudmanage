@@ -56,4 +56,26 @@ public class AlarmController {
         }
         cloudWatchService.createOrUpdateAlarm(alarm);
     }
+
+    @ApiOperation(value = "Delete cpu utilization alarm on ec2 instance by name",
+        nickname = "Delete cpu utilization alarm on ec2 instance by name")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "alarmName",value = "Alarm Name",required = true,dataType = "string",paramType = "path")}
+    )
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @RequestMapping(value="/{alarmName}",method= RequestMethod.DELETE)
+    public void deleteAlarmByName(@PathVariable String alarmName){
+        cloudWatchService.deleteAlarmByName(alarmName);
+    }
+
+    @ApiOperation(value = "Delete cpu utilization alarm on ec2 instance by instance id",
+            nickname = "Delete cpu utilization alarm on ec2 instance by instance id")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "instanceId",value = "Instance id",required = true,dataType = "string",paramType = "path")}
+    )
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @RequestMapping(value="/instances/{instanceId}",method= RequestMethod.DELETE)
+    public void deleteAlarmByInstance(@PathVariable String instanceId){
+        cloudWatchService.deleteAlarmByInstance(instanceId);
+    }
 }

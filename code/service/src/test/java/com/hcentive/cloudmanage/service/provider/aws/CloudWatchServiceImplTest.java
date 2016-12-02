@@ -1,10 +1,7 @@
 package com.hcentive.cloudmanage.service.provider.aws;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
-import com.amazonaws.services.cloudwatch.model.DescribeAlarmsRequest;
-import com.amazonaws.services.cloudwatch.model.DescribeAlarmsResult;
-import com.amazonaws.services.cloudwatch.model.Dimension;
-import com.amazonaws.services.cloudwatch.model.MetricAlarm;
+import com.amazonaws.services.cloudwatch.model.*;
 import com.amazonaws.services.ec2.model.Tag;
 import com.hcentive.cloudmanage.ApplicationTests;
 import com.hcentive.cloudmanage.audit.AuditContext;
@@ -21,6 +18,8 @@ import org.mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.Mockito.*;
 
 public class CloudWatchServiceImplTest extends ApplicationTests{
 
@@ -39,7 +38,7 @@ public class CloudWatchServiceImplTest extends ApplicationTests{
     @Before
     public void setUp(){
         MockitoAnnotations.initMocks(this);
-        Mockito.when(awsClientProxy.getCloudWatchClient(Mockito.anyBoolean())).thenReturn(cloudWatchClient);
+        when(awsClientProxy.getCloudWatchClient(anyBoolean())).thenReturn(cloudWatchClient);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -54,7 +53,7 @@ public class CloudWatchServiceImplTest extends ApplicationTests{
 
     @Test
     public void testGetAlarmByNameSuccess(){
-        Mockito.when(cloudWatchClient.describeAlarms(Mockito.any(DescribeAlarmsRequest.class)))
+        when(cloudWatchClient.describeAlarms(any(DescribeAlarmsRequest.class)))
                 .thenReturn(describeAlarmsResult());
         Alarm alarm = cloudWatchService.getAlarmByName("UnitTestAlarm");
         Assert.assertNotNull(alarm);
@@ -70,7 +69,7 @@ public class CloudWatchServiceImplTest extends ApplicationTests{
     public void testGetAlarmByInstanceSuccess(){
         DescribeAlarmsResult result = describeAlarmsResult();
         result.getMetricAlarms().get(0).setAlarmName("cpu-utilization-check-InstanceId");
-        Mockito.when(cloudWatchClient.describeAlarms(Mockito.any(DescribeAlarmsRequest.class)))
+        when(cloudWatchClient.describeAlarms(any(DescribeAlarmsRequest.class)))
                 .thenReturn(result);
         Alarm alarm = cloudWatchService.getAlarmByInstance("InstanceId");
         Assert.assertNotNull(alarm);
@@ -131,18 +130,73 @@ public class CloudWatchServiceImplTest extends ApplicationTests{
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateOrUpdateAlarmNotQaDevStack(){
-        Mockito.when(ec2Service.getInstanceForJob(Mockito.any(String.class),Mockito.anyBoolean())).thenReturn(getInstance());
-        Mockito.when(ec2Service.isTagPresent(Mockito.any(Instance.class),Mockito.anyString(),Mockito.anySet())).thenReturn(false);
+        when(ec2Service.getInstanceForJob(any(String.class),anyBoolean())).thenReturn(getInstance());
+        when(ec2Service.isTagPresent(any(Instance.class),anyString(),anySet())).thenReturn(false);
         auditContextHolder();
         cloudWatchService.createOrUpdateAlarm(getAlarm());
     }
 
     @Test
     public void testCreateOrUpdateAlarmSuccess(){
-        Mockito.when(ec2Service.getInstanceForJob(Mockito.any(String.class),Mockito.anyBoolean())).thenReturn(getInstance());
-        Mockito.when(ec2Service.isTagPresent(Mockito.any(Instance.class),Mockito.anyString(),Mockito.anySet())).thenReturn(true);
+        when(ec2Service.getInstanceForJob(any(String.class),anyBoolean())).thenReturn(getInstance());
+        when(ec2Service.isTagPresent(any(Instance.class),anyString(),anySet())).thenReturn(true);
         auditContextHolder();
         cloudWatchService.createOrUpdateAlarm(getAlarm());
+    }
+
+    @Test
+    public void testDeleteAlarmByNameSuccess(){
+        when(cloudWatchClient.describeAlarms(any(DescribeAlarmsRequest.class)))
+                .thenReturn(describeAlarmsResult());
+        auditContextHolder();
+        cloudWatchService.deleteAlarmByName("UnitTestAlarm");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testDeleteAlarmByNameNoAuditContextNullPointerException(){
+        cloudWatchService.deleteAlarmByName("UnitTestAlarm");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteAlarmByNameNull(){
+        auditContextHolder();
+        cloudWatchService.deleteAlarmByName(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteAlarmByNameEmpty(){
+        auditContextHolder();
+        cloudWatchService.deleteAlarmByName("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteAlarmByNameNoAlarmExists(){
+        DescribeAlarmsResult result = describeAlarmsResult();
+        result.getMetricAlarms().clear();
+        when(cloudWatchClient.describeAlarms(any(DescribeAlarmsRequest.class)))
+                .thenReturn(result);
+        auditContextHolder();
+        cloudWatchService.deleteAlarmByName("UnitTestAlarm");
+    }
+
+    @Test
+    public void testDeleteAlarmByInstanceSuccess(){
+        when(cloudWatchClient.describeAlarms(any(DescribeAlarmsRequest.class)))
+                .thenReturn(describeAlarmsResult());
+        auditContextHolder();
+        cloudWatchService.deleteAlarmByInstance("UnitTestInstanceId");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteAlarmByInstanceNullInstanceId(){
+        auditContextHolder();
+        cloudWatchService.deleteAlarmByInstance(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteAlarmByInstanceEmptyInstanceId(){
+        auditContextHolder();
+        cloudWatchService.deleteAlarmByInstance("");
     }
 
     private DescribeAlarmsResult describeAlarmsResult(){
@@ -176,7 +230,7 @@ public class CloudWatchServiceImplTest extends ApplicationTests{
         AuditContextHolder.setContext(auditContext);
     }
 
-    public Instance getInstance(){
+    private Instance getInstance(){
         List<Tag> tags = new ArrayList<>();
         tags.add(new Tag("Stack","qa"));
         awsInstance = new com.amazonaws.services.ec2.model.Instance();

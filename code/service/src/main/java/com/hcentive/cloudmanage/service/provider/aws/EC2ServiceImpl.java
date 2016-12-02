@@ -520,10 +520,26 @@ public class EC2ServiceImpl implements EC2Service {
 
 	@Override
 	public void createTag(String tagKey,String tagValue,String resource){
+		if(tagKey == null || tagKey.isEmpty()) throw new IllegalArgumentException("Tag Key cannot be null or empty");
+		if(tagValue == null || tagValue.isEmpty()) throw new IllegalArgumentException("Tag value cannot be null or empty");
+		if(resource == null || resource.isEmpty()) throw new IllegalArgumentException("Resource cannot be null or empty");
+
 		AmazonEC2Client ec2Client = getEC2Session(false);
 		CreateTagsRequest request = new CreateTagsRequest()
 				.withResources(resource)
 				.withTags(new Tag().withKey(tagKey).withValue(tagValue));
 		ec2Client.createTags(request);
+	}
+
+	@Override
+	public void deleteTag(String tagKey,String resource){
+		if(tagKey == null || tagKey.isEmpty()) throw new IllegalArgumentException("Tag Key cannot be null or empty");
+		if(resource == null || resource.isEmpty()) throw new IllegalArgumentException("Resource cannot be null or empty");
+
+		AmazonEC2Client ec2Client = getEC2Session(false);
+		DeleteTagsRequest request = new DeleteTagsRequest()
+				.withResources(resource)
+				.withTags(new Tag().withKey(tagKey));
+		ec2Client.deleteTags(request);
 	}
 }

@@ -28,4 +28,6 @@ public interface CloudWatchService {
 	Alarm getAlarmByName(String alarmName);
 	Alarm getAlarmByInstance(String instanceId);
 	void createOrUpdateAlarm(Alarm alarm);
+	void deleteAlarmByName(String alarmName);
+	void deleteAlarmByInstance(String instanceId);
 }

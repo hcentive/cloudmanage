@@ -43,6 +43,9 @@ public interface EC2Service {
 	boolean isTagPresent(Instance instance,String tag);
 
 	void createTag(String tagKey,String tagValue,String resource);
+
+	void deleteTag(String tagKey,String resource);
+
 	// QUARTZ SECTION *******************
 
 	public InstanceJobDetails getInstanceJobDetails(String instanceId)
