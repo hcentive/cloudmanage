@@ -1,5 +1,6 @@
 package com.hcentive.cloudmanage.controller;
 
+import com.hcentive.cloudmanage.audit.AuditContextHolder;
 import com.hcentive.cloudmanage.audit.AuditEntity;
 import com.hcentive.cloudmanage.audit.AuditService;
 import io.swagger.annotations.Api;
@@ -7,10 +8,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,19 +16,23 @@ import java.util.List;
 		value = "audit",
 		description = "Api endpoint related to Audit",
 		produces = "application/json",
-		tags = "audit")
+		tags = "audits")
 @RestController
-@RequestMapping("/audit")
+@RequestMapping("/audits")
 public class AuditController {
 
 	@Autowired
 	private AuditService auditService;
 
 	@ApiOperation(value = "Get all audit history",nickname = "Get all audit history")
-	@RequestMapping(value = "list",method = RequestMethod.GET)
-	public List<AuditEntity> getAuditList() {
-		List<AuditEntity> auditEntities = auditService.getAuditsList();
-		return auditEntities;
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "pageSegment",value = "Page block",defaultValue = "0",required = true,dataType = "int",paramType = "query"),
+			@ApiImplicitParam(name = "pageSize",value = "No. of records to be retrieved",defaultValue = "50",required = true,dataType = "int",paramType = "query"),
+			@ApiImplicitParam(name = "latest",value = "Get record based on recently added",defaultValue = "true",required = true,dataType = "boolean",paramType = "query")
+	})
+	@RequestMapping(method = RequestMethod.GET)
+	public List<AuditEntity> getAudits(@RequestParam Integer pageSegment,@RequestParam Integer pageSize,@RequestParam Boolean latest){
+		return auditService.getAudits(pageSegment,pageSize,latest);
 	}
 
 	@ApiOperation(value = "Get audit history by instance id",nickname = "Get audit history by instance id")
@@ -46,11 +48,18 @@ public class AuditController {
 	}
 
 	@ApiOperation(value = "Get latest audit history by instance id",nickname = "Get latest audit history by instance id")
-	@RequestMapping(value = "list/latest/{instanceId}",method = RequestMethod.GET)
+	@RequestMapping(value = "latest/{instanceId}",method = RequestMethod.GET)
 	public List<AuditEntity> getLatestAuditListForInstance(
 			@PathVariable(value = "instanceId") String instanceId) {
 		List<AuditEntity> auditEntities = auditService
 				.getLatestDistinctAuditsList(instanceId);
 		return auditEntities;
+	}
+
+	@ApiOperation(value = "Count of audit list based on logged in user",nickname = "Count of audit list based on logged in user")
+	@RequestMapping(value = "count",method = RequestMethod.GET)
+	public Long countAuditEntityByUserName(){
+		String userName = AuditContextHolder.getContext().getInitiator();
+		return auditService.countByUserName(userName);
 	}
 }

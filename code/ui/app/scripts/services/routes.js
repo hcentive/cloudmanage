@@ -52,11 +52,6 @@
   .state('audit',{
     url: '/audit',
     templateUrl: 'views/audit.html',
-    resolve:{
-      list : ['auditService', function(auditService){
-        return auditService.getList();
-      }]
-    },
     controller: 'AuditCtrl',
     controllerAs: 'auditCtrl'
   })

@@ -5,11 +5,13 @@ import java.util.List;
 
 public interface AuditService {
 
-	public void audit(AuditEntity auditEntity);
+	void audit(AuditEntity auditEntity);
 
-	public List<AuditEntity> getAuditsList();
+	List<AuditEntity> getAuditsList(String instanceId);
 
-	public List<AuditEntity> getAuditsList(String instanceId);
+	List<AuditEntity> getLatestDistinctAuditsList(String instanceId);
 
-	public List<AuditEntity> getLatestDistinctAuditsList(String instanceId);
+	List<AuditEntity> getAudits(Integer from,Integer pageSize,Boolean latest);
+
+	Long countByUserName(String userName);
 }

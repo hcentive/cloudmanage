@@ -9,15 +9,15 @@
  */
 angular.module('cloudmanageApp')
   .service('auditService', ['$http','ec2Service','$log', function ($http, ec2Service, $log) {
-    this.getList = function(){
-    	return $http.get('/audit/list')
-    			.then(function(response){
-                	return response.data;
-            	});
+    var baseUrl = "/audits";
+    this.getList = function(pageSegment,pageSize,latest){
+      var url = baseUrl + "?pageSegment="+ pageSegment + "&pageSize="+ pageSize +"&latest=" + latest;
+    	return $http.get(url);
     };
      this.getInstanceAuditList = function(instance){
-        var instanceId = ec2Service.getInstanceId(instance);
-        return $http.get('/audit/list/latest/'+instanceId).then(function(response){
+        var instanceId = ec2Service.getInstanceId(instance),
+            url = baseUrl + "/latest/" + instanceId;
+        return $http.get(url).then(function(response){
         	return response.data;
         }, function(error){
         	$log.error(error);

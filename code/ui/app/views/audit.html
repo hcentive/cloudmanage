@@ -7,10 +7,10 @@
 	<table st-table="auditCtrl.list" class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th st-sort="eventType">Type</th>
+				<th>Type</th>
 				<th>Params</th>
-				<th st-sort="userName">User</th>
-				<th st-sort="eventTime" st-sort-default="reverse">Time</th>
+				<th>User</th>
+				<th>Time</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -22,4 +22,9 @@
 			</tr>
 		</tbody>
 	</table>
+</div>
+<div class="row">
+  <div ng-if="auditCtrl.list != 0" class="text-center">
+    <button class="btn btn-secondary" ng-click="auditCtrl.loadMore()">Load More</button>
+  </div>
 </div>
