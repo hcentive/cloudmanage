@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Api(basePath = "/billing",
 		value = "billing",
@@ -53,5 +54,31 @@ public class BillingController {
 			@RequestParam(required = true,name = "to") Date toDate,
 			@RequestParam(required = true,name = "instanceId") String instanceId){
 		return billingService.getBillingCost(instanceId,fromDate,toDate);
+	}
+
+	@ApiOperation(value = "Get billing cost by clients between dates",
+			nickname = "Get billing cost by clients between dates")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "from", value = "mm/dd/yyyy", required = true, dataType = "Date", paramType = "query"),
+			@ApiImplicitParam(name = "to", value = "mm/dd/yyyy", required = true, dataType = "Date", paramType = "query")
+	})
+	@RequestMapping(value = "/cost/client",method = RequestMethod.GET)
+	public Map<String,Map<String,BigDecimal>> getBillingCostByClient(
+			@RequestParam(required = true,name = "from") Date fromDate,
+			@RequestParam(required = true,name = "to") Date toDate){
+		return billingService.getBillingCostByClientStack(fromDate,toDate);
+	}
+
+	@ApiOperation(value = "Get billing trend by clients between dates",
+			nickname = "Get billing trend by clients between dates")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "from", value = "mm/dd/yyyy", required = true, dataType = "Date", paramType = "query"),
+			@ApiImplicitParam(name = "to", value = "mm/dd/yyyy", required = true, dataType = "Date", paramType = "query")
+	})
+	@RequestMapping(value = "/trend/client",method = RequestMethod.GET)
+	public Map<String,Map<String,BigDecimal>> getBillingTrendByClient(
+			@RequestParam(required = true,name = "from") Date fromDate,
+			@RequestParam(required = true,name = "to") Date toDate){
+		return billingService.getBillingTrendByClientTime(fromDate,toDate);
 	}
 }

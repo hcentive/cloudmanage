@@ -1,34 +1,24 @@
 package com.hcentive.cloudmanage.billing;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.hcentive.cloudmanage.service.provider.aws.S3Service;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.hcentive.cloudmanage.service.provider.aws.S3Service;
+import java.io.*;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service("billingService")
 public class BillingServiceImpl implements BillingService {
@@ -193,5 +183,129 @@ public class BillingServiceImpl implements BillingService {
 					.filter(billingInfo -> billingInfo.getDayTotal() != null)
 					.map(BillingInfo::getDayTotal)
 					.reduce(BigDecimal.ZERO,BigDecimal::add);
+	}
+
+	@Override
+	public Map<String, Map<String, BigDecimal>> getBillingCostByClientStack(Date fromDate, Date toDate) {
+		List<BillingInfo> billingInfoList = billingInfoRepository.findByPeriod(fromDate,toDate);
+		Map<String,Map<String,BigDecimal>> billingCostByClient = new HashMap<>();
+		Map<String, BigDecimal> billingCostByStack;
+		BillingInfo billingInfo;
+		String clientName;
+		String stack;
+		Iterator<BillingInfo> billingInfoIterator = billingInfoList.iterator();
+		while (billingInfoIterator.hasNext()){
+			billingInfo = billingInfoIterator.next();
+			clientName = getClientName(billingInfo);
+			stack = getStack(billingInfo);
+			if(billingCostByClient.containsKey(clientName)){
+				// client present
+				billingCostByStack = billingCostByClient.get(clientName);
+				if(billingCostByStack.containsKey(stack)){
+					// Stack present
+					BigDecimal stackCost = billingCostByStack.get(stack);
+					billingCostByStack.put(stack,stackCost.add(getCost(billingInfo)));
+				}else{
+					// Stack not present
+					billingCostByStack.put(stack,getCost(billingInfo));
+				}
+			}else{
+				// client not present
+				billingCostByStack = new HashMap<>();
+				billingCostByStack.put(stack,getCost(billingInfo));
+				billingCostByClient.put(clientName,billingCostByStack);
+			}
+		}
+		return billingCostByClient;
+	}
+
+	@Override
+	public Map<String, Map<String, BigDecimal>> getBillingTrendByClientTime(Date fromDate, Date toDate) {
+		List<BillingInfo> billingInfoList = billingInfoRepository.findByPeriod(fromDate,toDate);
+		Map<String,Map<String,BigDecimal>> billingTrendByClient = new HashMap<>();
+		Map<String, BigDecimal> billingTrendByTimeDuration;
+		BillingInfo billingInfo;
+		String clientName;
+		String dateString;
+		Iterator<BillingInfo> billingInfoIterator = billingInfoList.iterator();
+		DateFormat dateFormat = new SimpleDateFormat(getTimeDurationFormat(fromDate,toDate));
+
+		while (billingInfoIterator.hasNext()){
+			billingInfo = billingInfoIterator.next();
+			clientName = getClientName(billingInfo);
+			dateString = dateFormat.format(billingInfo.getSnapshotAt());
+			if(billingTrendByClient.containsKey(clientName)){
+				// client present
+				billingTrendByTimeDuration = billingTrendByClient.get(clientName);
+				if(billingTrendByTimeDuration.containsKey(dateString)){
+					// DateString present
+					BigDecimal stackCost = billingTrendByTimeDuration.get(dateString);
+					billingTrendByTimeDuration.put(dateString,stackCost.add(getCost(billingInfo)));
+				}else{
+					// DateString not present
+					billingTrendByTimeDuration.put(dateString,getCost(billingInfo));
+				}
+			}else{
+				// client not present
+				billingTrendByTimeDuration = getTrendByTimeHashMap(fromDate,toDate);
+				billingTrendByTimeDuration.put(dateString,getCost(billingInfo));
+				billingTrendByClient.put(clientName,billingTrendByTimeDuration);
+			}
+		}
+		return billingTrendByClient;
+	}
+
+	private String getStack(BillingInfo billingInfo){
+		String stackValue = "Unknown".toLowerCase();
+		if(billingInfo.getInstanceInfo().getStack() == null || billingInfo.getInstanceInfo().getStack().isEmpty()){
+			return stackValue;
+		}else{
+			return billingInfo.getInstanceInfo().getStack().toLowerCase();
+		}
+	}
+
+	private String getClientName(BillingInfo billingInfo){
+		String clientName = "Unknown".toLowerCase();
+		if(billingInfo.getInstanceInfo().getClient()== null || billingInfo.getInstanceInfo().getClient().isEmpty()){
+			return clientName;
+		}else{
+			return billingInfo.getInstanceInfo().getClient().toLowerCase();
+		}
+	}
+
+	private BigDecimal getCost(BillingInfo billingInfo){
+		return billingInfo.getDayTotal() == null ? BigDecimal.ZERO : billingInfo.getDayTotal().setScale(3,BigDecimal.ROUND_HALF_EVEN);
+	}
+
+	private String getTimeDurationFormat(Date fromDate, Date toDate) {
+		String timeDurationFormat = "yyyyMMdd";
+		DateFormat dateFormat = new SimpleDateFormat(timeDurationFormat);
+		Long from = Long.valueOf(dateFormat.format(fromDate));
+		Long to = Long.valueOf(dateFormat.format(toDate));
+		Long duration = to - from;
+		if(duration > 30 ){
+			timeDurationFormat = "yyyyMM";
+		}
+		return timeDurationFormat;
+	}
+
+	private Map<String,BigDecimal> getTrendByTimeHashMap(Date fromDate, Date toDate) {
+		Map<String,BigDecimal> trendByTimeMap = new HashMap<>();
+		String dateString;
+		String timeDurationFormat = getTimeDurationFormat(fromDate,toDate);
+		boolean addDay = timeDurationFormat.contains("dd");
+		DateTime from = new DateTime(fromDate);
+		DateTime to = new DateTime(toDate);
+		DateFormat dateFormat = new SimpleDateFormat(timeDurationFormat);
+		while (from.isBefore(to)){
+			dateString = dateFormat.format(from.toDate());
+			trendByTimeMap.put(dateString,BigDecimal.ZERO);
+			if(addDay){
+				from = from.plusDays(1);
+			}else{
+				from = from.plusMonths(1);
+			}
+		}
+		return trendByTimeMap;
 	}
 }

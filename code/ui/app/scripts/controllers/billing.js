@@ -8,105 +8,113 @@
  * Controller of the cloudmanageApp
  */
 angular.module('cloudmanageApp')
-  .controller('BillingCtrl', ['$scope','ec2Service','billingFactory',function ($scope,ec2Service,billingFactory) {
-  	var that = this;
+  .controller('BillingCtrl', ['$scope', 'ec2Service', 'billingFactory', function($scope, ec2Service, billingFactory) {
+    var self = this,
+      billingCostByClientStack = {},
+      billingCostTrendByClient = {};
 
-    this.selectedTab = 'cost';
-
-    function displaySelectedClientString(clients){
+    function displaySelectedClientString(clients) {
       var displayString = clients.join(),
-          displayStringLength = displayString.length,
-          documentWidth = window.innerWidth,
-          defaultDocumentWidth = 1366,
-          characterToSkip = parseInt((((defaultDocumentWidth - documentWidth) / defaultDocumentWidth) * 100)) * 2,
-          characterCount = 130 - characterToSkip;
+        displayStringLength = displayString.length,
+        documentWidth = window.innerWidth,
+        defaultDocumentWidth = 1366,
+        characterToSkip = parseInt((((defaultDocumentWidth - documentWidth) / defaultDocumentWidth) * 100)) * 2,
+        characterCount = 130 - characterToSkip;
 
-
-      if(displayStringLength > characterCount){
-          displayString = "";
-          _.each(clients,function(client){
-              displayStringLength = displayString.length;
-              if((displayStringLength + client.length) < characterCount){
-                  displayString += client + ",";
-              }
-          });
-          displayString += "...";
+      if (displayStringLength > characterCount) {
+        displayString = "";
+        _.each(clients, function(client) {
+          displayStringLength = displayString.length;
+          if ((displayStringLength + client.length) < characterCount) {
+            displayString += client + ",";
+          }
+        });
+        displayString += "...";
       }
-      $scope.selectedClientString = displayString;
+      self.selectedClientString = displayString;
     }
 
-  	this.filter = {
-  		fromDate: moment().subtract(1, 'months').toDate(),
-  		toDate: new Date()
-  	};
-  	this.filterBillingCostData = function(){
-      var stackedDataByClient;
-  		ec2Service.getBillingInfo(this.filter).then(function(data){
-          stackedDataByClient = billingFactory.parseBillingData(data);
-          if($scope.clients === undefined || $scope.clients === null || $scope.clients.length === 0){
-            $scope.clients = billingFactory.defaultClientSelection(stackedDataByClient);
-          }
-          that.dataPoints = billingFactory.filterSelectedClient($scope.clients);
-          displaySelectedClientString(Object.keys(that.dataPoints));
-    	});
-    };
-  	this.fromDatePopover = {
-  		open: function(){
-  			this.opened = true;
-  		},
-  		opened: false
-  	};
-  	this.toDatePopover = {
-  		open: function(){
-  			this.opened = true;
-  		},
-  		opened: false
-  	};
-    this.filterClient = function(){
-      if(this.selectedTab === 'trend'){
-        this.filterBillingTrendData();
-      }else{
-        this.dataPoints = billingFactory.filterSelectedClient($scope.clients);
-        displaySelectedClientString(Object.keys(this.dataPoints));
-      }
-    };
-    this.filterByMonth = function(duration){
-      this.filter = {
-        fromDate : moment().subtract(parseInt(duration), 'months').toDate(),
-        toDate: new Date()
-      }
-      if(this.selectedTab === 'trend'){
-        this.filterBillingTrendData();
-      }else{
-        this.filterBillingCostData();
-      }
+    function init() {
+      self.selectedTab = 'cost';
+      self.filterBillingCostByClientData();
+    }
 
+    self.filter = {
+      fromDate: moment().subtract(1, 'months').toDate(),
+      toDate: new Date()
     };
-    this.tabPanel = function(tab){
-      if(tab === 'cost'){
-        this.selectedTab = 'cost';
-        this.filterBillingCostData();
-      }else if(tab === 'trend'){
-        this.selectedTab = 'trend';
-        this.filterBillingTrendData();
-      }
-    };
-    this.filterData = function(){
-      if(this.selectedTab === 'trend'){
-        this.filterBillingTrendData();
-      }else{
-        this.filterBillingCostData();
-      }
-    };
-    this.filterBillingTrendData = function(){
-      var timePeriodDataByClient,
-          trendBy = billingFactory.trendBy(this.filter.fromDate,this.filter.toDate);
 
-      ec2Service.getBillingInfo(this.filter).then(function(data){
-        timePeriodDataByClient = billingFactory.parseBillingTrendData(data,trendBy);
-        that.timeLineData = billingFactory.filterSelectedClient($scope.clients,timePeriodDataByClient);
+    self.filterBillingCostByClientData = function() {
+      ec2Service.getBillingInfoByClient(self.filter).then(function(data) {
+        billingCostByClientStack = data;
+        if (self.clients === undefined || self.clients === null || self.clients.length === 0) {
+          self.clients = billingFactory.defaultClientSelection(billingCostByClientStack);
+        }
+        self.dataPoints = billingFactory.filterSelectedClient(self.clients, billingCostByClientStack);
+        displaySelectedClientString(Object.keys(self.dataPoints));
       });
     };
-    
-    this.filterBillingCostData();
-}]);
+
+    self.filterBillingTrendByClientData = function() {
+      ec2Service.getBillingTrendByClient(self.filter).then(function(data) {
+        billingCostTrendByClient = data;
+        self.timeLineData = billingFactory.filterSelectedClient(self.clients, billingCostTrendByClient);
+      });
+    };
+
+    self.fromDatePopover = {
+      open: function() {
+        this.opened = true;
+      },
+      opened: false
+    };
+
+    self.toDatePopover = {
+      open: function() {
+        this.opened = true;
+      },
+      opened: false
+    };
+
+    self.filterClient = function() {
+      if (self.selectedTab === 'trend') {
+        self.timeLineData = billingFactory.filterSelectedClient(self.clients, billingCostTrendByClient);
+        displaySelectedClientString(Object.keys(self.timeLineData));
+      } else {
+        self.dataPoints = billingFactory.filterSelectedClient(self.clients, billingCostByClientStack);
+        displaySelectedClientString(Object.keys(self.dataPoints));
+      }
+    };
+
+    self.filterByMonth = function(duration) {
+      self.filter = {
+        fromDate: moment().subtract(parseInt(duration), 'months').toDate(),
+        toDate: new Date()
+      }
+      if (self.selectedTab === 'trend') {
+        self.filterBillingTrendByClientData();
+      } else {
+        self.filterBillingCostByClientData();
+      }
+    };
+
+    self.tabPanel = function(tab) {
+      if (tab === 'cost') {
+        self.selectedTab = 'cost';
+        self.filterBillingCostByClientData();
+      } else if (tab === 'trend') {
+        self.selectedTab = 'trend';
+        self.filterBillingTrendByClientData();
+      }
+    };
+
+    self.filterData = function() {
+      if (self.selectedTab === 'trend') {
+        self.filterBillingTrendByClientData();
+      } else {
+        self.filterBillingCostByClientData();
+      }
+    };
+
+    init();
+  }]);

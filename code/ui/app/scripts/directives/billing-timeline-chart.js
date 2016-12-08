@@ -10,7 +10,7 @@ angular.module('cloudmanageApp')
 
 	function highChartThemes(){
 		Highcharts.theme = {
-		    colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', 
+		    colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572',
 		             '#FF9655', '#FFF263', '#6AF9C4','#0B3B50','#2A6119','#8E3714',
 		             '#9FA12A','#2C2F2F','#E3E178','#A15B30','#B416BA','#4B7767'],
 		    chart: {
@@ -42,7 +42,7 @@ angular.module('cloudmanageApp')
 		        },
 		        itemHoverStyle:{
 		            color: 'gray'
-		        }   
+		        }
 		    }
 		};
 		Highcharts.setOptions(Highcharts.theme);
@@ -125,6 +125,9 @@ angular.module('cloudmanageApp')
 
 		for(var client in data){
 			if(data.hasOwnProperty(client)){
+				if(data[client] === undefined){
+					continue;
+				}
 				if(count === 0){
 					xAxisHeader = getXAxis(data[client]);
 					count++;
