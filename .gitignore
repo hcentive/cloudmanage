@@ -2,6 +2,9 @@ target
 .project
 .classpath
 .DS_Store
+code
+docs
+scripts
 STSActiveDirectoryFederation/
 code/service/.settings/
 cloudmanage.git
