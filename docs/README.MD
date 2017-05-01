@@ -7,7 +7,7 @@ Most resources are owned by various project groups within their respective cost 
 
 Applications are composed of resources provisioned in different cloud providers. This tool should allow operators to select components from different providers. For example, a PHIX application will use the DNS service from AWS, application and database servers at FireHost, S3 buckets for backups are pushed to AWS, monitoring is set up in Nagios in AWS and NewRelic.
 
-![Infrastructure Layers](https://s3-us-west-2.amazonaws.com/techopsteam/assets/images/CloudManage-infrastructure_layers.png)
+![Infrastructure Layers](CloudManage-infrastructure_layers.png)
 
 An application's resources layout is a graph with creation of some resources dependent on others. For example, a DNS entry cannot be created until the server is created. The tool should be able to define this resource dependency.
 
@@ -46,14 +46,14 @@ The infrastructure API encapsulates the authentication and authorization compone
 
 The API will provide a way to provision infrastructure components using various provisioners like Jenkins and Chef. Currently, provisioning is triggered manually after the infrastructure components are provisioned.
 
-![High level design](https://s3-us-west-2.amazonaws.com/techopsteam/assets/images/high_level_design.png)
+![High level design](high_level_design.png)
 
 #### <a name="auth"></a>Authentication and Authorization
 Before performing any actions in CloudManage, the connecting client must be authenticated. Authentication is pluggable via authentication providers. For example, an Active Directory authentication provider that authenticates users against hCentive's corporate Active Directory. Another example is an AWS IAM provider that authenticates users against AWS's Identity and Access Management database.
 
 Authorization is the process of determining what actions a user is allowed to perform. It is implemented through access control policies (ACLs). Policies are described in JSON, and can use a number of providers to retrieve user and their group information.
 
-![Authentication and Authorization](https://s3-us-west-2.amazonaws.com/techopsteam/assets/images/auth_and_auth.png)
+![Authentication and Authorization](auth_and_auth.png)
 
 #### <a name="inventory"></a>Resource Inventory
 CloudManage can import existing resources deployed with the supported cloud providers. It can also create new resources. Resources are assigned different categories to enable access control based on a combination of categories. An example of resources are server instances, storage volumes, DNS entries, etc.
